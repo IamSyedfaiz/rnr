@@ -16,6 +16,7 @@ use App\Http\Controllers\backend\AjaxController;
 use App\Http\Controllers\backend\LogController;
 use App\Http\Controllers\backend\CustomWorkflowController;
 use App\Http\Controllers\backend\IntegrationController;
+use App\Http\Controllers\backend\ReportController;
 
 // use App\Http\Controllers\backend\Custom;
 
@@ -91,6 +92,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/url-local-upload', [IntegrationController::class, 'urlLocalUpload'])->name('url.local.upload');
     Route::get('/import-review/{path}/{id}', [IntegrationController::class, 'reviewImport'])->name('review.import');
     Route::post('/process-import', [IntegrationController::class, 'processImport'])->name('process.import');
+
+    // ReportController
+    Route::get('/get-view', [ReportController::class, 'getView'])->name('get.view');
+    Route::get('/get-report-application', [ReportController::class, 'getReportApplication'])->name('get.report.application');
+    Route::get('/send-report-application/{id}', [ReportController::class, 'sendReportApplication'])->name('report.report.application');
+    Route::get('/search-report', [ReportController::class, 'searchReport'])->name('search.report');
+    Route::get('/view-save-report', [ReportController::class, 'viewSaveReport'])->name('view.save.report');
+    Route::post('/store-report', [ReportController::class, 'storeReport'])->name('store.report');
 });
 Route::get('/get-file', [IntegrationController::class, 'getFile'])->name('get.file');
 Route::get('/get-csv-data', [IntegrationController::class, 'getCsvData'])->name('get.csv.data');

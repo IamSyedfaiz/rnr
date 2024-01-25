@@ -24,11 +24,12 @@
     <link href="{{ asset('public/backend/dashmin/lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
     <link href="{{ asset('public/backend/dashmin/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css') }}"
         rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
 
     <!-- Customized Bootstrap Stylesheet -->
     <link href="{{ asset('public/backend/dashmin/css/bootstrap.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-  {{-- <link rel="stylesheet" href="/resources/demos/style.css"> --}}
+    {{-- <link rel="stylesheet" href="/resources/demos/style.css"> --}}
     <!-- Template Stylesheet -->
     <link href="{{ asset('public/backend/dashmin/css/style.css') }}" rel="stylesheet">
     {{-- <script type="text/javascript" src="https://code.jquery.com/jquery-1.9.1.js"></script> --}}
@@ -92,9 +93,19 @@
     <script src="{{ asset('public/backend/dashmin/lib/tempusdominus/js/moment-timezone.min.js') }}"></script>
     <script src="{{ asset('public/backend/dashmin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js') }}"></script>
     <script src="https://cdn.ckeditor.com/4.20.1/standard/ckeditor.js"></script>
-    
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.0.0/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-
+    <script>
+        // $(document).ready(function() {
+        //     $('#example').DataTable();
+        // });
+        new DataTable("#example", {
+            scrollCollapse: true,
+            scrollY: "500px",
+        });
+    </script>
     <!-- Template Javascript -->
     <script src="{{ asset('public/backend/dashmin/js/main.js') }}"></script>
     @yield('script')
