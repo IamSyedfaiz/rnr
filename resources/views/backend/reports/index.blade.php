@@ -52,30 +52,26 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td class="text-primary">
-                                        AWF Enrollment</td>
-                                    <td>Admin</td>
-                                    <td>Global</td>
-                                    <td>8/29/2017 10:11 PM</td>
-                                    <td>Administrator, System</td>
-                                    <td>
-                                        <i class="bi bi-pencil text-primary"></i>
-                                        <i class="bi bi-trash-fill text-primary"></i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="text-primary">
-                                        AWF Enrollment</td>
-                                    <td>Admin</td>
-                                    <td>Global</td>
-                                    <td>8/29/2017 10:11 PM</td>
-                                    <td>Administrator, System</td>
-                                    <td>
-                                        <i class="bi bi-pencil text-primary"></i>
-                                        <i class="bi bi-trash-fill text-primary"></i>
-                                    </td>
-                                </tr>
+                                @foreach ($reports as $report)
+                                    <tr>
+                                        <td class="text-primary">{{ $report->name }}</td>
+                                        <td>{{ $report->application->name }}</td>
+                                        <td>{{ $report->permissions == 'P' ? 'Personal' : ($report->permissions == 'G' ? 'Global' : '--') }}
+                                        </td>
+                                        <td>{{ $report->created_at }}</td>
+                                        <td>{{ $report->user->name ?? '-' }}</td>
+                                        <td>
+                                            <a href="{{ route('edit.chart', $report->id) }}"><i
+                                                    class="bi bi-pencil text-primary"></i></a>
+                                            <a href="{{ route('view.chart', $report->id) }}"><i
+                                                    class="bi bi-eye-fill text-primary"></i></a>
+                                            <a href="{{ route('delete.report', $report->id) }}"><i
+                                                    class="bi bi-trash-fill text-primary"></i></a>
+
+                                        </td>
+                                    </tr>
+                                @endforeach
+
                             </tbody>
                         </table>
                     </div>

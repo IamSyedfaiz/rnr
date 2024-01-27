@@ -18,112 +18,100 @@
                                 <div id="flush-collapseOne" class="accordion-collapse collapse show"
                                     aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                                     <div class="accordion-body">
-                                        <form action="{{ route('store.cert.report') }}" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="application_id" value="{{ $applicationId }}">
-                                            <input type="hidden" name="report_id" value="{{ $reportId }}">
-                                            <button type="submit" class="btn btn-outline-primary fw-bold">SAVE</button>
-                                            {{-- <button type="button" class="btn btn-outline-primary fw-bold">MODIFY</button>
-                                            <button type="button" class="btn btn-outline-primary fw-bold">NEW
-                                                REPORT</button>
-                                            <button type="button" class="btn btn-outline-primary fw-bold">RELATED
-                                                REPORTS</button> --}}
-                                            <div class="row mt-2">
-                                                <div class="col-12 mt-5">
-                                                    <div class="col-6 bg-light rounded p-3">
-                                                        <select class="form-control col-3" name="data_type" id="chartType">
-                                                            {{-- <option value=""><i class="bi bi-clipboard-data"></i> Chart And Data</option> --}}
-                                                            <option value="dataOnly"><i class="bi bi-table"></i> Data Only
-                                                            </option>
-                                                            <option value="chartOnly"><i class="bi bi-bar-chart-line"></i>
-                                                                Chart
-                                                                Only</option>
-                                                        </select>
-                                                    </div>
+                                        <div class="row mt-2">
+                                            <div class="col-12 mt-5">
+                                                <div class="col-6 bg-light rounded p-3">
+                                                    <select class="form-control col-3" name="data_type" id="chartType">
+                                                        {{-- <option value=""><i class="bi bi-clipboard-data"></i> Chart And Data</option> --}}
+                                                        <option value="dataOnly"><i class="bi bi-table"></i> Data Only
+                                                        </option>
+                                                        <option value="chartOnly"><i class="bi bi-bar-chart-line"></i>
+                                                            Chart
+                                                            Only</option>
+                                                    </select>
+                                                </div>
 
-                                                    <div class="col-6 bg-light rounded p-3" id="chartTypeContainer">
-                                                        <select class="form-control col-3 selectpicker" name="chart_type"
-                                                            id="chartTypeDropdown">
-                                                            <option value="line">Single Line Chart</option>
-                                                            <option value="bar">Single Bar Chart</option>
-                                                            <option value="pie">Pie Chart</option>
-                                                            <option value="doughnut">Doughnut Chart</option>
-                                                        </select>
-                                                    </div>
+                                                <div class="col-6 bg-light rounded p-3" id="chartTypeContainer">
+                                                    <select class="form-control col-3 selectpicker" name="chart_type"
+                                                        id="chartTypeDropdown">
+                                                        <option value="line">Single Line Chart</option>
+                                                        <option value="bar">Single Bar Chart</option>
+                                                        <option value="pie">Pie Chart</option>
+                                                        <option value="doughnut">Doughnut Chart</option>
+                                                    </select>
+                                                </div>
+                                                <div class="">
                                                     <div class="">
-                                                        <div class="">
 
-                                                            <table class="table" id="dataOnly">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>Field Name</th>
-                                                                        <th>Count</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @if (isset($countData))
-                                                                        @foreach ($countData as $fieldName => $count)
-                                                                            <tr>
-                                                                                <td>{{ $fieldName }}</td>
-                                                                                <td>{{ $count }}</td>
-                                                                            </tr>
-                                                                        @endforeach
-                                                                    @else
+                                                        <table class="table" id="dataOnly">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Field Name</th>
+                                                                    <th>Count</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @if (isset($countData))
+                                                                    @foreach ($countData as $fieldName => $count)
                                                                         <tr>
-                                                                            <td colspan="2">No data in the cart</td>
+                                                                            <td>{{ $fieldName }}</td>
+                                                                            <td>{{ $count }}</td>
                                                                         </tr>
-                                                                    @endif
-                                                                </tbody>
-                                                            </table>
-                                                            <!-- Chart Start -->
-                                                            <div class="container-fluid pt-4 px-4" id="chartOnly">
-                                                                <div class="row g-4">
-                                                                    <div class="col-sm-12 col-xl-6" id="line">
-                                                                        <div class="bg-light rounded h-100 p-4">
-                                                                            <h6 class="mb-4">Single Line Chart</h6>
-                                                                            <canvas id="line-chart1"></canvas>
-                                                                        </div>
+                                                                    @endforeach
+                                                                @else
+                                                                    <tr>
+                                                                        <td colspan="2">No data in the cart</td>
+                                                                    </tr>
+                                                                @endif
+                                                            </tbody>
+                                                        </table>
+                                                        <!-- Chart Start -->
+                                                        <div class="container-fluid pt-4 px-4" id="chartOnly">
+                                                            <div class="row g-4">
+                                                                <div class="col-sm-12 col-xl-6" id="line">
+                                                                    <div class="bg-light rounded h-100 p-4">
+                                                                        <h6 class="mb-4">Single Line Chart</h6>
+                                                                        <canvas id="line-chart1"></canvas>
                                                                     </div>
-                                                                    <div class="col-sm-12 col-xl-6" id="salse">
-                                                                        <div class="bg-light rounded h-100 p-4">
-                                                                            <h6 class="mb-4">Multiple Line Chart</h6>
-                                                                            <canvas id="salse-revenue1"></canvas>
-                                                                        </div>
+                                                                </div>
+                                                                <div class="col-sm-12 col-xl-6" id="salse">
+                                                                    <div class="bg-light rounded h-100 p-4">
+                                                                        <h6 class="mb-4">Multiple Line Chart</h6>
+                                                                        <canvas id="salse-revenue1"></canvas>
                                                                     </div>
-                                                                    <div class="col-sm-12 col-xl-6" id="bar">
-                                                                        <div class="bg-light rounded h-100 p-4">
-                                                                            <h6 class="mb-4">Single Bar Chart</h6>
-                                                                            <canvas id="bar-chart1"></canvas>
-                                                                        </div>
+                                                                </div>
+                                                                <div class="col-sm-12 col-xl-6" id="bar">
+                                                                    <div class="bg-light rounded h-100 p-4">
+                                                                        <h6 class="mb-4">Single Bar Chart</h6>
+                                                                        <canvas id="bar-chart1"></canvas>
                                                                     </div>
-                                                                    <div class="col-sm-12 col-xl-6" id="worldwide">
-                                                                        <div class="bg-light rounded h-100 p-4">
-                                                                            <h6 class="mb-4">Multiple Bar Chart</h6>
-                                                                            <canvas id="worldwide-sales1"></canvas>
-                                                                        </div>
+                                                                </div>
+                                                                <div class="col-sm-12 col-xl-6" id="worldwide">
+                                                                    <div class="bg-light rounded h-100 p-4">
+                                                                        <h6 class="mb-4">Multiple Bar Chart</h6>
+                                                                        <canvas id="worldwide-sales1"></canvas>
                                                                     </div>
-                                                                    <div class="col-sm-12 col-xl-6" id="pie">
-                                                                        <div class="bg-light rounded h-100 p-4">
-                                                                            <h6 class="mb-4">Pie Chart</h6>
-                                                                            <canvas id="pie-chart1"></canvas>
-                                                                        </div>
+                                                                </div>
+                                                                <div class="col-sm-12 col-xl-6" id="pie">
+                                                                    <div class="bg-light rounded h-100 p-4">
+                                                                        <h6 class="mb-4">Pie Chart</h6>
+                                                                        <canvas id="pie-chart1"></canvas>
                                                                     </div>
-                                                                    <div class="col-sm-12 col-xl-6" id="doughnut">
-                                                                        <div class="bg-light rounded h-100 p-4">
-                                                                            <h6 class="mb-4">Doughnut Chart</h6>
-                                                                            <canvas id="doughnut-chart1"></canvas>
-                                                                        </div>
+                                                                </div>
+                                                                <div class="col-sm-12 col-xl-6" id="doughnut">
+                                                                    <div class="bg-light rounded h-100 p-4">
+                                                                        <h6 class="mb-4">Doughnut Chart</h6>
+                                                                        <canvas id="doughnut-chart1"></canvas>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <!-- Chart End -->
                                                         </div>
+                                                        <!-- Chart End -->
                                                     </div>
-                                                    <!-- End of Bootstrap-styled cart -->
                                                 </div>
+                                                <!-- End of Bootstrap-styled cart -->
                                             </div>
-                                        </form>
-
+                                        </div>
                                     </div>
                                 </div>
                             </div>

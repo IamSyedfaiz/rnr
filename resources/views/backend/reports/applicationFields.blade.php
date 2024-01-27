@@ -7,7 +7,7 @@
                 <div class="rounded h-100">
                     <div class="m-n2">
                         <div class="accordion accordion-flush" id="accordionFlushExample">
-                            <div class="accordion-item">
+                            {{-- <div class="accordion-item">
                                 <h2 class="accordion-header" id="flush-headingOne">
                                     <button class="accordion-button text-dark fw-bold" type="button"
                                         data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="true"
@@ -24,7 +24,7 @@
                                         </button>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                             {{-- <div class="accordion-item mt-2">
                                 <h2 class="accordion-header" id="flush-headingtwo">
                                     <button class="accordion-button text-dark fw-bold" type="button"
@@ -102,7 +102,10 @@
                                             </div>
 
                                             <form action="{{ route('search.report') }}" method="GET"
-                                                class="bg-light text-center rounded p-4 col-6" id="fieldData">
+                                                class="bg-light rounded p-4 col-6" id="fieldData">
+                                                <input type="hidden" name="application_id"
+                                                    value="{{ $application->name }}">
+                                                <input type="hidden" name="report_id" value="{{ $report->id }}">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" value="1"
                                                         id="statisticsModeCheckbox" name="statistics_mode">
@@ -114,7 +117,7 @@
                                                 <div class="d-flex align-items-center mb-4">
                                                     <h6 class="mb-0">Selected</h6>
                                                     <h6 class="mb-0">{{ $application->name }}</h6>
-                                                    <button class="btn btn-danger" type="submit">Search</button>
+                                                    <button class="btn btn-danger mx-2" type="submit">Search</button>
                                                     <input type="hidden" name="application_id"
                                                         value="{{ $application->id }}">
                                                 </div>
@@ -125,7 +128,7 @@
                                     </div>
                                 </div>
                             </div>
-                            {{-- <div class="accordion-item mt-2">
+                            <div class="accordion-item mt-2">
                                 <h2 class="accordion-header" id="flush-headingfour">
                                     <button class="accordion-button text-dark fw-bold" type="button"
                                         data-bs-toggle="collapse" data-bs-target="#flush-collapsefour" aria-expanded="true"
@@ -241,11 +244,6 @@
                                         </form>
                                     </div>
                                 </div>
-                            </div> --}}
-                        </div>
-                        <div class="row mt-2">
-                            <div class="col">
-                                <button type="button" class="btn btn-primary">Search</button>
                             </div>
                         </div>
                     </div>
@@ -321,7 +319,7 @@
                     <option value="count_of">Count of</option>
                 </select>
             </div>
-            <div class="coxl-6">
+            <div class="col-6">
                 <input type="text" class="form-control" name="fieldNames[]" value="${fieldName}">
                 <input type="hidden" name="fieldIds[]" value="${fieldId}">
             </div>
@@ -330,8 +328,8 @@
             </div>
         </div>`;
 
-                var fieldInputDetails = `<div class="row added-field" data-remove-id="${fieldInputCounter}" data-field-id="${fieldId}">
-            <div class="coxl-6">
+                var fieldInputDetails = `<div class="row added-field p-2" data-remove-id="${fieldInputCounter}" data-field-id="${fieldId}">
+            <div class="col-6">
                 <input type="text" class="form-control" name="fieldStatisticsNames[]" value="${fieldName}">
                 <input type="hidden" name="fieldStatisticsIds[]" value="${fieldId}">
             </div>

@@ -7,6 +7,9 @@
                 <div class="rounded h-100">
                     <form action="{{ route('store.report') }}" class="m-n2" method="POST">
                         @csrf
+                        <input type="hidden" value="{{ auth()->id() }}" name="user_id">
+                        <input type="hidden" value="{{ $id }}" name="report_id">
+
                         <div class="accordion accordion-flush" id="accordionFlushExample">
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="flush-headingOne">
@@ -42,8 +45,8 @@
                                                     <div class="input-group mb-3">
                                                         <label for="name"
                                                             class="col-form-label fw-bold mx-2">Name:</label>
-                                                        <input type="text" class="form-control" placeholder=""
-                                                            aria-label="Username" aria-describedby="basic-addon1" />
+                                                        <input type="text" class="form-control"
+                                                            value="{{ old('name', $report->name ?? '') }}" name="name" />
                                                     </div>
                                                 </div>
                                                 <div class="col-6">
@@ -57,8 +60,8 @@
                                             <div class="row">
                                                 <div class="col-6">
                                                     <div class="input-group mb-3">
-                                                        <label for="name"
-                                                            class="col-form-label fw-bold mx-2">Type:Personal</label>
+                                                        <label for="name" class="col-form-label fw-bold mx-2">Type:
+                                                            {{ @$report->permissions == 'P' ? 'Personal' : (@$report->permissions == 'G' ? 'Global' : '--') }}</label>
 
                                                     </div>
                                                 </div>
@@ -75,7 +78,7 @@
                                                     <div class="input-group mb-3">
                                                         <label for="name"
                                                             class="col-form-label fw-bold mx-2">Description</label>
-                                                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                                                        <textarea class="form-control" name="description" id="exampleFormControlTextarea1" rows="3">{{ old('description', @$report->description ?? '') }}</textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -83,14 +86,14 @@
                                                 <div class="col-6">
                                                     <div class="input-group mb-3">
                                                         <label for="name" class="col-form-label fw-bold mx-2">Created
-                                                            By:</label>
+                                                            By: {{ @$report->created_at }}</label>
 
                                                     </div>
                                                 </div>
                                                 <div class="col-6">
                                                     <div class="input-group mb-3">
                                                         <label for="name" class="col-form-label fw-bold mx-2">Last
-                                                            Update:</label>
+                                                            Update: {{ @$report->updated_at }}</label>
 
                                                     </div>
                                                 </div>
@@ -129,8 +132,9 @@
                                                         class="col-form-label fw-bold">Permissions</label>
                                                 </div>
                                                 <div class="col-auto">
-                                                    <input class="form-check-input" type="radio"
-                                                        name="flexRadioDefault" id="flexRadioDefault1">
+                                                    <input class="form-check-input" type="radio" value="P"
+                                                        {{ @$report->permissions == 'P' ? 'checked' : '' }}
+                                                        name="flexRadioDefault" id="flexRadioDefault2">
                                                     <label class="form-check-label text-dark fw-bold"
                                                         for="flexRadioDefault1">
                                                         Personal Report
@@ -147,7 +151,8 @@
                                                 <div class="col-1 mx-2">
                                                 </div>
                                                 <div class="col-2">
-                                                    <input class="form-check-input" type="radio"
+                                                    <input class="form-check-input" type="radio" value="G"
+                                                        {{ @$report->permissions == 'G' ? 'checked' : '' }}
                                                         name="flexRadioDefault" id="flexRadioDefault1">
                                                     <label class="form-check-label text-dark fw-bold"
                                                         for="flexRadioDefault1">
@@ -164,7 +169,142 @@
                                                     </span>
                                                 </div>
                                             </div>
-                                            <div class="row g-3 align-items-center">
+
+                                            <div class="mb-3" id="toggleableDiv"
+                                                @if (@$report->permissions == 'G') style="display: block;" @else style="display: none;" @endif>
+                                                {{-- <label for="exampleInputEmail1" class="form-label">{{ strtoupper($item->name) }}</label> --}}
+                                                <div class="usergrouplist">
+                                                    <div class="d-flex mb-2">
+                                                        <div class="col-md-2 addusers">
+                                                            <button type="button" class="btn btn-primary text-end"
+                                                                data-bs-toggle="modal" data-bs-target="#exampleModalusers"
+                                                                data-bs-whatever="@mdo">Add Users</button>
+                                                        </div>
+
+                                                        <div class="col-md-2 addgroups">
+                                                            <button type="button" class="btn btn-primary text-end"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#exampleModalgroups"
+                                                                data-bs-whatever="@mdo">Add Groups</button>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="col-md-12 d-flex">
+                                                        @if ($selectedusers != [])
+                                                            <div class="col-md-5">
+                                                                <select id="" class="form-control " multiple
+                                                                    disabled>
+                                                                    @foreach ($selectedusers as $item)
+                                                                        <option selected>
+                                                                            {{ $item->name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        @endif
+
+                                                        @if ($selectedgroups != [])
+                                                            <div class="col-md-5">
+                                                                <select id="" class="form-control " multiple
+                                                                    disabled>
+                                                                    @foreach ($selectedgroups as $item)
+                                                                        <option selected>
+                                                                            {{ $item->name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+
+
+                                                    <div class="modal fade" id="exampleModalusers" tabindex="-1"
+                                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="exampleModalLabel">Select
+                                                                        Users
+                                                                    </h5>
+                                                                    <button type="button" class="btn-close"
+                                                                        data-bs-dismiss="modal"
+                                                                        aria-label="Close"></button>
+                                                                </div>
+
+                                                                <div class="modal-body">
+                                                                    <div class="mb-3 text-start">
+                                                                        <label for="message-text"
+                                                                            class="col-form-label fw-bold text-left ">Users
+                                                                            <small>(ctrl + click) multiple select</small>
+                                                                        </label>
+                                                                        <select name="user_list[]" id=""
+                                                                            class="form-control" multiple>
+                                                                            @foreach ($users as $item)
+                                                                                <option value="{{ $item->id }}">
+                                                                                    {{ $item->name }}
+                                                                                </option>
+                                                                            @endforeach
+
+
+                                                                        </select>
+                                                                    </div>
+
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-primary"
+                                                                        data-bs-dismiss="modal">Save</button>
+                                                                    {{-- <button type="button" class="btn btn-primary">Submit</button> --}}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="modal fade" id="exampleModalgroups" tabindex="-1"
+                                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="exampleModalLabel">Select
+                                                                        Groups
+                                                                    </h5>
+                                                                    <button type="button" class="btn-close"
+                                                                        data-bs-dismiss="modal"
+                                                                        aria-label="Close"></button>
+                                                                </div>
+
+                                                                <div class="modal-body">
+                                                                    <div class="mb-3 text-start">
+                                                                        <label for="message-text"
+                                                                            class="col-form-label fw-bold text-left ">Groups
+                                                                            <small>(ctrl + click) multiple select</small>
+                                                                        </label>
+                                                                        <select name="group_list[]" id=""
+                                                                            class="form-control" multiple>
+                                                                            @foreach ($groups as $item)
+                                                                                <option value="{{ $item->id }}">
+                                                                                    {{ $item->name }}
+                                                                                </option>
+                                                                            @endforeach
+
+
+                                                                        </select>
+                                                                    </div>
+
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-primary"
+                                                                        data-bs-dismiss="modal">Save</button>
+                                                                    {{-- <button type="button" class="btn btn-primary">Submit</button> --}}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- <div class="row g-3 align-items-center">
                                                 <div class="col-auto">
                                                     <label for="permissions" class="col-form-label fw-bold">iView
                                                         Caching</label>
@@ -206,7 +346,7 @@
                                                 </div>
 
 
-                                            </div>
+                                            </div> --}}
                                             <div class="row g-3 align-items-center">
                                                 <div class="col-auto">
                                                     <label for="permissions" class="col-form-label fw-bold">Refresh
@@ -233,4 +373,20 @@
         </div>
 
     </div>
+@endsection
+@section('script')
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('input[name="flexRadioDefault"]').change(function() {
+                if ($(this).attr('id') === 'flexRadioDefault1') {
+                    // Show the div for Personal Report
+                    $('#toggleableDiv').show();
+                } else {
+                    // Hide the div for Global Report
+                    $('#toggleableDiv').hide();
+                }
+            });
+        });
+    </script>
 @endsection
