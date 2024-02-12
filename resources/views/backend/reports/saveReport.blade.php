@@ -8,7 +8,12 @@
                     <form action="{{ route('store.report') }}" class="m-n2" method="POST">
                         @csrf
                         <input type="hidden" value="{{ auth()->id() }}" name="user_id">
-                        <input type="hidden" value="{{ $id }}" name="report_id">
+                        <input type="hidden" value="{{ $applicationId }}" name="report_id">
+                        <input type="hidden" value="{{ $data }}" name="data">
+                        <input type="hidden" value="{{ $dropdowns }}" name="dropdowns">
+                        <input type="hidden" value="{{ $fieldNames }}" name="fieldNames">
+                        <input type="hidden" value="{{ $statisticsMode }}" name="statisticsMode">
+                        <input type="hidden" value="{{ $fieldStatisticsNames }}" name="fieldStatisticsNames">
 
                         <div class="accordion accordion-flush" id="accordionFlushExample">
                             <div class="accordion-item">
@@ -107,8 +112,8 @@
                             <div cflass="accordion-item mt-2">
                                 <h2 class="accordion-header" id="flush-headingtwo">
                                     <button class="accordion-button text-dark fw-bold" type="button"
-                                        data-bs-toggle="collapse" data-bs-target="#flush-collapsethree" aria-expanded="true"
-                                        aria-controls="flush-collapsethree">
+                                        data-bs-toggle="collapse" data-bs-target="#flush-collapsethree"
+                                        aria-expanded="true" aria-controls="flush-collapsethree">
                                         Report Type
 
                                     </button>
@@ -172,8 +177,30 @@
 
                                             <div class="mb-3" id="toggleableDiv"
                                                 @if (@$report->permissions == 'G') style="display: block;" @else style="display: none;" @endif>
-                                                {{-- <label for="exampleInputEmail1" class="form-label">{{ strtoupper($item->name) }}</label> --}}
-                                                <div class="usergrouplist">
+
+                                                <div class="row g-3 align-items-center">
+                                                    <div class="col-auto">
+                                                        <label for="permissions"
+                                                            class="col-form-label fw-bold">Defult</label>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <input class="form-check-input" type="radio" value="E"
+                                                            checked name="radioDefault" id="radioDefault2">
+                                                        <label class="form-check-label text-dark fw-bold"
+                                                            for="radioDefault1">
+                                                            everyOne
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-2">
+                                                        <input class="form-check-input" type="radio" value="U"
+                                                            name="radioDefault" id="radioDefault1">
+                                                        <label class="form-check-label text-dark fw-bold"
+                                                            for="radioDefault1">
+                                                            users
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="usergrouplist" style="display: none;">
                                                     <div class="d-flex mb-2">
                                                         <div class="col-md-2 addusers">
                                                             <button type="button" class="btn btn-primary text-end"
@@ -347,7 +374,7 @@
 
 
                                             </div> --}}
-                                            <div class="row g-3 align-items-center">
+                                            {{-- <div class="row g-3 align-items-center">
                                                 <div class="col-auto">
                                                     <label for="permissions" class="col-form-label fw-bold">Refresh
                                                         Rate</label>
@@ -360,7 +387,7 @@
                                                 </div>
 
                                             </div>
-                                            <h6 class="text-danger">*Required</h6>
+                                            <h6 class="text-danger">*Required</h6> --}}
                                         </div>
                                     </div>
                                 </div>
@@ -385,6 +412,15 @@
                 } else {
                     // Hide the div for Global Report
                     $('#toggleableDiv').hide();
+                }
+            });
+            $('input[name="radioDefault"]').change(function() {
+                if ($(this).attr('id') === 'radioDefault1') {
+                    // Show the div for Personal Report
+                    $('.usergrouplist').show();
+                } else {
+                    // Hide the div for Global Report
+                    $('.usergrouplist').hide();
                 }
             });
         });

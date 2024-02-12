@@ -8,15 +8,10 @@
                     <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <h6 class="mb-4">
-                                    {{ strtoupper($notification->name) }}
-                                </h6>
-                            </div>
-                            <div>
-                                <a href="{{ route('notifications.show', $notification->application_id) }}">
+                                {{-- <a href="{{ route('notifications.show') }}">
                                     <button type="button" class="btn btn-danger">
                                         <i class="bi bi-arrow-return-left"></i> Return</button>
-                                </a>
+                                </a> --}}
                             </div>
 
                         </div>
@@ -36,9 +31,8 @@
                                     aria-selected="false">Filter Criteria</button>
                             </div>
                         </nav>
-                        <form action="{{ route('notifications.update', $notification->id) }}" method="post">
+                        <form action="{{ route('notifications.store') }}" method="post">
                             @csrf
-                            @method('PUT')
                             <input type="hidden" value="{{ auth()->id() }}" name="updated_by">
                             <div class="tab-content" id="nav-tabContent">
                                 <div class="tab-pane fade show active" id="nav-home" role="tabpanel"
@@ -48,8 +42,7 @@
                                         <div class="mb-3 col-6">
                                             <label for="exampleInputEmail1" class="form-label">Name</label>
                                             <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                                name="name" id="name" value="{{ $notification->name }}"
-                                                aria-describedby="namehelp" required>
+                                                name="name" id="name" aria-describedby="namehelp" required>
                                             @error('name')
                                                 <label id="name-error" class="error text-danger" for="name">
                                                     {{ $message }}</label>
@@ -62,13 +55,13 @@
                                             <label for="exampleInputEmail1" class="form-label">Type</label>
                                             <select name="type" class="form-control">
                                                 {{-- <option value="SRD"
-                                                    {{ $notification->type === 'SRD' ? 'selected' : '' }}>
+                                                    {{ $type === 'SRD' ? 'selected' : '' }}>
                                                     Scheduled
                                                     Report Distribution</option> --}}
-                                                <option value="SN" {{ $notification->type === 'SN' ? 'selected' : '' }}>
+                                                <option value="SN" {{ $type === 'SN' ? 'selected' : '' }}>
                                                     Subscription Notification</option>
                                                 {{-- <option value="ODNT"
-                                                    {{ $notification->type === 'ODNT' ? 'selected' : '' }}>On
+                                                    {{ $type === 'ODNT' ? 'selected' : '' }}>On
                                                     Demand
                                                     Notification Template</option> --}}
                                             </select>
@@ -83,7 +76,7 @@
                                                 <option value="">Select Application</option>
                                                 @foreach ($applications as $item)
                                                     <option value="{{ $item->id }}"
-                                                        {{ $notification->application_id == $item->id ? 'selected' : '' }}>
+                                                        {{ $applicationId == $item->id ? 'selected' : '' }}>
                                                         {{ $item->name }}
                                                     </option>
                                                 @endforeach
@@ -96,7 +89,7 @@
 
                                         <div class="mb-3">
                                             <label for="exampleInputEmail1" class="form-label">Descriptoin</label>
-                                            <Textarea name="description" rows="5" cols="5" class="form-control">{{ $notification->description }}</Textarea>
+                                            <Textarea name="description" rows="5" cols="5" class="form-control"></Textarea>
                                             @error('type')
                                                 <label id="type-error" class="error text-danger" for="type">
                                                     {{ $message }}</label>
@@ -107,11 +100,11 @@
                                         <div class="mb-3">
                                             <label class="form-check-label">
                                                 <input type="checkbox" name="active"
-                                                    {{ $notification->active == 'Y' ? 'checked' : '' }}>
+                                                    {{ @$notification->active == 'Y' ? 'checked' : '' }}>
                                                 Active
                                             </label>
                                             <input type="hidden" name="active"
-                                                value="{{ $notification->active ? 'Y' : 'N' }}">
+                                                value="{{ @$notification->active ? 'Y' : 'N' }}">
                                         </div>
                                     </div>
                                 </div>
@@ -124,8 +117,8 @@
                                                 <label for="exampleInputEmail1" class="form-label">Subject</label>
                                                 <input type="text"
                                                     class="form-control @error('subject') is-invalid @enderror"
-                                                    name="subject" id="subject" value="{{ $notification->subject }}"
-                                                    aria-describedby="subjecthelp" required>
+                                                    name="subject" id="subject" aria-describedby="subjecthelp"
+                                                    required>
                                                 @error('subject')
                                                     <label id="subject-error" class="error text-danger" for="subject">
                                                         {{ $message }}</label>
@@ -134,7 +127,7 @@
 
                                             <div class="mb-3">
                                                 <label for="exampleInputEmail1" class="form-label">Body</label>
-                                                <Textarea name="body" rows="5" cols="5" class="form-control" id="bodyTextarea">{{ $notification->body }}</Textarea>
+                                                <Textarea name="body" rows="5" cols="5" class="form-control" id="bodyTextarea"></Textarea>
                                                 @error('type')
                                                     <label id="type-error" class="error text-danger" for="type">
                                                         {{ $message }}</label>
@@ -163,23 +156,12 @@
                                             <label for="exampleInputEmail1" class="form-label">Recurring</label>
                                             <select name="recurring" class="form-control" id="recurringSelect">
                                                 <option value="">Select a day</option>
-                                                <option value="instantly"
-                                                    {{ $notification->recurring == 'instantly' ? 'selected' : '' }}>
-                                                    Instantly</option>
-                                                <option value="daily"
-                                                    {{ $notification->recurring == 'daily' ? 'selected' : '' }}>Daily
-                                                </option>
-                                                <option value="weekly"
-                                                    {{ $notification->recurring == 'weekly' ? 'selected' : '' }}>Weekly
-                                                </option>
-                                                <option value="monthly"
-                                                    {{ $notification->recurring == 'monthly' ? 'selected' : '' }}>Monthly
-                                                </option>
-                                                <option value="quarterly"
-                                                    {{ $notification->recurring == 'quarterly' ? 'selected' : '' }}>
-                                                    Quarterly</option>
-                                                <option value="reminder"
-                                                    {{ $notification->recurring == 'reminder' ? 'selected' : '' }}>Reminder
+                                                <option value="instantly">Instantly</option>
+                                                <option value="daily">Daily</option>
+                                                <option value="weekly">Weekly</option>
+                                                <option value="monthly">Monthly</option>
+                                                <option value="quarterly">Quarterly</option>
+                                                <option value="reminder">Reminder
                                                 </option>
                                             </select>
 
@@ -224,11 +206,6 @@
                                                         data-bs-toggle="modal" data-bs-target="#exampleModalgroups"
                                                         data-bs-whatever="@mdo">To Add Groups</button>
                                                 </div>
-                                                {{-- <div class="col-md-2 addapplication">
-                                                    <button type="button" class="btn btn-primary text-end"
-                                                        data-bs-toggle="modal" data-bs-target="#exampleModalapplication"
-                                                        data-bs-whatever="@mdo">Add Application</button>
-                                                </div> --}}
 
                                             </div>
 
@@ -449,45 +426,9 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="table-responsive mt-5">
-                                        <table class="table">
-                                            <thead>
-                                                <tr class="text-white " style="background-color: #009CFF;">
-                                                    <th scope="col">ID</th>
-                                                    <th scope="col">FIELD NAME</th>
-                                                    <th scope="col">OPERATOR</th>
-                                                    <th scope="col">VALUE</th>
-                                                    <th scope="col">Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-
-                                                @foreach ($filters as $index => $filter)
-                                                    <tr>
-                                                        <td>{{ $index + 1 }}</td>
-                                                        <td>{{ $filter->field->name }}</td>
-                                                        <td> {{ [
-                                                            'C' => 'Contains',
-                                                            'DNC' => 'Does Not Contain',
-                                                            'E' => 'Equals',
-                                                            'DNE' => 'Does Not Equal',
-                                                            'CH' => 'Changed',
-                                                            'CT' => 'Changed To',
-                                                            'CF' => 'Changed From',
-                                                        ][$filter->filter_operator] ?? 'Unknown' }}
-                                                        </td>
-                                                        <td>{{ $filter->filter_value }}</td>
-                                                        <td><a href="{{ route('filters.destroy', $filter->id) }}"
-                                                                class="btn btn-danger">delete</a> </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
                                     <div class="mb-3 col-6">
                                         <label for="exampleInputEmail1" class="form-label">Advanced Operator Logic</label>
                                         <input type="text" class="form-control" name="advanced_operator_logic"
-                                            value="{{ $notification->advanced_operator_logic }}"
                                             id="advancedOperatorLogic" aria-describedby="advancedOperatorLogichelp">
                                         @error('advancedOperatorLogic')
                                             <label id="advancedOperatorLogic-error" class="error text-danger"
@@ -544,6 +485,9 @@
                                                             <option value="DNC">Does Not Contain</option>
                                                             <option value="E">Equals</option>
                                                             <option value="DNE">Does Not Equals</option>
+                                                            // <option value="CH">Changed</option>
+                                                            // <option value="CT">Changed To</option>
+                                                            // <option value="CF">Changed From</option>
                                                     </select>
                         </td>
                         <td>

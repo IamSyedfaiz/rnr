@@ -1,6 +1,8 @@
 @extends('backend.layouts.app')
 @section('content')
 
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.4.0/css/bootstrap-colorpicker.min.css">
     <div class="container-fluid pt-4 px-4">
         <div class="row g-4 ">
             <div class="col-sm-12">
@@ -30,6 +32,21 @@
                                                             Only</option>
                                                     </select>
                                                 </div>
+                                                <!-- Color dropdown menu -->
+                                                <div class="form-group">
+                                                    <label for="colorPicker">Select Color:</label>
+                                                    <select id="colorPicker" class="form-control">
+                                                        <option value="rgba(255, 99, 132, 0.2)">Red</option>
+                                                        <option value="rgba(54, 162, 235, 0.2)">Blue</option>
+                                                        <option value="rgba(255, 206, 86, 0.2)">Yellow</option>
+                                                        <option value="rgba(75, 192, 192, 0.2)">Green</option>
+                                                        <option value="rgba(153, 102, 255, 0.2)">Purple</option>
+                                                    </select>
+                                                </div>
+
+                                                <!-- Canvas for the chart -->
+                                                <canvas id="myChart"></canvas>
+
 
                                                 <div class="col-6 bg-light rounded p-3" id="chartTypeContainer">
                                                     <select class="form-control col-3 selectpicker" name="chart_type"
@@ -125,6 +142,66 @@
 @section('script')
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- Include Bootstrap Colorpicker JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.4.0/js/bootstrap-colorpicker.min.js">
+    </script>
+
+    <script>
+        // Sample dynamic data
+        const data = {
+            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple'],
+            datasets: [{
+                label: 'My First Dataset',
+                data: [300, 50, 100, 200, 75],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)'
+                ],
+                hoverOffset: 4
+            }]
+        };
+
+        // Initialize Chart.js chart with default colors
+        var ctx = document.getElementById('myChart').getContext('3d');
+        var myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: data,
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Chart.js Doughnut Chart'
+                    }
+                }
+            }
+        });
+
+        // Update chart color on dropdown change
+        $('#colorPicker').on('change', function() {
+            var selectedColor = $(this).val();
+            var backgroundColors = [];
+            $('option', this).each(function() {
+                backgroundColors.push($(this).val());
+            });
+            myChart.data.datasets.forEach(function(dataset) {
+                dataset.backgroundColor = backgroundColors;
+            });
+            myChart.update();
+        });
+    </script>
+
 
     <script>
         $(document).ready(function() {

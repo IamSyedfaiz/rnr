@@ -21,7 +21,13 @@
                                         <form action="{{ route('store.cert.report') }}" method="POST">
                                             @csrf
                                             <input type="hidden" name="application_id" value="{{ $applicationId }}">
-                                            <input type="hidden" name="report_id" value="{{ $reportId }}">
+                                            {{-- <input type="hidden" name="report_id" value="{{ @$reportId }}">
+                                            <input type="hidden" name="dropdowns" value="{{ @$dropdowns }}">
+                                            <input type="hidden" name="fieldIds" value="{{ @$fieldIds }}">
+                                            <input type="hidden" name="fieldNames" value="{{ @$fieldNames }}"> --}}
+                                            {{-- <input type="hidden" name="fieldStatisticsNames"
+                                                value="{{ $fieldStatisticsNames }}">
+                                            <input type="hidden" name="statisticsMode" value="{{ $statisticsMode }}"> --}}
                                             <button type="submit" class="btn btn-outline-primary fw-bold">SAVE</button>
                                             {{-- <button type="button" class="btn btn-outline-primary fw-bold">MODIFY</button>
                                             <button type="button" class="btn btn-outline-primary fw-bold">NEW
@@ -117,6 +123,7 @@
                                                                 </div>
                                                             </div>
                                                             <!-- Chart End -->
+
                                                         </div>
                                                     </div>
                                                     <!-- End of Bootstrap-styled cart -->
@@ -133,6 +140,9 @@
             </div>
         </div>
     </div>
+    <!-- Container for the chart -->
+
+
 @endsection
 @section('script')
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>

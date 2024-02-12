@@ -10,6 +10,7 @@ use App\Models\backend\Group;
 use App\Models\backend\Report;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ReportController extends Controller
 {
@@ -17,8 +18,11 @@ class ReportController extends Controller
     {
         try {
             $reports = Report::all();
+            $applications = Application::where('status', 1)
+                ->orderBy('name')
+                ->get();;
 
-            return view('backend.reports.index', compact('reports'));
+            return view('backend.reports.index', compact('reports', 'applications'));
         } catch (\Exception $th) {
             //throw $th;
             return redirect()
@@ -26,31 +30,23 @@ class ReportController extends Controller
                 ->with('error', $th->getMessage());
         }
     }
-    public function getReportApplication()
+    public function sendReportApplication(Request $request)
     {
         try {
-            $applications = Application::latest()->get();
-            return view('backend.reports.getApplication', compact('applications'));
-        } catch (\Exception $th) {
-            //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
-        }
-    }
-    public function sendReportApplication($id)
-    {
-        try {
-            $report = Report::create([
-                'application_id' => $id,
-                'user_id' => auth()->user()->id,
+            $request->validate([
+                'selectedApplication' => 'required|exists:applications,id',
+            ], [
+                'selectedApplication.required' => 'Please select an application.',
+                'selectedApplication.exists' => 'The selected application does not exist.',
             ]);
+            $id = $request->input('selectedApplication');
+
             $application = Application::find($id);
             $fields = Field::where('application_id', $id)
                 ->where('status', 1)
                 ->orderBy('name')
                 ->get();
-            return view('backend.reports.applicationFields', compact('application', 'fields', 'report'));
+            return view('backend.reports.applicationFields', compact('application', 'fields'));
         } catch (\Exception $th) {
             //throw $th;
             return redirect()
@@ -63,8 +59,6 @@ class ReportController extends Controller
     {
         try {
             // dd($request->all());
-            $reportId = $request->input('report_id');
-            $existingReport = Report::find($reportId);
             $applicationId = $request->input('application_id');
             $statisticsMode = $request->input('statistics_mode', false);
             $dropdowns = $request->input('dropdowns', []);
@@ -72,66 +66,88 @@ class ReportController extends Controller
             $fieldStatisticsNames = $request->input('fieldStatisticsNames', []);
             $fieldIds = $request->input('fieldIds', []);
 
-            $formData = Formdata::where('application_id', $applicationId)
-                ->pluck('data')
-                ->toArray();
-            $allData = [];
-
-            foreach ($fieldStatisticsNames as $fieldName) {
-                $fieldValues = [];
-
-                foreach ($formData as $item) {
-                    $data = json_decode($item, true);
-                    $fieldValues[] = $data[$fieldName] ?? null;
-                }
-                $allData[$fieldName] = $fieldValues;
-            }
-            // dd($allData);
-
-            $countData = [];
-            $groupData = [];
-
-            foreach ($dropdowns as $key => $dropdown) {
-                $fieldName = $fieldNames[$key];
-                $fieldId = $fieldIds[$key];
-                $groupedData = collect($formData)->groupBy(function ($item) use ($fieldName) {
-                    $data = json_decode($item, true); // Decode JSON string to array
-                    return $data[$fieldName];
-                });
-
-                foreach ($groupedData as $fieldName => $items) {
-                    // Count occurrences of the fieldName
-                    $countData[$fieldName] = count($items);
-
-                    // Group items by the fieldName
-                    $groupData[$fieldName] = $items;
-                }
-            }
-
-            // dd($existingReport);
-            // dd($countData);
             if ($statisticsMode) {
-                if ($existingReport) {
-                    $existingReport->data = json_encode($countData);
-                    $existingReport->dropdowns = json_encode($dropdowns);
-                    $existingReport->fieldNames = json_encode($fieldNames);
-                    $existingReport->fieldStatisticsNames = json_encode($fieldStatisticsNames);
-                    $existingReport->fieldIds = json_encode($fieldIds);
-                    $existingReport->statistics_mode = $statisticsMode ? 'Y' : 'N';
-                    $existingReport->save();
+                if (count($fieldNames) > 0) {
+                    $formData = Formdata::where('application_id', $applicationId)
+                        ->pluck('data')
+                        ->toArray();
+                    $allData = [];
+
+                    foreach ($fieldStatisticsNames as $fieldName) {
+                        $fieldValues = [];
+
+                        foreach ($formData as $item) {
+                            $data = json_decode($item, true);
+                            $fieldValues[] = $data[$fieldName] ?? null;
+                        }
+                        $allData[$fieldName] = $fieldValues;
+                    }
+
+                    $countData = [];
+                    $groupData = [];
+
+                    foreach ($dropdowns as $key => $dropdown) {
+                        $fieldName = $fieldNames[$key];
+                        $fieldId = $fieldIds[$key];
+                        $groupedData = collect($formData)->groupBy(function ($item) use ($fieldName) {
+                            $data = json_decode($item, true);
+                            return $data[$fieldName];
+                        });
+
+                        foreach ($groupedData as $fieldName => $items) {
+                            $countData[$fieldName] = count($items);
+                            $groupData[$fieldName] = $items;
+                        }
+                    }
+                    if ($statisticsMode) {
+                        return view('backend.reports.viewCart', compact('countData', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
+                    } else {
+                        return view('backend.reports.viewTable', compact('countData', 'allData', 'fieldStatisticsNames', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
+                    }
+                } else {
+                    return redirect()->back()->with('error', 'Field are empty.');
                 }
-                return view('backend.reports.viewCart', compact('countData', 'applicationId', 'reportId'));
             } else {
-                if ($existingReport) {
-                    $existingReport->data = json_encode($allData);
-                    $existingReport->dropdowns = json_encode($dropdowns);
-                    $existingReport->fieldNames = json_encode($fieldNames);
-                    $existingReport->fieldStatisticsNames = json_encode($fieldStatisticsNames);
-                    $existingReport->fieldIds = json_encode($fieldIds);
-                    $existingReport->statistics_mode = $statisticsMode ? 'Y' : 'N';
-                    $existingReport->save();
+                if (count($fieldStatisticsNames) > 0) {
+                    $formData = Formdata::where('application_id', $applicationId)
+                        ->pluck('data')
+                        ->toArray();
+                    $allData = [];
+
+                    foreach ($fieldStatisticsNames as $fieldName) {
+                        $fieldValues = [];
+
+                        foreach ($formData as $item) {
+                            $data = json_decode($item, true);
+                            $fieldValues[] = $data[$fieldName] ?? null;
+                        }
+                        $allData[$fieldName] = $fieldValues;
+                    }
+
+                    $countData = [];
+                    $groupData = [];
+
+                    foreach ($dropdowns as $key => $dropdown) {
+                        $fieldName = $fieldNames[$key];
+                        $fieldId = $fieldIds[$key];
+                        $groupedData = collect($formData)->groupBy(function ($item) use ($fieldName) {
+                            $data = json_decode($item, true);
+                            return $data[$fieldName];
+                        });
+
+                        foreach ($groupedData as $fieldName => $items) {
+                            $countData[$fieldName] = count($items);
+                            $groupData[$fieldName] = $items;
+                        }
+                    }
+                    if ($statisticsMode) {
+                        return view('backend.reports.viewCart', compact('countData', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
+                    } else {
+                        return view('backend.reports.viewTable', compact('countData', 'allData', 'fieldStatisticsNames', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
+                    }
+                } else {
+                    return redirect()->back()->with('error', 'Field are empty.');
                 }
-                return view('backend.reports.viewTable', compact('countData', 'allData', 'fieldStatisticsNames', 'applicationId', 'reportId'));
             }
         } catch (\Exception $th) {
             //throw $th;
@@ -164,33 +180,25 @@ class ReportController extends Controller
     public function storeReport(Request $request)
     {
         try {
-
-            $id = $request->input('report_id');
+            dd($request->all());
+            $statisticsMode = $request->input('statistics_mode', false);
             $name = $request->input('name');
+            $data = $request->input('data');
+            $radioDefault = $request->input('radioDefault');
             $userList = $request->input('user_list');
             $groupList = $request->input('group_list');
             $groupList = $request->input('group_list');
             $description = $request->input('description');
+            $radioDefault = $request->input('radioDefault');
             $permissions = $request->input('flexRadioDefault', null);
-
-            $report = Report::find($id);
-
-            if ($report) {
-                // The report was found, so it's safe to update its properties
-                $report->name = $name;
-                $report->user_list = json_encode($userList);
-                $report->group_list = json_encode($groupList);
-                $report->permissions = $permissions;
-                $report->description = $description;
-                $report->save();
-
-                return redirect()->route('get.view');
+            if ($statisticsMode) {
+                
             } else {
-                // Handle the case where the report with the specified ID was not found
-                return redirect()->route('get.view')->with('error', 'Report not found.');
             }
+
+
+            return redirect()->route('get.view');
         } catch (\Exception $th) {
-            //throw $th;
             return redirect()
                 ->back()
                 ->with('error', $th->getMessage());
@@ -199,31 +207,26 @@ class ReportController extends Controller
     public function storeCertReport(Request $request)
     {
         try {
-            $id = $request->input('report_id');
-            $dataType = $request->input('data_type');
-            $chartType = $request->input('chart_type');
-            $report = Report::find($id);
+            // dd($request->all());
+            $applicationId = $request->input('application_id');
+            $data = $request->input('data');
+            $dropdowns = $request->input('dropdowns');
+            $fieldIds = $request->input('fieldIds');
+            $fieldNames = $request->input('fieldNames');
+            $statisticsMode = $request->input('statisticsMode');
+            $fieldStatisticsNames = $request->input('fieldStatisticsNames');
 
-            if ($report) {
-                $report->data_type = $dataType;
-                $report->chart_type = $chartType;
-                $report->user_id = auth()->user()->id;
-                $report->save();
-                // dd($report);
-                $users = User::where('status', 1)
-                    ->latest()
-                    ->get();
-                $groups = Group::where(['status' => 1])
-                    ->latest()
-                    ->get();
+            $users = User::where('status', 1)
+                ->latest()
+                ->get();
+            $groups = Group::where(['status' => 1])
+                ->latest()
+                ->get();
 
-                $selectedgroups = [];
+            $selectedgroups = [];
 
-                $selectedusers = [];
-                return view('backend.reports.saveReport', compact('users', 'groups', 'selectedgroups', 'selectedusers', 'id'));
-            } else {
-                return redirect()->route('get.view')->with('error', 'Report not found.');
-            }
+            $selectedusers = [];
+            return view('backend.reports.saveReport', compact('users', 'groups', 'selectedgroups', 'selectedusers', 'applicationId', 'data', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'dropdowns'));
         } catch (\Exception $th) {
             //throw $th;
             return redirect()
@@ -274,6 +277,7 @@ class ReportController extends Controller
     public function editChart($id)
     {
         try {
+
             $report = Report::findOrFail($id);
             $users = User::where('status', 1)
                 ->latest()
@@ -282,34 +286,34 @@ class ReportController extends Controller
                 ->latest()
                 ->get();
 
-                $selectedgroups = [];
-                if ($report->group_list != 'null') {
-                    $groupids = json_decode($report->group_list);
-                    # code...
-                    if ($groupids) {
-    
-                        for ($i = 0; $i < count($groupids); $i++) {
-                            # code...
-                            $group = Group::find($groupids[$i]);
-                            array_push($selectedgroups, $group);
-                        }
+            $selectedgroups = [];
+            if ($report->group_list != 'null') {
+                $groupids = json_decode($report->group_list);
+                # code...
+                if ($groupids) {
+
+                    for ($i = 0; $i < count($groupids); $i++) {
+                        # code...
+                        $group = Group::find($groupids[$i]);
+                        array_push($selectedgroups, $group);
                     }
                 }
-    
-                $selectedusers = [];
-                if ($report->user_list != 'null') {
-                    $userids = json_decode($report->user_list);
-                    # code...
-                    if ($userids) {
-    
-                        for ($i = 0; $i < count($userids); $i++) {
-                            # code...
-                            $user = User::find($userids[$i]);
-                            array_push($selectedusers, $user);
-                        }
+            }
+
+            $selectedusers = [];
+            if ($report->user_list != 'null') {
+                $userids = json_decode($report->user_list);
+                # code...
+                if ($userids) {
+
+                    for ($i = 0; $i < count($userids); $i++) {
+                        # code...
+                        $user = User::find($userids[$i]);
+                        array_push($selectedusers, $user);
                     }
                 }
-    
+            }
+
             return view('backend.reports.saveReport', compact('users', 'groups', 'selectedgroups', 'selectedusers', 'report', 'id'));
         } catch (\Exception $th) {
             //throw $th;

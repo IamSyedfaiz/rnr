@@ -32,7 +32,7 @@
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <h6 class="mb-4">Application Edit</h6>
                             <a href="{{ route('application.index') }}">
-                                <button type="button" class="btn btn-danger"><-back</button>
+                                <button type="button" class="btn btn-danger"><-back< /button>
                             </a>
 
                         </div>
@@ -207,11 +207,11 @@
                                 <div class="d-flex align-items-center justify-content-between mb-4">
                                     <h6 class="mb-0">Fields Table</h6>
 
-                                    <a href="{{route('field.show', $application->id)}}">
+                                    <a href="{{ route('field.show', $application->id) }}">
                                         <button type="button" class="btn btn-primary">New</button>
                                     </a>
                                 </div>
-{{-- 
+                                {{-- 
                                 <div class="modal fade" id="exampleModa" tabindex="-1"
                                     aria-labelledby="exampleModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
@@ -318,7 +318,7 @@
                                                             $udpatedby = 'none';
                                                         }
                                                     @endphp
-                                                    <td>{{ $udpatedby}}</td>
+                                                    <td>{{ $udpatedby }}</td>
                                                     <td>{{ $item->created_at->toDateString() }}</td>
                                                     <td>{{ $item->updated_at->toDateString() }}</td>
                                                     <td class="d-flex justify-content-betweenx">
@@ -363,7 +363,7 @@
 
 
     <script>
-        function disableMe(event){
+        function disableMe(event) {
             var button = document.getElementsByClassName('submitbtn')[0];
             button.className = "d-none";
             // console.log(button);

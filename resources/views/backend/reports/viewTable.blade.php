@@ -18,12 +18,16 @@
                                 <div id="flush-collapseOne" class="accordion-collapse collapse show"
                                     aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                                     <div class="accordion-body">
-                                        <form action="{{ route('store.cert.report') }}" method="POST">
+                                        <form action="{{ route('store.cert.report') }}" method="GET">
                                             @csrf
                                             <input type="hidden" name="application_id" value="{{ $applicationId }}">
-                                            {{-- <a href="{{ route('view.save.report', $applicationId) }}"
-                                                class="btn btn-primary m-2 fw-bold">SAVE</a> --}}
-                                            <input type="hidden" name="report_id" value="{{ $reportId }}">
+                                            <input type="hidden" name="data" value="{{ json_encode($allData) }}">
+                                            <input type="hidden" name="fieldStatisticsNames"
+                                                value="{{ json_encode($fieldStatisticsNames) }}">
+                                            <input type="hidden" name="statisticsMode" value="{{ $statisticsMode }}">
+                                            <input type="hidden" name="dropdowns" value="{{ json_encode($dropdowns) }}">
+                                            <input type="hidden" name="fieldNames" value="{{ json_encode($fieldNames) }}">
+
 
                                             <button type="submit" class="btn btn-outline-primary fw-bold">SAVE</button>
                                             <button type="button" class="btn btn-outline-primary fw-bold">MODIFY</button>
@@ -34,25 +38,6 @@
                                             <div class="row mt-2">
                                                 <div class="col-12">
                                                     <div class="table-responsive">
-                                                        {{-- <table id="example" class="display table" style="width: 100%">
-                                                            <thead>
-                                                                <tr>
-                                                                    @foreach ($fieldStatisticsNames as $fieldName)
-                                                                        <th>{{ ucfirst($fieldName) }}</th>
-                                                                    @endforeach
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                @for ($i = 0; $i < count($allData['name']); $i++)
-                                                                    <tr>
-                                                                        @foreach ($fieldStatisticsNames as $fieldName)
-                                                                            <td>{{ $allData[$fieldName][$i] }}</td>
-                                                                        @endforeach
-                                                                    </tr>
-                                                                @endfor
-
-                                                            </tbody>
-                                                        </table> --}}
                                                         <table id="example" class="display table" style="width: 100%">
                                                             <thead>
                                                                 <tr>
@@ -82,17 +67,11 @@
                                                                     </tr>
                                                                 @endfor
                                                             </tbody>
-
                                                         </table>
-
-
-
-
                                                     </div>
                                                 </div>
                                             </div>
                                         </form>
-
                                     </div>
                                 </div>
                             </div>
