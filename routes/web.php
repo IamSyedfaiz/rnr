@@ -104,6 +104,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/store-cert-report', [ReportController::class, 'storeCertReport'])->name('store.cert.report');
     Route::get('/view-chart/{id}', [ReportController::class, 'viewChart'])->name('view.chart');
     Route::get('/edit-chart/{id}', [ReportController::class, 'editChart'])->name('edit.chart');
+    Route::get('/route-to-handle-filtered-data', [ReportController::class, 'handleFilteredDataRequest'])->name('route.to.handle');
 });
 Route::get('/get-file', [IntegrationController::class, 'getFile'])->name('get.file');
 Route::get('/get-csv-data', [IntegrationController::class, 'getCsvData'])->name('get.csv.data');

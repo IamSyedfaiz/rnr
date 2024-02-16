@@ -429,7 +429,7 @@ class UserApplicationController extends Controller
                     }
                 }
             }
-            logger($bolos);
+            // logger($bolos);
 
             $extractedTokens = $this->extractVariablesAndOperators($inputString);
             $variables = $this->getVariables($extractedTokens);
@@ -444,15 +444,11 @@ class UserApplicationController extends Controller
                 }
             }
 
-
             $reconstructedString = $this->rebuildString($extractedTokens);
-
             $reconstructedString = str_replace("AND", "&&", $reconstructedString);
             $reconstructedString = str_replace("OR", "||", $reconstructedString);
 
-
-
-            logger($reconstructedString);
+            // logger($reconstructedString);
             logger(eval("return $reconstructedString;"));
             if (eval("return $reconstructedString;")) {
 

@@ -8,12 +8,12 @@
                     <form action="{{ route('store.report') }}" class="m-n2" method="POST">
                         @csrf
                         <input type="hidden" value="{{ auth()->id() }}" name="user_id">
-                        <input type="hidden" value="{{ $applicationId }}" name="report_id">
-                        <input type="hidden" value="{{ $data }}" name="data">
-                        <input type="hidden" value="{{ $dropdowns }}" name="dropdowns">
-                        <input type="hidden" value="{{ $fieldNames }}" name="fieldNames">
-                        <input type="hidden" value="{{ $statisticsMode }}" name="statisticsMode">
-                        <input type="hidden" value="{{ $fieldStatisticsNames }}" name="fieldStatisticsNames">
+                        <input type="hidden" value="{{ @$applicationId }}" name="report_id">
+                        <input type="hidden" value="{{ @$data }}" name="data">
+                        <input type="hidden" value="{{ @$dropdowns }}" name="dropdowns">
+                        <input type="hidden" value="{{ @$fieldNames }}" name="fieldNames">
+                        <input type="hidden" value="{{ @$statisticsMode }}" name="statisticsMode">
+                        <input type="hidden" value="{{ @$fieldStatisticsNames }}" name="fieldStatisticsNames">
 
                         <div class="accordion accordion-flush" id="accordionFlushExample">
                             <div class="accordion-item">
