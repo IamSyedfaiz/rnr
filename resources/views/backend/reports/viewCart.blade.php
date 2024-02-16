@@ -64,10 +64,21 @@
                                                     <label for="colorPicker">Select Color:</label>
                                                     <select id="colorPalette" class="form-control">
                                                         <option value="random">Random</option>
-                                                        <option value="default">Default Palette</option>
+                                                        <option value="default" data-img_src="https://data.world/api/datadotworld-apps/dataset/python/file/raw/logo.png">Default Palette</option>
                                                         <option value="custom">Custom Palette</option>
                                                     </select>
                                                 </div>
+                                                
+                                                <ul class="list-unstyled">
+                                                    <li class="init">Select</li>
+                                                    <li data-value="random"><span><img src="https://data.world/api/datadotworld-apps/dataset/python/file/raw/logo.png" width="25">random</span></li>
+                                                    <li data-value="default"><span>Default Palette</span></li>
+                                                    <li data-value="custom"><span>Custom Palette</span></li>
+                                                </ul>
+                                                
+                                                
+                                                
+                                                
                                                 <!-- Canvas for the chart -->
                                                 <!-- Border width dropdown menu -->
                                                 <div class="form-group col-2" id="borderWi">
@@ -196,10 +207,46 @@
 
 
 @endsection
+@push('style')
+<style>
+    ul.list-unstyled { 
+    background: white;
+    list-style: none;
+    padding: 0px 10px 0px 50px;
+    height: 56px;
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 16px;
+    line-height: 1;
+    font-weight: 600;
+    color: black;
+    border: 1px solid black;
+    width: 100px;
+    max-width: 100px;
+    border-radius: 50px;
+}
+ul.list-unstyled li { 
+  padding: 19px 20px; z-index: 2;
+}
+ul.list-unstyled li:not(.init) { 
+    float: left;
+    padding: 10px;
+    width: 100%;
+    display: none;
+    background: #000;
+    color: #fff;
+    position: relative;
+    left: 4px;
+}
+ul li:not(.init):hover, ul li.selected:not(.init) { background: #0ee; color: #000; }
+li.init { cursor: pointer; }
+</style>
+@endpush
 @section('script')
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
         $(document).ready(function() {
+            $(".list-unstyled").hide();
             $('#closeCustomColorModal').click(function() {
                 $('#customColorModal').modal('hide');
             });
@@ -214,6 +261,7 @@
                 if (selectedValue === "chartOnly") {
                     $("#chartTypeDiv, #colorPi, #borderWi, #labelId, #submitColorBtn").show();
                     $("#myChart").show();
+                    $(".list-unstyled").show();
                     $("#dataOnly").hide();
 
                 } else if (selectedValue === "dataOnly") {
@@ -367,7 +415,7 @@
         document.getElementById('colorPalette').addEventListener('change', function() {
             var selectedPalette = this.value;
             var colors;
-
+alert(selectedPalette);
             // Set colors based on selected palette
             if (selectedPalette === 'random') {
                 colors = dynamicColors(); // Random colors
@@ -444,5 +492,34 @@
             }
             myPieChart.update();
         }
+        
+        $("ul").on("click", ".init", function() {
+        $(this).closest("ul").children('li:not(.init)').toggle();
+    });
+    
+    var allOptions = $("ul").children('li:not(.init)');
+    $("ul").on("click", "li:not(.init)", function() {
+        allOptions.removeClass('selected');
+        $(this).addClass('selected');
+         var selected = $(this).find('span').html()
+         $("ul").children('.init').html(selected);
+         
+         
+            var selectedPalette = $(this).attr('data-value');
+            var colors;
+            // Set colors based on selected palette
+            if (selectedPalette === 'random') {
+                colors = dynamicColors(); // Random colors
+            } else if (selectedPalette === 'default') {
+                colors = defaultPalette(); // Default palette
+            } else if (selectedPalette === 'custom') {
+                // colors = customPalette();
+                $('#customColorModal').modal('show');
+                return;
+            }
+            // Update chart colors
+            updateColors(colors);
+            allOptions.toggle();
+        });
     </script>
 @endsection
