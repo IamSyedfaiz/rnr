@@ -47,7 +47,7 @@
                                                             Only</option>
                                                     </select>
                                                 </div>
-                                                <div class="col-2 bg-light rounded">
+                                                <div class="col-2 bg-light rounded" id="chartTypeDiv">
                                                     <label for="colorPicker">Select Chart:</label>
 
                                                     <select id="chartTypeSelect" class="form-control">
@@ -204,7 +204,7 @@
                 $('#customColorModal').modal('hide');
             });
             // Hide all elements by default
-            $("#chartTypeSelect, #colorPi, #borderWi, #labelId, #submitColorBtn").hide();
+            $("#chartTypeDiv, #colorPi, #borderWi, #labelId, #submitColorBtn").hide();
             $("#myChart").hide();
 
             // Add change event listener to chartType select
@@ -212,12 +212,12 @@
                 var selectedValue = $(this).val();
 
                 if (selectedValue === "chartOnly") {
-                    $("#chartTypeSelect, #colorPi, #borderWi, #labelId, #submitColorBtn").show();
+                    $("#chartTypeDiv, #colorPi, #borderWi, #labelId, #submitColorBtn").show();
                     $("#myChart").show();
                     $("#dataOnly").hide();
 
                 } else if (selectedValue === "dataOnly") {
-                    $("#chartTypeSelect, #colorPi, #borderWi, #labelId, #submitColorBtn").hide();
+                    $("#chartTypeDiv, #colorPi, #borderWi, #labelId, #submitColorBtn").hide();
                     $("#myChart").hide();
                     $("#dataOnly").show();
 
