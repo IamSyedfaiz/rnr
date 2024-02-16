@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\backend;
 
+use App\Helpers\NotificationHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\backend\Application;
@@ -273,10 +274,55 @@ class UserApplicationController extends Controller
     //             ->with('error', $th->getMessage());
     //     }
     // }
+    public function extractVariablesAndOperators($inputString)
+    {
+        $tokens = [];
+        $operators = ['AND', 'OR', '(', ')'];
+
+        // Build a regular expression pattern for capturing tokens
+        $pattern = '/\b(?:' . implode('|', array_map('preg_quote', $operators)) . ')\b|\d+|\(|\)/';
+
+        // Use preg_match_all to capture all matching tokens
+        preg_match_all($pattern, $inputString, $matches);
+
+        // Flatten the matches array
+        $matches = array_reduce($matches, 'array_merge', []);
+
+        foreach ($matches as $match) {
+            $tokens[] = ['type' => is_numeric($match) ? 'variable' : 'operator', 'value' => $match];
+        }
+
+        return $tokens;
+    }
+    public function rebuildString($tokens)
+    {
+        $result = '';
+
+        foreach ($tokens as $token) {
+            if ($token['type'] === 'operator' && ($token['value'] === '(' || $token['value'] === ')')) {
+                $result .= $token['value'] . ' ';
+            } else {
+                $result .= $token['value'] . ' ';
+            }
+        }
+
+        return trim(preg_replace('/\s+/', ' ', $result));
+    }
+    public function getVariables($tokens)
+    {
+        $variables = [];
+
+        foreach ($tokens as $token) {
+            if ($token['type'] === 'variable') {
+                $variables[] = $token['value'];
+            }
+        }
+
+        return $variables;
+    }
     public function update(Request $request, $id)
     {
         $data = $request->all();
-        dd($data);
         unset($data['_token']);
         unset($data['_method']);
         unset($data['userid']);
@@ -298,8 +344,10 @@ class UserApplicationController extends Controller
         $fieldDatas = Field::where('application_id', $application->id)
             ->where('status', 1)
             ->get();
-
-        // validate start
+        $notifications = Notification::where('active', 'Y')
+            ->where('recurring', 'instantly')
+            ->where('application_id', $id)
+            ->get();
         $validationRules = [];
         foreach ($fieldDatas as $field) {
             $rules = [];
@@ -327,167 +375,197 @@ class UserApplicationController extends Controller
             $validationRules[$field->name] = $rules;
         }
         $request->validate($validationRules);
-        // validate end
 
-        $authUserId = auth()->user()->id;
+        // $results = NotificationHelper::evaluateLogic($notifications, $fieldDatas, $request);
+        // dd($results);
 
-        $groups = Group::where('status', 1)
-            ->whereJsonContains('userids', (string) $authUserId)
-            ->get();
-
-        $groupIds = $groups->pluck('id');
-        $notifications = Notification::where('active', 'Y')
-            ->where('recurring', 'instantly')
-            ->where(function ($query) use ($authUserId, $groupIds) {
-                $query->whereJsonContains('user_list', (string) $authUserId)->orWhereJsonContains('group_list', $groupIds);
-            })
-            ->get();
-        $notificationIds = $notifications->pluck('id')->toArray();
-
-        $filterCriterias = FilterCriteria::whereIn('notification_id', $notificationIds)->get();
-        dd($filterCriterias);
-        $sendEmail = false;
-
-        if ($filterCriterias) {
-            foreach ($filterCriterias as $key => $filterCriteria) {
-                // dd(1);
-                if ($filterCriteria->filter_operator == 'C' && $filterCriteria->filter_value == request()->input($filterCriteria->field->name)) {
-                    $sendEmail = true;
-                    logger('--c---');
-                } elseif ($filterCriteria->filter_operator == 'DNC' && $filterCriteria->filter_value !== request()->input($filterCriteria->field->name)) {
-                    $sendEmail = true;
-                    logger('--DNC---');
-                } elseif ($filterCriteria->filter_operator == 'E' && $filterCriteria->filter_value === request()->input($filterCriteria->field->name)) {
-                    $sendEmail = true;
-                    logger('--e---');
-                } elseif ($filterCriteria->filter_operator == 'DNE' && $filterCriteria->filter_value == request()->input($filterCriteria->field->name)) {
-                    $sendEmail = true;
-                    logger('--DNE---');
-                } elseif ($filterCriteria->filter_operator == 'CH' && $filterCriteria->filter_value == request()->input($filterCriteria->field->name)) {
-                    $sendEmail = true;
-                    logger('--DNE---');
-                } elseif ($filterCriteria->filter_operator == 'CT' && $filterCriteria->filter_value == request()->input($filterCriteria->field->name)) {
-                    $sendEmail = true;
-                    logger('--DNE---');
-                } elseif ($filterCriteria->filter_operator == 'CF' && $filterCriteria->filter_value == request()->input($filterCriteria->field->name)) {
-                    $sendEmail = true;
-                    logger('--DNE---');
-                }
-                if ($sendEmail) {
-                    logger('Email sent!');
-                    $selectedGroups = [];
-                    if ($filterCriteria->notification->group_list != 'null') {
-                        $groupIds = json_decode($filterCriteria->notification->group_list);
-
-                        if ($groupIds) {
-                            foreach ($groupIds as $groupId) {
-                                $group = Group::find($groupId);
-
-                                if ($group) {
-                                    $selectedGroups[] = $group->userids;
+        foreach ($notifications as $notification) {
+            $inputString = $notification->advanced_operator_logic;
+            $allFilterCriterias = $notification->filterCriterias;
+            $bolos = [];
+            foreach ($fieldDatas as $value) {
+                foreach ($notification->filterCriterias as $filterCriteria) {
+                    if ($filterCriteria->field_id == $value->id) {
+                        switch ($filterCriteria->filter_operator) {
+                            case 'C':
+                                if (strpos($request[$value->name], $filterCriteria->filter_value) !== false) {
+                                    $bolos[] = true;
+                                    logger("Contains comparison: IDs match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                } else {
+                                    $bolos[] = false;
+                                    logger("Contains comparison: IDs do not match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
                                 }
-                            }
-                        }
-                    }
-                    $userGroups = [];
-                    foreach ($selectedGroups as $groupUserIds) {
-                        // Decode the JSON string to an array
-                        $groupUserIdsArray = json_decode($groupUserIds, true);
-
-                        // Check if $groupUserIdsArray is an array
-                        if (!is_array($groupUserIdsArray)) {
-                            $this->error('Invalid data for groupUserIds: ' . $groupUserIds);
-                            continue; // Skip to the next iteration if data is invalid
-                        }
-
-                        foreach ($groupUserIdsArray as $userId) {
-                            // Check if $userId is a valid integer
-                            if (!is_numeric($userId) || intval($userId) <= 0) {
-                                $this->error("Invalid user ID: $userId");
-                                continue; // Skip to the next iteration if user ID is invalid
-                            }
-
-                            // Find the user by ID
-                            $user = User::find(intval($userId));
-
-                            if ($user) {
-                                $userGroups[] = $user->email;
-                            } else {
-                                $this->error("User not found for ID: $userId");
-                            }
-                        }
-                    }
-
-                    $selectedUsers = [];
-                    if ($filterCriteria->notification->user_list != 'null') {
-                        $UserIds = json_decode($filterCriteria->notification->user_list);
-
-                        if ($UserIds) {
-                            foreach ($UserIds as $UserId) {
-                                $User = User::find($UserId);
-
-                                if ($User) {
-                                    $selectedUsers[] = $User->email;
+                                break;
+                            case 'DNC':
+                                if (strpos($request[$value->name], $filterCriteria->filter_value) === false) {
+                                    $bolos[] = true;
+                                    logger("Does not contain comparison: IDs match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                } else {
+                                    $bolos[] = false;
+                                    logger("Does not contain comparison: IDs do not match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
                                 }
-                            }
-                        }
-                    }
+                                break;
+                            case 'E':
+                                if ($request[$value->name] == $filterCriteria->filter_value) {
+                                    $bolos[] = true;
 
-                    // foreach ($userGroups as $value) {
-                    //     logger($value);
-                    // }
-                    // foreach ($selectedUsers as $value) {
-                    //     logger('--user');
-                    //     logger($value);
-                    // }
-                    $template = $filterCriteria->notification->body;
-                    $Formdata01 = Formdata::where('application_id', $filterCriteria->notification->application_id)->get();
-
-                    $parsedData = collect(json_decode($Formdata01, true));
-                    $replacedTemplates = [];
-
-                    $parsedData->each(function ($entry) use ($template, &$replacedTemplates) {
-                        $data = json_decode($entry['data'], true);
-
-                        // Replace placeholders with values
-                        $replacedTemplate = $template;
-
-                        foreach ($data as $key => $value) {
-                            $placeholder = "[field:$key]";
-                            $replacedTemplate = str_replace($placeholder, $value, $replacedTemplate);
-                        }
-
-                        $replacedTemplates[] = $replacedTemplate;
-                        logger($replacedTemplate);
-                    });
-
-                    // dd($replacedTemplates);
-                    $replaceddata['body'] = $replacedTemplates;
-
-                    // $data['body'] = $notification->body;
-                    if ($userGroups) {
-                        foreach ($userGroups as $recipient) {
-                            Mail::send('email.loginmail', @$replaceddata, function ($msg) use ($recipient, $filterCriteria) {
-                                $msg->from(env('MAIL_FROM_ADDRESS'));
-                                $msg->to($recipient, env('MAIL_FROM_NAME'));
-                                $msg->subject($filterCriteria->notification->subject);
-                            });
-                        }
-                    }
-                    if ($selectedUsers) {
-                        foreach ($selectedUsers as $recipient) {
-                            Mail::send('email.loginmail', @$replaceddata, function ($msg) use ($recipient, $filterCriteria) {
-                                $msg->from(env('MAIL_FROM_ADDRESS'));
-                                $msg->to($recipient, env('MAIL_FROM_NAME'));
-                                $msg->subject($filterCriteria->notification->subject);
-                            });
+                                    logger("Equals comparison: IDs match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                } else {
+                                    $bolos[] = false;
+                                    logger("Equals comparison: IDs do not match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                }
+                                break;
+                            case 'CH': // Changed
+                                // Perform action for 'Changed' case
+                                break;
+                            case 'CT': // Changed To
+                                // Perform action for 'Changed To' case
+                                break;
+                            case 'CF': // Changed From
+                                // Perform action for 'Changed From' case
+                                break;
+                                // Handle other comparison cases
                         }
                     }
                 }
             }
+            // logger($bolos);
+
+            $extractedTokens = $this->extractVariablesAndOperators($inputString);
+            $variables = $this->getVariables($extractedTokens);
+            $reconstructedString = $this->rebuildString($extractedTokens);
+            foreach ($extractedTokens as &$token) {
+                if ($token["type"] === "variable") {
+                    $variableValue = intval($token["value"]);
+                    if (isset($bolos[$variableValue - 1])) {
+                        // Set the value of the variable token based on the value in $bolos
+                        $token["value"] = $bolos[$variableValue - 1] ? '1' : '0';
+                    }
+                }
+            }
+
+            $reconstructedString = $this->rebuildString($extractedTokens);
+            $reconstructedString = str_replace("AND", "&&", $reconstructedString);
+            $reconstructedString = str_replace("OR", "||", $reconstructedString);
+
+            // logger($reconstructedString);
+            logger(eval("return $reconstructedString;"));
+            if (eval("return $reconstructedString;")) {
+
+                logger('Email sent!');
+                $selectedGroups = [];
+                if ($notification->group_list != 'null') {
+                    $groupIds = json_decode($notification->group_list);
+
+                    if ($groupIds) {
+                        foreach ($groupIds as $groupId) {
+                            $group = Group::find($groupId);
+
+                            if ($group) {
+                                $selectedGroups[] = $group->userids;
+                            }
+                        }
+                    }
+                }
+                $userGroups = [];
+                foreach ($selectedGroups as $groupUserIds) {
+                    // Decode the JSON string to an array
+                    $groupUserIdsArray = json_decode($groupUserIds, true);
+
+                    // Check if $groupUserIdsArray is an array
+                    if (!is_array($groupUserIdsArray)) {
+                        $this->error('Invalid data for groupUserIds: ' . $groupUserIds);
+                        continue; // Skip to the next iteration if data is invalid
+                    }
+
+                    foreach ($groupUserIdsArray as $userId) {
+                        // Check if $userId is a valid integer
+                        if (!is_numeric($userId) || intval($userId) <= 0) {
+                            $this->error("Invalid user ID: $userId");
+                            continue; // Skip to the next iteration if user ID is invalid
+                        }
+
+                        // Find the user by ID
+                        $user = User::find(intval($userId));
+
+                        if ($user) {
+                            $userGroups[] = $user->email;
+                        } else {
+                            $this->error("User not found for ID: $userId");
+                        }
+                    }
+                }
+
+                $selectedUsers = [];
+                if ($notification->user_list != 'null') {
+                    $UserIds = json_decode($notification->user_list);
+
+                    if ($UserIds) {
+                        foreach ($UserIds as $UserId) {
+                            $User = User::find($UserId);
+
+                            if ($User) {
+                                $selectedUsers[] = $User->email;
+                            }
+                        }
+                    }
+                }
+
+                // foreach ($userGroups as $value) {
+                //     logger($value);
+                // }
+                // foreach ($selectedUsers as $value) {
+                //     logger('--user');
+                //     logger($value);
+                // }
+                $template = $notification->body;
+                $Formdata01 = Formdata::where('application_id', $notification->application_id)->get();
+
+                $parsedData = collect(json_decode($Formdata01, true));
+                $replacedTemplates = [];
+
+                $parsedData->each(function ($entry) use ($template, &$replacedTemplates) {
+                    $data = json_decode($entry['data'], true);
+
+                    // Replace placeholders with values
+                    $replacedTemplate = $template;
+
+                    foreach ($data as $key => $value) {
+                        $placeholder = "[field:$key]";
+                        $replacedTemplate = str_replace($placeholder, $value, $replacedTemplate);
+                    }
+
+                    $replacedTemplates[] = $replacedTemplate;
+                    logger($replacedTemplate);
+                });
+
+                // dd($replacedTemplates);
+                $replaceddata['body'] = $replacedTemplates;
+
+                // $data['body'] = $notification->body;
+                if ($userGroups) {
+                    foreach ($userGroups as $recipient) {
+                        Mail::send('email.loginmail', @$replaceddata, function ($msg) use ($recipient, $notification) {
+                            $msg->from(env('MAIL_FROM_ADDRESS'));
+                            $msg->to($recipient, env('MAIL_FROM_NAME'));
+                            $msg->subject($notification->subject);
+                        });
+                    }
+                }
+                if ($selectedUsers) {
+                    foreach ($selectedUsers as $recipient) {
+                        Mail::send('email.loginmail', @$replaceddata, function ($msg) use ($recipient, $notification) {
+                            $msg->from(env('MAIL_FROM_ADDRESS'));
+                            $msg->to($recipient, env('MAIL_FROM_NAME'));
+                            $msg->subject($notification->subject);
+                        });
+                    }
+                }
+            } else {
+                logger('---false---');
+            }
         }
 
-        // dd($filterCriterias);
 
         if (isset($request->formdataid)) {
             $data1['data'] = json_encode($data);
@@ -572,6 +650,7 @@ class UserApplicationController extends Controller
     public function userapplication_list($id)
     {
         try {
+            // dd('----');
             //code...
 
             $forms = Formdata::where(['userid' => auth()->id(), 'application_id' => $id])->get();

@@ -19,4 +19,8 @@ class Notification extends Model
     {
         return $this->hasMany(FilterCriteria::class);
     }
+    public function fieldDatas()
+    {
+        return $this->hasManyThrough(Field::class, FilterCriteria::class);
+    }
 }

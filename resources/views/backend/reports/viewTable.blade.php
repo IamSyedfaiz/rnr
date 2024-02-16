@@ -18,37 +18,60 @@
                                 <div id="flush-collapseOne" class="accordion-collapse collapse show"
                                     aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                                     <div class="accordion-body">
-                                        <a href="{{ route('view.save.report') }}"
-                                            class="btn btn-primary m-2 fw-bold">SAVE</a>
-                                        <button type="button" class="btn btn-outline-primary fw-bold">MODIFY</button>
-                                        <button type="button" class="btn btn-outline-primary fw-bold">NEW REPORT</button>
-                                        <button type="button" class="btn btn-outline-primary fw-bold">RELATED
-                                            REPORTS</button>
-                                        <div class="row mt-2">
-                                            <div class="col-12">
-                                                <div class="table-responsive">
-                                                    <table id="example" class="display table" style="width: 100%">
-                                                        <thead>
-                                                            <tr>
-                                                                @foreach ($fieldStatisticsNames as $fieldName)
-                                                                    <th>{{ ucfirst($fieldName) }}</th>
-                                                                @endforeach
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @for ($i = 0; $i < count($allData['name']); $i++)
+                                        <form action="{{ route('store.cert.report') }}" method="GET">
+                                            @csrf
+                                            <input type="hidden" name="application_id" value="{{ $applicationId }}">
+                                            <input type="hidden" name="data" value="{{ json_encode($allData) }}">
+                                            <input type="hidden" name="fieldStatisticsNames"
+                                                value="{{ json_encode($fieldStatisticsNames) }}">
+                                            <input type="hidden" name="statisticsMode" value="{{ $statisticsMode }}">
+                                            <input type="hidden" name="dropdowns" value="{{ json_encode($dropdowns) }}">
+                                            <input type="hidden" name="fieldNames" value="{{ json_encode($fieldNames) }}">
+
+
+                                            <button type="submit" class="btn btn-outline-primary fw-bold">SAVE</button>
+                                            <button type="button" class="btn btn-outline-primary fw-bold">MODIFY</button>
+                                            <button type="button" class="btn btn-outline-primary fw-bold">NEW
+                                                REPORT</button>
+                                            <button type="button" class="btn btn-outline-primary fw-bold">RELATED
+                                                REPORTS</button>
+                                            <div class="row mt-2">
+                                                <div class="col-12">
+                                                    <div class="table-responsive">
+                                                        <table id="example" class="display table" style="width: 100%">
+                                                            <thead>
                                                                 <tr>
                                                                     @foreach ($fieldStatisticsNames as $fieldName)
-                                                                        <td>{{ $allData[$fieldName][$i] }}</td>
+                                                                        <th>{{ ucfirst($fieldName) }}</th>
                                                                     @endforeach
                                                                 </tr>
-                                                            @endfor
+                                                            </thead>
 
-                                                        </tbody>
-                                                    </table>
+                                                            <tbody>
+                                                                @for ($i = 0; $i < count($allData[$fieldStatisticsNames[0]]); $i++)
+                                                                    <tr>
+                                                                        @foreach ($fieldStatisticsNames as $fieldName)
+                                                                            <td>
+                                                                                {{-- Check if the key exists and is an array --}}
+                                                                                @if (isset($allData[$fieldName][$i]) && is_array($allData[$fieldName][$i]))
+                                                                                    {{-- Display all values associated with the current field name --}}
+                                                                                    @foreach ($allData[$fieldName][$i] as $value)
+                                                                                        {{ $value }}
+                                                                                    @endforeach
+                                                                                @else
+                                                                                    {{-- Display the value directly if it's not an array --}}
+                                                                                    {{ $allData[$fieldName][$i] }}
+                                                                                @endif
+                                                                            </td>
+                                                                        @endforeach
+                                                                    </tr>
+                                                                @endfor
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

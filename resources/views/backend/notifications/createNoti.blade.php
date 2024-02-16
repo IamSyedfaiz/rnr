@@ -6,7 +6,7 @@
             <div class="bg-light rounded h-100 p-4">
                 <h6 class="mb-4">Add New </h6>
                 <div class="tab-content" id="pills-tabContent">
-                    <form action="{{ route('notifications.store') }}" class="form-horizontal" method="post">
+                    <form action="{{ route('add.notification') }}" class="form-horizontal" method="GET">
                         @csrf
                         <div class="mb-3">
                             <label for="exampleInputEmail1" class="form-label">Type</label>
@@ -35,8 +35,6 @@
                                     {{ $message }}</label>
                             @enderror
                         </div>
-
-                        <input type="hidden" value="{{ auth()->id() }}" name="user_id">
                         <button type="submit" class="btn btn-primary">Continue</button>
                     </form>
                 </div>

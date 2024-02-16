@@ -13,7 +13,7 @@
                 <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                         <div class="d-flex align-items-center justify-content-between mb-4">
-                            <h6 class="mb-4">Application Form </h6>
+                            <h6 class="mb-4">Application Form</h6>
                             <button type="button" class="btn btn-danger">
                                 <a href="{{ route('userapplication.list', $id) }}" style="color:aliceblue">
                                     <- back</a>

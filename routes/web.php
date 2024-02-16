@@ -52,6 +52,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('group', GroupController::class);
     Route::resource('field', FieldController::class);
     Route::resource('notifications', NotificationController::class);
+    Route::get('notification/add', [NotificationController::class, 'addNotification'])->name('add.notification');
     Route::get('customedit/notifications/{id}', [NotificationController::class, 'custom_edit'])->name('notification.custom.edit');
     Route::get('filters/destroy/{id}', [NotificationController::class, 'filtersDestroy'])->name('filters.destroy');
     Route::get('create-notification', [NotificationController::class, 'createNotification'])->name('create.notification');
@@ -95,11 +96,15 @@ Route::group(['middleware' => 'auth'], function () {
 
     // ReportController
     Route::get('/get-view', [ReportController::class, 'getView'])->name('get.view');
-    Route::get('/get-report-application', [ReportController::class, 'getReportApplication'])->name('get.report.application');
-    Route::get('/send-report-application/{id}', [ReportController::class, 'sendReportApplication'])->name('report.report.application');
+    Route::get('/send-report-application', [ReportController::class, 'sendReportApplication'])->name('report.report.application');
     Route::get('/search-report', [ReportController::class, 'searchReport'])->name('search.report');
-    Route::get('/view-save-report', [ReportController::class, 'viewSaveReport'])->name('view.save.report');
+    Route::get('/view-save-report/{id}', [ReportController::class, 'viewSaveReport'])->name('view.save.report');
+    Route::get('/delete-report/{id}', [ReportController::class, 'deleteReport'])->name('delete.report');
     Route::post('/store-report', [ReportController::class, 'storeReport'])->name('store.report');
+    Route::get('/store-cert-report', [ReportController::class, 'storeCertReport'])->name('store.cert.report');
+    Route::get('/view-chart/{id}', [ReportController::class, 'viewChart'])->name('view.chart');
+    Route::get('/edit-chart/{id}', [ReportController::class, 'editChart'])->name('edit.chart');
+    Route::get('/route-to-handle-filtered-data', [ReportController::class, 'handleFilteredDataRequest'])->name('route.to.handle');
 });
 Route::get('/get-file', [IntegrationController::class, 'getFile'])->name('get.file');
 Route::get('/get-csv-data', [IntegrationController::class, 'getCsvData'])->name('get.csv.data');

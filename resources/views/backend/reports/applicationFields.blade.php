@@ -7,246 +7,160 @@
                 <div class="rounded h-100">
                     <div class="m-n2">
                         <div class="accordion accordion-flush" id="accordionFlushExample">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="flush-headingOne">
-                                    <button class="accordion-button text-dark fw-bold" type="button"
-                                        data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="true"
-                                        aria-controls="flush-collapseOne">
-                                        Search
-                                        <span class="fw-normal mx-1"> Applications</span>
-                                    </button>
-                                </h2>
-                                <div id="flush-collapseOne" class="accordion-collapse collapse show"
-                                    aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                                    <div class="accordion-body">
-                                        <button type="button" class="btn btn-primary m-2 fw-bold">
-                                            SEARCH
+                            <form action="{{ route('search.report') }}" method="GET">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="flush-headingOne">
+                                        <button class="accordion-button text-dark fw-bold" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#flush-collapseOne"
+                                            aria-expanded="true" aria-controls="flush-collapseOne">
+                                            Search
+                                            <span class="fw-normal mx-1"> Applications</span>
                                         </button>
+                                    </h2>
+                                    <div id="flush-collapseOne" class="accordion-collapse collapse show"
+                                        aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                                        <div class="accordion-body">
+                                            <button type="submit" class="btn btn-primary m-2 fw-bold">
+                                                SEARCH
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            {{-- <div class="accordion-item mt-2">
-                                <h2 class="accordion-header" id="flush-headingtwo">
-                                    <button class="accordion-button text-dark fw-bold" type="button"
-                                        data-bs-toggle="collapse" data-bs-target="#flush-collapsetwo" aria-expanded="true"
-                                        aria-controls="flush-collapsetwo">
-                                        Keyword Search
-                                        <i class="bi bi-exclamation-circle mx-1"></i>
-                                    </button>
-                                </h2>
-                                <div id="flush-collapsetwo" class="accordion-collapse collapse show"
-                                    aria-labelledby="flush-headingtwo" data-bs-parent="#accordionFlushExample">
-                                    <div class="accordion-body">
-                                        <form action="">
+                                <div class="accordion-item mt-2">
+                                    <h2 class="accordion-header" id="flush-headingtwo">
+                                        <button class="accordion-button text-dark fw-bold" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#flush-collapsethree"
+                                            aria-expanded="true" aria-controls="flush-collapsethree">
+                                            Fields to Display
+                                            <i class="bi bi-exclamation-circle mx-1"></i>
+                                        </button>
+                                    </h2>
+                                    <div id="flush-collapsethree" class="accordion-collapse collapse show"
+                                        aria-labelledby="flush-headingthree" data-bs-parent="#accordionFlushExample">
+                                        <div class="accordion-body">
+
                                             <div class="row">
-                                                <div class="col-8">
-                                                    <div class="input-group mb-3">
-                                                        <input type="text" class="form-control"
-                                                            placeholder="Enter Search Criteria Here" aria-label="Username"
-                                                            aria-describedby="basic-addon1" />
-                                                    </div>
-                                                </div>
-                                                <div class="col-4">
-                                                    <div class="input-group mb-3">
-                                                        <input type="text" class="form-control"
-                                                            placeholder="Applications" aria-label="Recipient's username"
-                                                            aria-describedby="basic-addon2">
-                                                        <span class="input-group-text" id="basic-addon2">...</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" value=""
-                                                    id="flexCheckDefault">
-                                                <label class="form-check-label" for="flexCheckDefault">
-                                                    Statistics Mode
-                                                </label>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div> --}}
-                            <div class="accordion-item mt-2">
-                                <h2 class="accordion-header" id="flush-headingtwo">
-                                    <button class="accordion-button text-dark fw-bold" type="button"
-                                        data-bs-toggle="collapse" data-bs-target="#flush-collapsethree" aria-expanded="true"
-                                        aria-controls="flush-collapsethree">
-                                        Fields to Display
-                                        <i class="bi bi-exclamation-circle mx-1"></i>
-                                    </button>
-                                </h2>
-                                <div id="flush-collapsethree" class="accordion-collapse collapse show"
-                                    aria-labelledby="flush-headingthree" data-bs-parent="#accordionFlushExample">
-                                    <div class="accordion-body">
-
-                                        <div class="row">
-                                            <div class="bg-light text-center rounded p-4 col-6">
-                                                <table class="table" id="example" style="width:100%">
-                                                    <thead>
-                                                        <tr class="text-white" style="background-color: #009CFF;">
-                                                            <th scope="col">{{ $application->name }}</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach ($fields as $item)
-                                                            <tr>
-                                                                <td class="field-row" data-field-name="{{ $item->name }}"
-                                                                    data-field-id="{{ $item->id }}">
-                                                                    <a href="#"
-                                                                        class="field-link">{{ $item->name }}</a>
-                                                                </td>
+                                                <div class="bg-light text-center rounded p-4 col-6">
+                                                    <table class="table" id="example" style="width:100%">
+                                                        <thead>
+                                                            <tr class="text-white" style="background-color: #009CFF;">
+                                                                <th scope="col">{{ $application->name }}</th>
                                                             </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
-
-                                            <form action="{{ route('search.report') }}" method="GET"
-                                                class="bg-light text-center rounded p-4 col-6" id="fieldData">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value="1"
-                                                        id="statisticsModeCheckbox" name="statistics_mode">
-                                                    <label class="form-check-label" for="statisticsModeCheckbox">
-                                                        Statistics Mode
-                                                    </label>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach ($fields as $item)
+                                                                <tr>
+                                                                    <td class="field-row"
+                                                                        data-field-name="{{ $item->name }}"
+                                                                        data-field-id="{{ $item->id }}">
+                                                                        <a href="#"
+                                                                            class="field-link">{{ $item->name }}</a>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
                                                 </div>
 
-                                                <div class="d-flex align-items-center mb-4">
-                                                    <h6 class="mb-0">Selected</h6>
-                                                    <h6 class="mb-0">{{ $application->name }}</h6>
-                                                    <button class="btn btn-danger" type="submit">Search</button>
+                                                <div class="bg-light rounded p-4 col-6" id="fieldData">
                                                     <input type="hidden" name="application_id"
                                                         value="{{ $application->id }}">
+
+                                                    <div class="d-flex align-items-center justify-content-between mb-4">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" value="1"
+                                                                id="statisticsModeCheckbox" name="statistics_mode">
+                                                            <label class="form-check-label" for="statisticsModeCheckbox">
+                                                                Statistics Mode
+                                                            </label>
+                                                        </div>
+                                                        <input type="hidden" name="application_id"
+                                                            value="{{ $application->id }}">
+                                                    </div>
+                                                    <h5>Select Field</h5>
+                                                    <div id="statisticsModeDiv" style="display: none;"></div>
+                                                    <div id="otherDiv"></div>
                                                 </div>
-                                                <div id="statisticsModeDiv" style="display: none;"></div>
-                                                <div id="otherDiv"></div>
-                                            </form>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            {{-- <div class="accordion-item mt-2">
-                                <h2 class="accordion-header" id="flush-headingfour">
-                                    <button class="accordion-button text-dark fw-bold" type="button"
-                                        data-bs-toggle="collapse" data-bs-target="#flush-collapsefour" aria-expanded="true"
-                                        aria-controls="flush-collapsefour">
-                                        Filters
-                                        <i class="bi bi-exclamation-circle mx-1"></i>
-                                    </button>
-                                </h2>
-                                <div id="flush-collapsefour" class="accordion-collapse collapse show"
-                                    aria-labelledby="flush-headingfour" data-bs-parent="#accordionFlushExample">
-                                    <div class="accordion-body">
-                                        <div class="row">
-                                            <div class="col-3">
-                                                <label class="form-label mx-2 fw-bold text-dark">Field To
-                                                    Evaluate</label>
-
-                                                <div class="input-group mb-3">
-                                                    <label for="Find"
-                                                        class="col-form-label mx-2 fw-bold text-dark">1</label>
-                                                    <input type="text" class="form-control" placeholder=""
-                                                        aria-label="Username" aria-describedby="basic-addon1" />
+                                <div class="accordion-item mt-2">
+                                    <h2 class="accordion-header" id="flush-headingfour">
+                                        <button class="accordion-button text-dark fw-bold" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#flush-collapsefour"
+                                            aria-expanded="true" aria-controls="flush-collapsefour">
+                                            Filters
+                                            <i class="bi bi-exclamation-circle mx-1"></i>
+                                        </button>
+                                    </h2>
+                                    <div id="flush-collapsefour" class="accordion-collapse collapse show"
+                                        aria-labelledby="flush-headingfour" data-bs-parent="#accordionFlushExample">
+                                        <div class="accordion-body">
+                                            <div>
+                                                <div class="table-responsive mt-5">
+                                                    <a class="btn btn-success mb-3" id="addRow"><i
+                                                            class="bi bi-plus-circle"></i>Add</a>
+                                                    <table
+                                                        class="table  table-striped  text-start align-middle table-bordered table-hover mb-0"
+                                                        id="dataTable">
+                                                        <thead>
+                                                            <tr class="text-white" style="background-color: #009CFF;">
+                                                                <th scope="col">ID</th>
+                                                                <th scope="col">Field To Evaluate</th>
+                                                                <th scope="col">OPERATOR</th>
+                                                                <th scope="col">VALUE</th>
+                                                                <th scope="col">Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr class="data-row">
+                                                                <td>1</td>
+                                                                <td>
+                                                                    <select class="form-control" name="field_id[]">
+                                                                        <option value="">Select field</option>
+                                                                        @foreach (@$fields as $item)
+                                                                            <option value="{{ $item->id }}">
+                                                                                {{ $item->name }}
+                                                                            </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <select class="form-control" name="filter_operator[]">
+                                                                        <option value="C">Contains</option>
+                                                                        <option value="DNC">Does Not Contain</option>
+                                                                        <option value="E">Equals</option>
+                                                                        <option value="DNE">Does Not Equals</option>
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" class="form-control"
+                                                                        placeholder="Value" name="filter_value[]">
+                                                                </td>
+                                                                <td>-</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
                                                 </div>
-                                            </div>
-                                            <div class="col-2">
-                                                <label class="form-label mx-2 fw-bold text-dark">Operator</label>
-
-                                                <div class="input-group mb-3 ">
-                                                    <input type="text" class="form-control" placeholder=""
-                                                        aria-label="Username" aria-describedby="basic-addon1" />
+                                                <div class="mb-3 col-6">
+                                                    <label for="exampleInputEmail1" class="form-label">Advanced Operator
+                                                        Logic</label>
+                                                    <input type="text" class="form-control"
+                                                        name="advanced_operator_logic" id="advancedOperatorLogic"
+                                                        aria-describedby="advancedOperatorLogichelp">
+                                                    @error('advancedOperatorLogic')
+                                                        <label id="advancedOperatorLogic-error" class="error text-danger"
+                                                            for="advancedOperatorLogic">
+                                                            {{ $message }}</label>
+                                                    @enderror
                                                 </div>
-                                            </div>
-                                            <div class="col-3">
-                                                <label class="form-label mx-2 fw-bold text-dark">value(s)
-                                                </label>
-
-                                                <div class="input-group mb-3">
-                                                    <input type="text" class="form-control" placeholder=""
-                                                        aria-label="Username" aria-describedby="basic-addon1" />
-                                                </div>
-                                            </div>
-                                            <div class="col-2">
-                                                <label class="form-label mx-2 fw-bold text-dark">Relation</label>
-                                                <p class="fw-bold fs-5 text-dark mx-2">And</p>
-                                            </div>
-                                            <div class="col-2">
-                                                <label class="form-label mx-2 fw-bold text-dark">Actions</label>
-                                                <p class=" fs-5 text-primary mx-2"><i class="bi bi-x-circle-fill"></i>
-                                                </p>
                                             </div>
                                         </div>
-                                        <div class="row">
-                                            <div class="col-3">
-                                                <label class="form-label mx-2 fw-bold text-dark">Field To
-                                                    Evaluate</label>
-
-                                                <div class="input-group mb-3">
-                                                    <label for="Find"
-                                                        class="col-form-label mx-2 fw-bold text-dark">2</label>
-                                                    <input type="text" class="form-control" placeholder=""
-                                                        aria-label="Username" aria-describedby="basic-addon1" />
-                                                </div>
-                                            </div>
-                                            <div class="col-2">
-                                                <label class="form-label mx-2 fw-bold text-dark">Operator</label>
-
-                                                <div class="input-group mb-3 ">
-                                                    <input type="text" class="form-control" placeholder=""
-                                                        aria-label="Username" aria-describedby="basic-addon1" />
-                                                </div>
-                                            </div>
-                                            <div class="col-3">
-                                                <label class="form-label mx-2 fw-bold text-dark">value(s)
-                                                </label>
-
-                                                <div class="input-group mb-3">
-                                                    <input type="text" class="form-control" placeholder=""
-                                                        aria-label="Username" aria-describedby="basic-addon1" />
-                                                </div>
-                                            </div>
-                                            <div class="col-2">
-                                                <label class="form-label mx-2 fw-bold text-dark">Relation</label>
-                                                <p class="fw-bold fs-5 text-dark mx-2">And</p>
-                                            </div>
-                                            <div class="col-2">
-                                                <label class="form-label mx-2 fw-bold text-dark">Actions</label>
-                                                <p class=" fs-5 text-primary mx-2"><i class="bi bi-x-circle-fill"></i>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-5">
-
-
-                                                <div class="input-group mb-3">
-                                                    <label for="Find"
-                                                        class="col-form-label mx-2 fw-bold text-dark">Advanced Operator
-                                                        logic</label>
-                                                    <input type="text" class="form-control" placeholder=""
-                                                        aria-label="Username" aria-describedby="basic-addon1" />
-                                                </div>
-                                            </div>
-
-                                            <div class="col-5">
-                                                <label class="form-label mx-2 mt-1 fw-bold text-dark">Example(1 AND
-                                                    2)OR 3
-                                                </label>
-
-
-                                            </div>
-
-
-                                        </div>
-                                        </form>
                                     </div>
+
                                 </div>
-                            </div> --}}
-                        </div>
-                        <div class="row mt-2">
-                            <div class="col">
-                                <button type="button" class="btn btn-primary">Search</button>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -317,11 +231,11 @@
                 var fieldDetails = `<div class="row added-field" data-remove-id="${fieldCounter}" data-field-id="${fieldId}">
             <div class="mb-3 col-4">
                 <select name="dropdowns[]" class="form-control">
-                    <option value="group_by">Group by</option>
-                    <option value="count_of">Count of</option>
+                    <option value="group_by">Group & Count</option>
+                    {{-- <option value="count_of">Count of</option> --}}
                 </select>
             </div>
-            <div class="coxl-6">
+            <div class="col-6">
                 <input type="text" class="form-control" name="fieldNames[]" value="${fieldName}">
                 <input type="hidden" name="fieldIds[]" value="${fieldId}">
             </div>
@@ -330,8 +244,8 @@
             </div>
         </div>`;
 
-                var fieldInputDetails = `<div class="row added-field" data-remove-id="${fieldInputCounter}" data-field-id="${fieldId}">
-            <div class="coxl-6">
+                var fieldInputDetails = `<div class="row added-field p-2" data-remove-id="${fieldInputCounter}" data-field-id="${fieldId}">
+            <div class="col-6">
                 <input type="text" class="form-control" name="fieldStatisticsNames[]" value="${fieldName}">
                 <input type="hidden" name="fieldStatisticsIds[]" value="${fieldId}">
             </div>
@@ -355,6 +269,51 @@
                 var removeId = $(this).data('remove-id');
                 $('.added-field[data-remove-id="' + removeId + '"]').remove();
             });
+        });
+
+
+        $(document).ready(function() {
+            $("#addRow").on("click", function() {
+                var rowCount = $(".table-striped tbody tr").length + 1;
+                var newRow = `<tr class="data-row">
+                        <td class="row-id">${rowCount}</td>
+                        <td>
+                            <select class="form-control" name="field_id[]">
+                                <option value="">Select field</option>
+                                @foreach ($fields as $item)
+                                    <option value="{{ $item->id }}">
+                                        {{ $item->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </td>
+                        <td>
+                          <select class="form-control" name="filter_operator[]">
+                            <option value="C">Contains</option>
+                                                            <option value="DNC">Does Not Contain</option>
+                                                            <option value="E">Equals</option>
+                                                            <option value="DNE">Does Not Equals</option>
+                                                    </select>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" placeholder="Value" name="filter_value[]">
+                        </td>
+                        <td><button class="btn btn-danger removeRow">Remove</button></td>
+                    </tr>`;
+                $(".table-striped tbody").append(newRow);
+            });
+
+            $(".table-striped").on("click", ".removeRow", function() {
+                $(this).closest("tr").remove();
+                updateRowIds();
+            });
+
+            function updateRowIds() {
+                $(".table-striped tbody tr").each(function(index) {
+                    $(this).find('.row-id').text(index + 1);
+                });
+            }
+
         });
     </script>
 @endsection
