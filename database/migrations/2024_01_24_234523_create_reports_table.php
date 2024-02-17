@@ -18,14 +18,9 @@ return new class extends Migration {
             $table->string('description')->nullable();
             $table->string('data_type')->nullable();
             $table->string('chart_type')->nullable();
-            $table
-                ->enum('permissions', ['P', 'G'])
-                ->nullable()
-                ->default(null);
-            $table
-                ->enum('statistics_mode', ['Y', 'N'])
-                ->nullable()
-                ->default(null);
+            $table->enum('radioDefault', ['E', 'U'])->nullable();
+            $table->enum('permissions', ['P', 'G'])->nullable();
+            $table->enum('statistics_mode', ['Y', 'N'])->nullable();
             $table->unsignedBigInteger('application_id')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->longText('data')->nullable();

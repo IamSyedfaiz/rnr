@@ -210,6 +210,7 @@ class ReportController extends Controller
                     }
                 }
             } else {
+
                 $filterData = [];
                 $count = count($fieldIds);
                 for ($i = 0; $i < $count; $i++) {
@@ -219,7 +220,6 @@ class ReportController extends Controller
                         'filter_value' => $filterValues[$i],
                     ];
                 }
-                logger($filterData);
 
                 $formData = Formdata::where('application_id', $applicationId)
                     ->pluck('data')
@@ -249,6 +249,15 @@ class ReportController extends Controller
                                         logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
                                     }
                                     break;
+                                case 'DNC':
+                                    if (strpos($data[$fieldName], $filterValue) === false) {
+                                        $filteredData[] = true;
+                                        logger("Does Not Contain comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                    } else {
+                                        $filteredData[] = false;
+                                        logger("Does Not Contain comparison: IDs do not match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                    }
+                                    break;
                                 case 'E':
                                     if ($data[$fieldName] === $filterValue) {
                                         $filteredData[] = true;
@@ -256,6 +265,15 @@ class ReportController extends Controller
                                     } else {
                                         $filteredData[] = false;
                                         logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                    }
+                                    break;
+                                case 'DNE':
+                                    if ($data[$fieldName] !== $filterValue) {
+                                        $filteredData[] = true;
+                                        logger("Does Not Equals comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                    } else {
+                                        $filteredData[] = false;
+                                        logger("Does Not Equals comparison: IDs do not match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
                                     }
                                     break;
                             }
@@ -286,6 +304,23 @@ class ReportController extends Controller
                 logger($reconstructedString);
                 logger('final_rows');
                 logger($final_rows);
+                if (count($final_rows) > 0) {
+                    $allData = [];
+                    foreach ($final_rows as $row) {
+                        foreach ($row as $key => $value) {
+                            if (!isset($allData[$key])) {
+                                $allData[$key] = [];
+                            }
+                            $allData[$key][] = $value;
+                        }
+                    }
+                    logger($allData);
+                    return view('backend.reports.viewTable', compact('allData', 'fieldStatisticsNames', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
+                } else {
+                    return redirect()
+                        ->back()
+                        ->with('error', 'Advanced Logic Not Valid.');
+                }
                 dd(1);
             }
         } catch (\Exception $th) {
@@ -319,20 +354,23 @@ class ReportController extends Controller
     public function storeReport(Request $request)
     {
         try {
-            dd($request->all());
-            $statisticsMode = $request->input('statistics_mode', false);
-            $name = $request->input('name');
-            $data = $request->input('data');
-            $radioDefault = $request->input('radioDefault');
-            $userList = $request->input('user_list');
-            $groupList = $request->input('group_list');
-            $groupList = $request->input('group_list');
-            $description = $request->input('description');
-            $radioDefault = $request->input('radioDefault');
-            $permissions = $request->input('flexRadioDefault', null);
-            if ($statisticsMode) {
-            } else {
-            }
+            // dd($request->all());
+            $report = new Report();
+            $report->statistics_mode = $request->input('statistics_mode', false) ? 'Y' : 'N';;
+            $report->application_id = $request->input('application_id');
+            $report->user_id = $request->input('user_id');
+            $report->name = $request->input('name');
+            $report->data = $request->input('data');
+            $report->radioDefault = $request->input('radioDefault');
+            $report->fieldStatisticsNames = $request->input('fieldStatisticsNames');
+            $report->user_list = $request->input('user_list');
+            $report->group_list = $request->input('group_list');
+            $report->description = $request->input('description');
+            $report->permissions = $request->input('flexRadioDefault', null);
+            $report->save();
+            // if ($statisticsMode) {
+            // } else {
+            // }
 
             return redirect()->route('get.view');
         } catch (\Exception $th) {

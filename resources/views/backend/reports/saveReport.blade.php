@@ -8,7 +8,7 @@
                     <form action="{{ route('store.report') }}" class="m-n2" method="POST">
                         @csrf
                         <input type="hidden" value="{{ auth()->id() }}" name="user_id">
-                        <input type="hidden" value="{{ @$applicationId }}" name="report_id">
+                        <input type="hidden" value="{{ @$applicationId }}" name="application_id">
                         <input type="hidden" value="{{ @$data }}" name="data">
                         <input type="hidden" value="{{ @$dropdowns }}" name="dropdowns">
                         <input type="hidden" value="{{ @$fieldNames }}" name="fieldNames">

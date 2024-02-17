@@ -18,16 +18,16 @@
                                 <div id="flush-collapseOne" class="accordion-collapse collapse show"
                                     aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                                     <div class="accordion-body">
-                                        <form action="{{ route('store.cert.report') }}" method="POST">
+                                        <form action="{{ route('store.cert.report') }}" method="GET">
                                             @csrf
                                             <input type="hidden" name="application_id" value="{{ $applicationId }}">
-                                            {{-- <input type="hidden" name="report_id" value="{{ @$reportId }}">
+                                            <input type="hidden" name="report_id" value="{{ @$reportId }}">
                                             <input type="hidden" name="dropdowns" value="{{ @$dropdowns }}">
                                             <input type="hidden" name="fieldIds" value="{{ @$fieldIds }}">
-                                            <input type="hidden" name="fieldNames" value="{{ @$fieldNames }}"> --}}
-                                            {{-- <input type="hidden" name="fieldStatisticsNames"
+                                            <input type="hidden" name="fieldNames" value="{{ @$fieldNames }}">
+                                            <input type="hidden" name="fieldStatisticsNames"
                                                 value="{{ $fieldStatisticsNames }}">
-                                            <input type="hidden" name="statisticsMode" value="{{ $statisticsMode }}"> --}}
+                                            <input type="hidden" name="statisticsMode" value="{{ $statisticsMode }}">
                                             <button type="submit" class="btn btn-outline-primary fw-bold">SAVE</button>
                                             {{-- <button type="button" class="btn btn-outline-primary fw-bold">MODIFY</button>
                                             <button type="button" class="btn btn-outline-primary fw-bold">NEW
@@ -60,25 +60,40 @@
                                                 </div>
 
                                                 <!-- Add dropdown menu -->
-                                                <div class="form-group col-2" id="colorPi">
+                                                {{-- <div class="form-group col-2" id="colorPi">
                                                     <label for="colorPicker">Select Color:</label>
                                                     <select id="colorPalette" class="form-control">
                                                         <option value="random">Random</option>
-                                                        <option value="default" data-img_src="https://data.world/api/datadotworld-apps/dataset/python/file/raw/logo.png">Default Palette</option>
+                                                        <option value="default">Default Palette</option>
                                                         <option value="custom">Custom Palette</option>
                                                     </select>
+                                                </div> --}}
+                                                <div class="form-group col-5" id="colorPi">
+                                                    <label for="colorPicker">Select Palette:</label>
+                                                    <ul class="list-unstyled form-control">
+                                                        <li class="init">Select Palette</li>
+                                                        <li data-value="random"><span><img
+                                                                    src="{{ asset('public/backend/dashmin/img/palette.png') }}"
+                                                                    width="200" style="margin-right: 10px;">Bold</span>
+                                                        </li>
+                                                        <li data-value="default">
+                                                            <span><img
+                                                                    src="{{ asset('public/backend/dashmin/img/palette1.png') }}"
+                                                                    width="200" style="margin-right: 10px;">Medium
+                                                            </span>
+                                                        </li>
+                                                        <li data-value="Bright">
+                                                            <span><img
+                                                                    src="{{ asset('public/backend/dashmin/img/palette.png') }}"
+                                                                    width="200" style="margin-right: 10px;">Bright
+                                                            </span>
+                                                        </li>
+                                                        <li data-value="custom"><span>Custom Palette</span></li>
+                                                    </ul>
                                                 </div>
-                                                
-                                                <ul class="list-unstyled">
-                                                    <li class="init">Select</li>
-                                                    <li data-value="random"><span><img src="https://data.world/api/datadotworld-apps/dataset/python/file/raw/logo.png" width="25">random</span></li>
-                                                    <li data-value="default"><span>Default Palette</span></li>
-                                                    <li data-value="custom"><span>Custom Palette</span></li>
-                                                </ul>
-                                                
-                                                
-                                                
-                                                
+
+
+
                                                 <!-- Canvas for the chart -->
                                                 <!-- Border width dropdown menu -->
                                                 <div class="form-group col-2" id="borderWi">
@@ -90,37 +105,7 @@
                                                     </select>
                                                 </div>
 
-                                                <!-- Labels and color inputs -->
-                                                {{-- <div class="container mt-3 col-2" id="labelId">
-                                                    @foreach ($countData as $label => $value)
-                                                        <div class="form-row">
-                                                            <div class="form-group col-md-6">
-                                                                <label
-                                                                    for="colorInput_{{ $label }}">{{ $label }}
-                                                                    Color:</label>
-                                                                <input type="color" class="form-control label-color"
-                                                                    id="colorInput_{{ $label }}"
-                                                                    data-label="{{ $label }}" value="#d6d6d6">
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-
-                                                    <!-- Apply Color button -->
-                                                    <button type="button" class="btn btn-primary" id="submitColorBtn">Apply
-                                                        Color</button>
-                                                </div> --}}
-
                                                 <canvas id="myChart"></canvas>
-
-                                                {{-- <div class="col-6 bg-light rounded p-3" id="chartTypeContainer">
-                                                        <select class="form-control col-3 selectpicker" name="chart_type"
-                                                            id="chartTypeDropdown">
-                                                            <option value="line">Single Line Chart</option>
-                                                            <option value="bar">Single Bar Chart</option>
-                                                            <option value="pie">Pie Chart</option>
-                                                            <option value="doughnut">Doughnut Chart</option>
-                                                        </select>
-                                                    </div> --}}
                                                 <div class="mt-3">
                                                     <table class="table" id="dataOnly">
                                                         <thead>
@@ -153,8 +138,8 @@
                                                             <div class="modal-header">
                                                                 <h5 class="modal-title" id="customColorModalLabel">Custom
                                                                     Color Picker</h5>
-                                                                <button type="button" class="close" data-dismiss="modal"
-                                                                    aria-label="Close">
+                                                                <button type="button" class="close"
+                                                                    data-dismiss="modal" aria-label="Close">
                                                                     <span aria-hidden="true">&times;</span>
                                                                 </button>
                                                             </div>
@@ -189,11 +174,9 @@
                                                         </div>
                                                     </div>
                                                 </div>
-
                                                 <!-- End of Bootstrap-styled cart -->
                                             </div>
                                         </form>
-
                                     </div>
                                 </div>
                             </div>
@@ -208,39 +191,27 @@
 
 @endsection
 @push('style')
-<style>
-    ul.list-unstyled { 
-    background: white;
-    list-style: none;
-    padding: 0px 10px 0px 50px;
-    height: 56px;
-    margin-top: 0;
-    margin-bottom: 0;
-    font-size: 16px;
-    line-height: 1;
-    font-weight: 600;
-    color: black;
-    border: 1px solid black;
-    width: 100px;
-    max-width: 100px;
-    border-radius: 50px;
-}
-ul.list-unstyled li { 
-  padding: 19px 20px; z-index: 2;
-}
-ul.list-unstyled li:not(.init) { 
-    float: left;
-    padding: 10px;
-    width: 100%;
-    display: none;
-    background: #000;
-    color: #fff;
-    position: relative;
-    left: 4px;
-}
-ul li:not(.init):hover, ul li.selected:not(.init) { background: #0ee; color: #000; }
-li.init { cursor: pointer; }
-</style>
+    <style>
+        ul.list-unstyled li:not(.init) {
+            float: left;
+            padding: 10px;
+            width: 100%;
+            display: none;
+            background: #8e8e8e;
+            color: #fff;
+            margin-right: 10px;
+        }
+
+        ul li:not(.init):hover,
+        ul li.selected:not(.init) {
+            background: rgb(188, 193, 193);
+            color: #000;
+        }
+
+        li.init {
+            cursor: pointer;
+        }
+    </style>
 @endpush
 @section('script')
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -412,24 +383,24 @@ li.init { cursor: pointer; }
             var selectedType = this.value;
             createOrUpdateChart(selectedType);
         });
-        document.getElementById('colorPalette').addEventListener('change', function() {
-            var selectedPalette = this.value;
-            var colors;
-alert(selectedPalette);
-            // Set colors based on selected palette
-            if (selectedPalette === 'random') {
-                colors = dynamicColors(); // Random colors
-            } else if (selectedPalette === 'default') {
-                colors = defaultPalette(); // Default palette
-            } else if (selectedPalette === 'custom') {
-                // colors = customPalette();
-                $('#customColorModal').modal('show');
-                return;
-            }
+        //         document.getElementById('colorPalette').addEventListener('change', function() {
+        //             var selectedPalette = this.value;
+        //             var colors;
+        // alert(selectedPalette);
+        //             // Set colors based on selected palette
+        //             if (selectedPalette === 'random') {
+        //                 colors = dynamicColors(); // Random colors
+        //             } else if (selectedPalette === 'default') {
+        //                 colors = defaultPalette(); // Default palette
+        //             } else if (selectedPalette === 'custom') {
+        //                 // colors = customPalette();
+        //                 $('#customColorModal').modal('show');
+        //                 return;
+        //             }
 
-            // Update chart colors
-            updateColors(colors);
-        });
+        //             // Update chart colors
+        //             updateColors(colors);
+        //         });
         document.getElementById('borderWidth').addEventListener('change', function() {
             var selectedWidth = parseInt(this.value);
             myPieChart.options.borderWidth = selectedWidth;
@@ -492,19 +463,19 @@ alert(selectedPalette);
             }
             myPieChart.update();
         }
-        
+
         $("ul").on("click", ".init", function() {
-        $(this).closest("ul").children('li:not(.init)').toggle();
-    });
-    
-    var allOptions = $("ul").children('li:not(.init)');
-    $("ul").on("click", "li:not(.init)", function() {
-        allOptions.removeClass('selected');
-        $(this).addClass('selected');
-         var selected = $(this).find('span').html()
-         $("ul").children('.init').html(selected);
-         
-         
+            $(this).closest("ul").children('li:not(.init)').toggle();
+        });
+
+        var allOptions = $("ul").children('li:not(.init)');
+        $("ul").on("click", "li:not(.init)", function() {
+            allOptions.removeClass('selected');
+            $(this).addClass('selected');
+            var selected = $(this).find('span').html()
+            $("ul").children('.init').html(selected);
+
+
             var selectedPalette = $(this).attr('data-value');
             var colors;
             // Set colors based on selected palette
