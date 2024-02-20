@@ -19,168 +19,143 @@
                                 <div id="flush-collapseOne" class="accordion-collapse collapse show"
                                     aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                                     <div class="accordion-body">
-                                        <div class="row mt-2">
-                                            <div class="col-6 mt-5">
-                                                <div class="col-6 bg-light rounded p-3">
-                                                    <select class="form-control col-3" name="data_type" id="chartType">
-                                                        {{-- <option value=""><i class="bi bi-clipboard-data"></i> Chart And Data</option> --}}
-                                                        <option value="dataOnly"><i class="bi bi-table"></i> Data Only
-                                                        </option>
-                                                        <option value="chartOnly"><i class="bi bi-bar-chart-line"></i>
-                                                            Chart
-                                                            Only</option>
-                                                    </select>
-                                                </div>
+                                        <div class="row mt-5">
+                                            <div class="col-2 bg-light rounded">
+                                                <label for="colorPicker">Select</label>
 
-                                                <!-- Add dropdown menu -->
-                                                <div class="form-group">
-                                                    <label for="colorPicker">Select Color:</label>
-                                                    <select id="colorPalette" class="form-control">
-                                                        <option value="random">Random</option>
-                                                        <option value="default">Default Palette</option>
-                                                        <option value="custom">Custom Palette</option>
-                                                    </select>
-                                                </div>
-                                                <!-- Canvas for the chart -->
-                                                <!-- Border width dropdown menu -->
-                                                <div class="form-group">
-                                                    <label for="borderWidth">Select Border Width:</label>
-                                                    <select id="borderWidth" class="form-control">
-                                                        <option value="10">Standard</option>
-                                                        <option value="20">Explode Smallest </option>
-                                                        <option value="30">Explode Largest</option>
-                                                    </select>
-                                                </div>
-                                                <select id="chartTypeSelect" class="form-control col-3">
+                                                <select class="form-control col-3" name="data_type" id="chartType">
+                                                    {{-- <option value=""><i class="bi bi-clipboard-data"></i> Chart And Data</option> --}}
+                                                    <option value="dataOnly"><i class="bi bi-table"></i> Data Only
+                                                    </option>
+                                                    <option value="chartOnly"><i class="bi bi-bar-chart-line"></i>
+                                                        Chart
+                                                        Only</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-2 bg-light rounded" id="chartTypeDiv">
+                                                <label for="colorPicker">Select Chart:</label>
+
+                                                <select id="chartTypeSelect" class="form-control" name="selectChart">
                                                     <option value="line">Single Line Chart</option>
                                                     <option value="bar">Single Bar Chart</option>
                                                     <option value="pie">Pie Chart</option>
                                                     <option value="doughnut">Doughnut Chart</option>
-                                                    <!-- Add more options for different chart types as needed -->
                                                 </select>
-                                                {{-- <div class="form-group mt-3">
-                                                    <label for="labelSelector">Select Label:</label>
-                                                    <select id="labelSelector" class="form-control">
-                                                        @foreach ($countData as $label => $value)
-                                                            <option value="{{ $label }}">{{ $label }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="colorInput">Label Color:</label>
-                                                    <input type="color" class="form-control" id="colorInput">
-                                                </div>
-                                                <button type="button" class="btn btn-primary" id="submitColorBtn">Apply
-                                                    Color</button> --}}
-                                                <!-- Labels and color inputs -->
-                                                <div class="container mt-3">
-                                                    @foreach ($countData as $label => $value)
-                                                        <div class="form-row">
-                                                            <div class="form-group col-md-6">
-                                                                <label
-                                                                    for="colorInput_{{ $label }}">{{ $label }}
-                                                                    Color:</label>
-                                                                <input type="color" class="form-control label-color"
-                                                                    id="colorInput_{{ $label }}"
-                                                                    data-label="{{ $label }}" value="#d6d6d6">
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
+                                            </div>
 
-                                                <!-- Apply Color button -->
-                                                <button type="button" class="btn btn-primary" id="submitColorBtn">Apply
-                                                    Color</button>
+                                            <!-- Add dropdown menu -->
+                                            {{-- <div class="form-group col-2" id="colorPi">
+                                                <label for="colorPicker">Select Color:</label>
+                                                <select id="colorPalette" class="form-control">
+                                                    <option value="random">Random</option>
+                                                    <option value="default">Default Palette</option>
+                                                    <option value="custom">Custom Palette</option>
+                                                </select>
+                                            </div> --}}
+                                            <div class="form-group col-5" id="colorPi">
+                                                <label for="colorPicker">Select Palette:</label>
+                                                <ul class="list-unstyled form-control">
+                                                    <li class="init">Select Palette</li>
+                                                    <li data-value="random"><span><img
+                                                                src="{{ asset('public/backend/dashmin/img/palette.png') }}"
+                                                                width="200" style="margin-right: 10px;">Bold</span>
+                                                    </li>
+                                                    <li data-value="default">
+                                                        <span><img
+                                                                src="{{ asset('public/backend/dashmin/img/palette1.png') }}"
+                                                                width="200" style="margin-right: 10px;">Medium
+                                                        </span>
+                                                    </li>
+                                                    <li data-value="Bright">
+                                                        <span><img
+                                                                src="{{ asset('public/backend/dashmin/img/palette.png') }}"
+                                                                width="200" style="margin-right: 10px;">Bright
+                                                        </span>
+                                                    </li>
+                                                    <li data-value="custom"><span>Custom Palette</span></li>
+                                                </ul>
+                                            </div>
 
 
 
-                                                <canvas id="myChart"></canvas>
+                                            <!-- Canvas for the chart -->
+                                            <!-- Border width dropdown menu -->
+                                            <div class="form-group col-2" id="borderWi">
+                                                <label for="borderWidth">Select Border Width:</label>
+                                                <select id="borderWidth" class="form-control" name="borderWidth">
+                                                    <option value="10">Standard</option>
+                                                    <option value="20">Explode Smallest </option>
+                                                    <option value="30">Explode Largest</option>
+                                                </select>
+                                            </div>
 
-                                                <div class="col-6 bg-light rounded p-3" id="chartTypeContainer">
-                                                    <select class="form-control col-3 selectpicker" name="chart_type"
-                                                        id="chartTypeDropdown">
-                                                        <option value="line">Single Line Chart</option>
-                                                        <option value="bar">Single Bar Chart</option>
-                                                        <option value="pie">Pie Chart</option>
-                                                        <option value="doughnut">Doughnut Chart</option>
-                                                        @foreach ($countData as $key => $value)
-                                                            <option value="{{ $key }}">{{ $key }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="">
-                                                    <div class="">
-
-                                                        <table class="table" id="dataOnly">
-                                                            <thead>
+                                            <canvas id="myChart"></canvas>
+                                            <div class="mt-3">
+                                                <table class="table" id="dataOnly">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Application Name</th>
+                                                            <th>Count of Application Name</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if (isset($countData))
+                                                            @foreach ($countData as $fieldName => $count)
                                                                 <tr>
-                                                                    <th>Field Name</th>
-                                                                    <th>Count</th>
+                                                                    <td>{{ $fieldName }}</td>
+                                                                    <td>{{ $count }}</td>
                                                                 </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                @if (isset($countData))
-                                                                    @foreach ($countData as $fieldName => $count)
-                                                                        <tr>
-                                                                            <td>{{ $fieldName }}</td>
-                                                                            <td>{{ $count }}</td>
-                                                                        </tr>
-                                                                    @endforeach
-                                                                @else
-                                                                    <tr>
-                                                                        <td colspan="2">No data in the cart</td>
-                                                                    </tr>
-                                                                @endif
-                                                            </tbody>
-                                                        </table>
-                                                        <!-- Chart Start -->
-                                                        <div class="container-fluid pt-4 px-4" id="chartOnly">
-                                                            <div class="row g-4">
-                                                                <div class="col-sm-12 col-xl-6" id="line">
-                                                                    <div class="bg-light rounded h-100 p-4">
-                                                                        <h6 class="mb-4">Single Line Chart</h6>
-                                                                        <canvas id="line-chart1"></canvas>
+                                                            @endforeach
+                                                        @else
+                                                            <tr>
+                                                                <td colspan="2">No data in the cart</td>
+                                                            </tr>
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <!-- Custom Color Picker Modal -->
+                                            <div class="modal fade" id="customColorModal" tabindex="-1" role="dialog"
+                                                aria-labelledby="customColorModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="customColorModalLabel">Custom
+                                                                Color Picker</h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="container mt-3" id="labelId">
+                                                                @foreach ($countData as $label => $value)
+                                                                    <div class="form-row">
+                                                                        <div class="form-group">
+                                                                            <label
+                                                                                for="colorInput_{{ $label }}">{{ $label }}
+                                                                                Color:</label>
+                                                                            <input type="color" name="labelColor[]"
+                                                                                class="form-control label-color"
+                                                                                id="colorInput_{{ $label }}"
+                                                                                data-label="{{ $label }}"
+                                                                                value="#d6d6d6">
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                                <div class="col-sm-12 col-xl-6" id="salse">
-                                                                    <div class="bg-light rounded h-100 p-4">
-                                                                        <h6 class="mb-4">Multiple Line Chart</h6>
-                                                                        <canvas id="salse-revenue1"></canvas>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-sm-12 col-xl-6" id="bar">
-                                                                    <div class="bg-light rounded h-100 p-4">
-                                                                        <h6 class="mb-4">Single Bar Chart</h6>
-                                                                        <canvas id="bar-chart1"></canvas>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-sm-12 col-xl-6" id="worldwide">
-                                                                    <div class="bg-light rounded h-100 p-4">
-                                                                        <h6 class="mb-4">Multiple Bar Chart</h6>
-                                                                        <canvas id="worldwide-sales1"></canvas>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-sm-12 col-xl-6" id="pie">
-                                                                    <div class="bg-light rounded h-100 p-4">
-                                                                        <h6 class="mb-4">Pie Chart</h6>
-                                                                        <canvas id="pie-chart1"></canvas>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-sm-12 col-xl-6" id="doughnut">
-                                                                    <div class="bg-light rounded h-100 p-4">
-                                                                        <h6 class="mb-4">Doughnut Chart</h6>
-                                                                        <canvas id="doughnut-chart1"></canvas>
-                                                                    </div>
-                                                                </div>
+                                                                @endforeach
                                                             </div>
                                                         </div>
-                                                        <!-- Chart End -->
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-dismiss="modal">Close</button>
+                                                            <button type="button" class="btn btn-primary "
+                                                                id="submitColorBtn">Apply
+                                                                Color</button>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <!-- End of Bootstrap-styled cart -->
                                             </div>
+                                            <!-- End of Bootstrap-styled cart -->
                                         </div>
                                     </div>
                                 </div>
@@ -192,15 +167,60 @@
         </div>
     </div>
 @endsection
+@push('style')
+    <style>
+        ul.list-unstyled li:not(.init) {
+            float: left;
+            padding: 10px;
+            width: 100%;
+            display: none;
+            background: #8e8e8e;
+            color: #fff;
+            margin-right: 10px;
+        }
+
+        ul li:not(.init):hover,
+        ul li.selected:not(.init) {
+            background: rgb(188, 193, 193);
+            color: #000;
+        }
+
+        li.init {
+            cursor: pointer;
+        }
+    </style>
+@endpush
 @section('script')
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function() {
+            $(".list-unstyled").hide();
+            $('#closeCustomColorModal').click(function() {
+                $('#customColorModal').modal('hide');
+            });
+            // Hide all elements by default
+            $("#chartTypeDiv, #colorPi, #borderWi, #labelId, #submitColorBtn").hide();
+            $("#myChart").hide();
+
+            // Add change event listener to chartType select
+            $("#chartType").change(function() {
+                var selectedValue = $(this).val();
+
+                if (selectedValue === "chartOnly") {
+                    $("#chartTypeDiv, #colorPi, #borderWi, #labelId, #submitColorBtn").show();
+                    $("#myChart").show();
+                    $(".list-unstyled").show();
+                    $("#dataOnly").hide();
+
+                } else if (selectedValue === "dataOnly") {
+                    $("#chartTypeDiv, #colorPi, #borderWi, #labelId, #submitColorBtn").hide();
+                    $("#myChart").hide();
+                    $("#dataOnly").show();
 
 
-    {{-- <!-- Include jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script> --}}
-    <!-- Include Bootstrap Colorpicker JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.4.0/js/bootstrap-colorpicker.min.js">
+                }
+            });
+        });
     </script>
     <script>
         var ctxPie = document.getElementById('myChart').getContext('2d');
@@ -340,22 +360,24 @@
             var selectedType = this.value;
             createOrUpdateChart(selectedType);
         });
-        document.getElementById('colorPalette').addEventListener('change', function() {
-            var selectedPalette = this.value;
-            var colors;
+        //         document.getElementById('colorPalette').addEventListener('change', function() {
+        //             var selectedPalette = this.value;
+        //             var colors;
+        // alert(selectedPalette);
+        //             // Set colors based on selected palette
+        //             if (selectedPalette === 'random') {
+        //                 colors = dynamicColors(); // Random colors
+        //             } else if (selectedPalette === 'default') {
+        //                 colors = defaultPalette(); // Default palette
+        //             } else if (selectedPalette === 'custom') {
+        //                 // colors = customPalette();
+        //                 $('#customColorModal').modal('show');
+        //                 return;
+        //             }
 
-            // Set colors based on selected palette
-            if (selectedPalette === 'random') {
-                colors = dynamicColors(); // Random colors
-            } else if (selectedPalette === 'default') {
-                colors = defaultPalette(); // Default palette
-            } else if (selectedPalette === 'custom') {
-                colors = customPalette();
-            }
-
-            // Update chart colors
-            updateColors(colors);
-        });
+        //             // Update chart colors
+        //             updateColors(colors);
+        //         });
         document.getElementById('borderWidth').addEventListener('change', function() {
             var selectedWidth = parseInt(this.value);
             myPieChart.options.borderWidth = selectedWidth;
@@ -418,165 +440,34 @@
             }
             myPieChart.update();
         }
-    </script>
-    <script>
-        $(document).ready(function() {
-            // Hide all charts initially
-            $('#line, #salse, #bar, #worldwide, #pie, #doughnut').hide();
 
-            // Initially hide the chart type dropdown
-            $('#chartTypeContainer').hide();
-
-            $('#chartType').change(function() {
-                var selectedValue = $(this).val();
-
-                // Hide the chart type dropdown by default
-                $('#chartTypeContainer').hide();
-
-                if (selectedValue === 'chartOnly') {
-                    // If 'Chart Only' is selected, show the chart type dropdown
-                    $('#chartTypeContainer').show();
-                    $('#dataOnly').hide();
-                } else {
-                    // If 'Data Only' is selected, hide all charts
-                    $('#line, #salse, #bar, #worldwide, #pie, #doughnut')
-                        .hide();
-                    $('#dataOnly').show();
-
-                }
-            });
-
-            $('#chartTypeDropdown').change(function() {
-                var selectedChart = $(this).val();
-
-                // Hide all charts
-                $('#line, #salse, #bar, #worldwide, #pie, #doughnut')
-                    .hide();
-
-                // Show the selected chart
-                $('#' + selectedChart).show();
-            });
+        $("ul").on("click", ".init", function() {
+            $(this).closest("ul").children('li:not(.init)').toggle();
         });
-        document.addEventListener('DOMContentLoaded', function() {
-            var countData = @json($countData);
 
-            // Create line chart
-            var ctxLine = document.getElementById('line-chart1').getContext('2d');
+        var allOptions = $("ul").children('li:not(.init)');
+        $("ul").on("click", "li:not(.init)", function() {
+            allOptions.removeClass('selected');
+            $(this).addClass('selected');
+            var selected = $(this).find('span').html()
+            $("ul").children('.init').html(selected);
 
-            var myLineChart = new Chart(ctxLine, {
-                type: 'line',
-                data: {
-                    labels: Object.keys(countData),
-                    datasets: [{
-                        backgroundColor: [
-                            'rgba(0, 156, 255, .7)',
-                            'rgba(0, 156, 255, .6)',
-                            'rgba(0, 156, 255, .5)',
-                            'rgba(0, 156, 255, .4)',
-                            'rgba(0, 156, 255, .3)'
-                        ],
-                        data: Object.values(countData)
-                    }]
-                },
-                options: {
-                    responsive: true
-                }
-            });
-            // Create salse-revenue chart
-            var ctxSalse = document.getElementById('salse-revenue1').getContext('2d');
-            var mySalseChart = new Chart(ctxSalse, {
-                type: 'line',
-                data: {
-                    labels: Object.keys(countData),
-                    datasets: [{
-                        label: 'Count',
-                        data: Object.values(countData),
-                        backgroundColor: '#009CFF',
-                        borderColor: '#fff',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            beginAtZero: true
-                        },
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-            var barCtx = document.getElementById('bar-chart1').getContext('2d');
-            var myChart = new Chart(barCtx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(countData),
-                    datasets: [{
-                        label: 'Count',
-                        data: Object.values(countData),
-                        backgroundColor: '#009CFF',
-                        borderColor: '#fff',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            beginAtZero: true
-                        },
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-            var ctxPie = document.getElementById('pie-chart1').getContext('2d');
-            var myPieChart = new Chart(ctxPie, {
-                type: 'pie',
-                data: {
-                    labels: Object.keys(countData),
-                    datasets: [{
-                        backgroundColor: [
-                            'rgba(0, 156, 255, .7)',
-                            'rgba(0, 156, 255, .6)',
-                            'rgba(0, 156, 255, .5)',
-                            'rgba(0, 156, 255, .4)',
-                            'rgba(0, 156, 255, .3)'
-                        ],
-                        data: Object.values(countData)
-                    }]
-                },
-                options: {
-                    responsive: true
-                }
-            });
 
-            var pieCtx = document.getElementById('doughnut-chart1').getContext('2d');
-            var myChart = new Chart(pieCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(countData),
-                    datasets: [{
-                        label: 'Count',
-                        data: Object.values(countData),
-                        backgroundColor: '#009CFF',
-                        borderColor: '#fff',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            beginAtZero: true
-                        },
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-            // Repeat the process for other charts...
+            var selectedPalette = $(this).attr('data-value');
+            var colors;
+            // Set colors based on selected palette
+            if (selectedPalette === 'random') {
+                colors = dynamicColors(); // Random colors
+            } else if (selectedPalette === 'default') {
+                colors = defaultPalette(); // Default palette
+            } else if (selectedPalette === 'custom') {
+                // colors = customPalette();
+                $('#customColorModal').modal('show');
+                return;
+            }
+            // Update chart colors
+            updateColors(colors);
+            allOptions.toggle();
         });
     </script>
 @endsection

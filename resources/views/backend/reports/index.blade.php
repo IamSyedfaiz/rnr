@@ -39,8 +39,8 @@
                                         <td>
                                             <a href="{{ route('edit.chart', $report->id) }}"><i
                                                     class="bi bi-pencil text-primary"></i></a>
-                                            <a href="{{ route('view.chart', $report->id) }}"><i
-                                                    class="bi bi-eye-fill text-primary"></i></a>
+                                            {{-- <a href="{{ route('view.chart', $report->id) }}"><i
+                                                    class="bi bi-eye-fill text-primary"></i></a> --}}
                                             <a href="{{ route('delete.report', $report->id) }}"><i
                                                     class="bi bi-trash-fill text-primary"></i></a>
 

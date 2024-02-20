@@ -63,7 +63,7 @@
                                                 </div>
 
                                                 <div class="bg-light rounded p-4 col-6" id="fieldData">
-                                                    <input type="hidden" name="application_id"
+                                                    <input type="hidden" name="application_id" id="selectedApplication"
                                                         value="{{ $application->id }}">
 
                                                     <div class="d-flex align-items-center justify-content-between mb-4">
@@ -167,48 +167,11 @@
             </div>
         </div>
     </div>
-    <!-- Sale & Revenue End -->
-    <!-- Recent Sales Start -->
-    {{-- <div class="container-fluid pt-4 px-4 row">
-        <div class="bg-light text-center rounded p-4 col-6">
-            <div class="d-flex align-items-center justify-content-between mb-4">
-                <h6 class="mb-0">Fields to Display</h6>
-            </div>
-            <table class="table" id="example" style="width:100%">
-                <thead>
-                    <tr class="text-white" style="background-color: #009CFF;">
-                        <th scope="col">{{ $application->name }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($fields as $item)
-                        <tr>
-                            <td class="field-row" data-field-name="{{ $item->name }}"
-                                data-field-id="{{ $item->id }}">
-                                <a href="#" class="field-link">{{ $item->name }}</a>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        <form action="{{ route('search.report') }}" method="GET" class="bg-light text-center rounded p-4 col-6"
-            id="fieldData">
-            <div class="d-flex align-items-center mb-4">
-                <h6 class="mb-0">Selected</h6>
-                <h6 class="mb-0">{{ $application->name }}</h6>
-                <button class="btn btn-danger" type="submit">Search</button>
-                <input type="hidden" name="application_id" value="{{ $application->id }}">
-            </div>
-
-
-
-        </form>
-    </div> --}}
-    <!-- Recent Sales End -->
 @endsection
 @section('script')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
     <script>
         $(document).ready(function() {
             $('#statisticsModeCheckbox').change(function() {
@@ -231,8 +194,8 @@
                 var fieldDetails = `<div class="row added-field" data-remove-id="${fieldCounter}" data-field-id="${fieldId}">
             <div class="mb-3 col-4">
                 <select name="dropdowns[]" class="form-control">
-                    <option value="group_by">Group & Count</option>
-                    {{-- <option value="count_of">Count of</option> --}}
+                    <option value="group_by">Group By</option>
+                     <option value="count_of">Count of</option> 
                 </select>
             </div>
             <div class="col-6">
@@ -242,7 +205,7 @@
             <div class="col-2">
                 <button class="removeFieldStatisticsMode btn btn-danger" data-remove-id="${fieldCounter}"><i class="bi bi-x-circle"></i> </button>
             </div>
-        </div>`;
+            </div>`;
 
                 var fieldInputDetails = `<div class="row added-field p-2" data-remove-id="${fieldInputCounter}" data-field-id="${fieldId}">
             <div class="col-6">
@@ -252,7 +215,7 @@
             <div class="col-2">
                 <button class="removeFieldOtherDiv btn btn-danger" data-remove-id="${fieldInputCounter}"><i class="bi bi-x-circle"></i> </button>
             </div>
-        </div>`;
+            </div>`;
                 if ($('#statisticsModeCheckbox').is(':checked')) {
                     $('#statisticsModeDiv').append(fieldDetails);
                 } else {
