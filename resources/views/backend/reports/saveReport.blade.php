@@ -4,16 +4,30 @@
     <div class="container-fluid pt-4 px-4">
         <div class="row g-4">
             <div class="col-sm-12">
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 <div class="rounded h-100">
                     <form action="{{ route('store.report') }}" class="m-n2" method="POST">
                         @csrf
                         <input type="hidden" value="{{ auth()->id() }}" name="user_id">
-                        <input type="hidden" value="{{ @$applicationId }}" name="report_id">
+                        <input type="hidden" value="{{ @$applicationId }}" name="application_id">
                         <input type="hidden" value="{{ @$data }}" name="data">
                         <input type="hidden" value="{{ @$dropdowns }}" name="dropdowns">
                         <input type="hidden" value="{{ @$fieldNames }}" name="fieldNames">
                         <input type="hidden" value="{{ @$statisticsMode }}" name="statisticsMode">
                         <input type="hidden" value="{{ @$fieldStatisticsNames }}" name="fieldStatisticsNames">
+                        <input type="hidden" value="{{ @$dataType }}" name="dataType">
+                        <input type="hidden" value="{{ @$selectChart }}" name="selectChart">
+                        <input type="hidden" value="{{ @$borderWidth }}" name="borderWidth">
+                        <input type="hidden" value="{{ @$labelColor }}" name="labelColor">
+                        <input type="hidden" value="{{ @$legendPosition }}" name="legendPosition">
 
                         <div class="accordion accordion-flush" id="accordionFlushExample">
                             <div class="accordion-item">
@@ -51,7 +65,12 @@
                                                         <label for="name"
                                                             class="col-form-label fw-bold mx-2">Name:</label>
                                                         <input type="text" class="form-control"
-                                                            value="{{ old('name', $report->name ?? '') }}" name="name" />
+                                                            value="{{ old('name', $report->name ?? '') }}"
+                                                            name="name" />
+                                                        @error('name')
+                                                            <label id="name-error" class="error text-danger" for="name">
+                                                                {{ $message }}</label>
+                                                        @enderror
                                                     </div>
                                                 </div>
                                                 <div class="col-6">
@@ -99,14 +118,10 @@
                                                     <div class="input-group mb-3">
                                                         <label for="name" class="col-form-label fw-bold mx-2">Last
                                                             Update: {{ @$report->updated_at }}</label>
-
                                                     </div>
                                                 </div>
                                             </div>
-
                                     </div>
-
-
                                 </div>
                             </div>
                             <div cflass="accordion-item mt-2">

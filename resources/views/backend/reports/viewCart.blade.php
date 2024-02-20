@@ -18,19 +18,20 @@
                                 <div id="flush-collapseOne" class="accordion-collapse collapse show"
                                     aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                                     <div class="accordion-body">
-                                        <form action="{{ route('store.cert.report') }}" method="POST">
+                                        <form action="{{ route('store.cert.report') }}" method="GET">
                                             @csrf
                                             <input type="hidden" name="application_id" value="{{ $applicationId }}">
-                                            {{-- <input type="hidden" name="report_id" value="{{ @$reportId }}">
-                                            <input type="hidden" name="dropdowns" value="{{ @$dropdowns }}">
-                                            <input type="hidden" name="fieldIds" value="{{ @$fieldIds }}">
-                                            <input type="hidden" name="fieldNames" value="{{ @$fieldNames }}"> --}}
-                                            {{-- <input type="hidden" name="fieldStatisticsNames"
-                                                value="{{ $fieldStatisticsNames }}">
-                                            <input type="hidden" name="statisticsMode" value="{{ $statisticsMode }}"> --}}
+                                            <input type="hidden" name="dropdowns" value="{{ json_encode(@$dropdowns) }}">
+                                            <input type="hidden" name="fieldIds" value="{{ json_encode(@$fieldIds) }}">
+                                            <input type="hidden" name="fieldNames" value="{{ json_encode(@$fieldNames) }}">
+                                            <input type="hidden" name="data" value="{{ json_encode($countData) }}">
+
+                                            <input type="hidden" name="fieldStatisticsNames"
+                                                value="{{ json_encode($fieldStatisticsNames) }}">
+                                            <input type="hidden" name="statisticsMode" value="{{ $statisticsMode }}">
                                             <button type="submit" class="btn btn-outline-primary fw-bold">SAVE</button>
-                                            {{-- <button type="button" class="btn btn-outline-primary fw-bold">MODIFY</button>
-                                            <button type="button" class="btn btn-outline-primary fw-bold">NEW
+                                            {{-- <button type="button" class="btn btn-outline-primary fw-bold">MODIFY</button> --}}
+                                            {{--   <button type="button" class="btn btn-outline-primary fw-bold">NEW
                                                 REPORT</button>
                                             <button type="button" class="btn btn-outline-primary fw-bold">RELATED
                                                 REPORTS</button> --}}
@@ -50,77 +51,61 @@
                                                 <div class="col-2 bg-light rounded" id="chartTypeDiv">
                                                     <label for="colorPicker">Select Chart:</label>
 
-                                                    <select id="chartTypeSelect" class="form-control">
+                                                    <select id="chartTypeSelect" class="form-control" name="selectChart">
                                                         <option value="line">Single Line Chart</option>
-                                                        <option value="bar">Single Bar Chart</option>
+                                                        <option value="bar">Vertical Bar Chart</option>
+                                                        <option value="bar-horizontal">Horizontal Bar Chart</option>
                                                         <option value="pie">Pie Chart</option>
                                                         <option value="doughnut">Doughnut Chart</option>
-                                                        <!-- Add more options for different chart types as needed -->
+                                                    </select>
+                                                </div>
+                                                <div class="form-group col-2" id="legendPositionShow">
+                                                    <label for="legendPosition">Legend Position:</label>
+                                                    <select class="form-control" name="legendPosition" id="legendPosition">
+                                                        <option value="top">Position: top</option>
+                                                        <option value="right">Position: right</option>
+                                                        <option value="bottom">Position: bottom</option>
+                                                        <option value="left">Position: left</option>
                                                     </select>
                                                 </div>
 
-                                                <!-- Add dropdown menu -->
-                                                <div class="form-group col-2" id="colorPi">
-                                                    <label for="colorPicker">Select Color:</label>
-                                                    <select id="colorPalette" class="form-control">
-                                                        <option value="random">Random</option>
-                                                        <option value="default" data-img_src="https://data.world/api/datadotworld-apps/dataset/python/file/raw/logo.png">Default Palette</option>
-                                                        <option value="custom">Custom Palette</option>
-                                                    </select>
+                                                <div class="form-group col-5" id="colorPi">
+                                                    <label for="colorPicker">Select Palette:</label>
+                                                    <ul class="list-unstyled form-control">
+                                                        <li class="init">Select Palette</li>
+                                                        <li data-value="random"><span><img
+                                                                    src="{{ asset('public/backend/dashmin/img/palette.png') }}"
+                                                                    width="200" style="margin-right: 10px;">Bold</span>
+                                                        </li>
+                                                        <li data-value="default">
+                                                            <span><img
+                                                                    src="{{ asset('public/backend/dashmin/img/palette1.png') }}"
+                                                                    width="200" style="margin-right: 10px;">Medium
+                                                            </span>
+                                                        </li>
+                                                        <li data-value="bright">
+                                                            <span><img
+                                                                    src="{{ asset('public/backend/dashmin/img/palette.png') }}"
+                                                                    width="200" style="margin-right: 10px;">Bright
+                                                            </span>
+                                                        </li>
+                                                        <li data-value="custom"><span>Custom Palette</span></li>
+                                                    </ul>
                                                 </div>
-                                                
-                                                <ul class="list-unstyled">
-                                                    <li class="init">Select</li>
-                                                    <li data-value="random"><span><img src="https://data.world/api/datadotworld-apps/dataset/python/file/raw/logo.png" width="25">random</span></li>
-                                                    <li data-value="default"><span>Default Palette</span></li>
-                                                    <li data-value="custom"><span>Custom Palette</span></li>
-                                                </ul>
-                                                
-                                                
-                                                
-                                                
+
+
+
                                                 <!-- Canvas for the chart -->
                                                 <!-- Border width dropdown menu -->
                                                 <div class="form-group col-2" id="borderWi">
                                                     <label for="borderWidth">Select Border Width:</label>
-                                                    <select id="borderWidth" class="form-control">
+                                                    <select id="borderWidth" class="form-control" name="borderWidth">
                                                         <option value="10">Standard</option>
                                                         <option value="20">Explode Smallest </option>
                                                         <option value="30">Explode Largest</option>
                                                     </select>
                                                 </div>
-
-                                                <!-- Labels and color inputs -->
-                                                {{-- <div class="container mt-3 col-2" id="labelId">
-                                                    @foreach ($countData as $label => $value)
-                                                        <div class="form-row">
-                                                            <div class="form-group col-md-6">
-                                                                <label
-                                                                    for="colorInput_{{ $label }}">{{ $label }}
-                                                                    Color:</label>
-                                                                <input type="color" class="form-control label-color"
-                                                                    id="colorInput_{{ $label }}"
-                                                                    data-label="{{ $label }}" value="#d6d6d6">
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-
-                                                    <!-- Apply Color button -->
-                                                    <button type="button" class="btn btn-primary" id="submitColorBtn">Apply
-                                                        Color</button>
-                                                </div> --}}
-
                                                 <canvas id="myChart"></canvas>
-
-                                                {{-- <div class="col-6 bg-light rounded p-3" id="chartTypeContainer">
-                                                        <select class="form-control col-3 selectpicker" name="chart_type"
-                                                            id="chartTypeDropdown">
-                                                            <option value="line">Single Line Chart</option>
-                                                            <option value="bar">Single Bar Chart</option>
-                                                            <option value="pie">Pie Chart</option>
-                                                            <option value="doughnut">Doughnut Chart</option>
-                                                        </select>
-                                                    </div> --}}
                                                 <div class="mt-3">
                                                     <table class="table" id="dataOnly">
                                                         <thead>
@@ -146,17 +131,14 @@
                                                     </table>
                                                 </div>
                                                 <!-- Custom Color Picker Modal -->
-                                                <div class="modal fade" id="customColorModal" tabindex="-1" role="dialog"
-                                                    aria-labelledby="customColorModalLabel" aria-hidden="true">
+                                                <div class="modal fade" id="customColorModal" tabindex="-1"
+                                                    role="dialog" aria-labelledby="customColorModalLabel"
+                                                    aria-hidden="true">
                                                     <div class="modal-dialog" role="document">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
                                                                 <h5 class="modal-title" id="customColorModalLabel">Custom
                                                                     Color Picker</h5>
-                                                                <button type="button" class="close" data-dismiss="modal"
-                                                                    aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
                                                             </div>
                                                             <div class="modal-body">
                                                                 <div class="container mt-3" id="labelId">
@@ -166,7 +148,7 @@
                                                                                 <label
                                                                                     for="colorInput_{{ $label }}">{{ $label }}
                                                                                     Color:</label>
-                                                                                <input type="color"
+                                                                                <input type="color" name="labelColor[]"
                                                                                     class="form-control label-color"
                                                                                     id="colorInput_{{ $label }}"
                                                                                     data-label="{{ $label }}"
@@ -174,14 +156,11 @@
                                                                             </div>
                                                                         </div>
                                                                     @endforeach
-
-                                                                    <!-- Apply Color button -->
-
                                                                 </div>
                                                             </div>
                                                             <div class="modal-footer">
                                                                 <button type="button" class="btn btn-secondary"
-                                                                    data-dismiss="modal">Close</button>
+                                                                    data-dismiss="modal" id="CloseBtn">Close</button>
                                                                 <button type="button" class="btn btn-primary "
                                                                     id="submitColorBtn">Apply
                                                                     Color</button>
@@ -189,11 +168,9 @@
                                                         </div>
                                                     </div>
                                                 </div>
-
                                                 <!-- End of Bootstrap-styled cart -->
                                             </div>
                                         </form>
-
                                     </div>
                                 </div>
                             </div>
@@ -208,39 +185,27 @@
 
 @endsection
 @push('style')
-<style>
-    ul.list-unstyled { 
-    background: white;
-    list-style: none;
-    padding: 0px 10px 0px 50px;
-    height: 56px;
-    margin-top: 0;
-    margin-bottom: 0;
-    font-size: 16px;
-    line-height: 1;
-    font-weight: 600;
-    color: black;
-    border: 1px solid black;
-    width: 100px;
-    max-width: 100px;
-    border-radius: 50px;
-}
-ul.list-unstyled li { 
-  padding: 19px 20px; z-index: 2;
-}
-ul.list-unstyled li:not(.init) { 
-    float: left;
-    padding: 10px;
-    width: 100%;
-    display: none;
-    background: #000;
-    color: #fff;
-    position: relative;
-    left: 4px;
-}
-ul li:not(.init):hover, ul li.selected:not(.init) { background: #0ee; color: #000; }
-li.init { cursor: pointer; }
-</style>
+    <style>
+        ul.list-unstyled li:not(.init) {
+            float: left;
+            padding: 10px;
+            width: 100%;
+            display: none;
+            background: #8e8e8e;
+            color: #fff;
+            margin-right: 10px;
+        }
+
+        ul li:not(.init):hover,
+        ul li.selected:not(.init) {
+            background: rgb(188, 193, 193);
+            color: #000;
+        }
+
+        li.init {
+            cursor: pointer;
+        }
+    </style>
 @endpush
 @section('script')
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -253,6 +218,7 @@ li.init { cursor: pointer; }
             // Hide all elements by default
             $("#chartTypeDiv, #colorPi, #borderWi, #labelId, #submitColorBtn").hide();
             $("#myChart").hide();
+            $("#legendPositionShow").hide();
 
             // Add change event listener to chartType select
             $("#chartType").change(function() {
@@ -261,12 +227,14 @@ li.init { cursor: pointer; }
                 if (selectedValue === "chartOnly") {
                     $("#chartTypeDiv, #colorPi, #borderWi, #labelId, #submitColorBtn").show();
                     $("#myChart").show();
+                    $("#legendPositionShow").show();
                     $(".list-unstyled").show();
                     $("#dataOnly").hide();
 
                 } else if (selectedValue === "dataOnly") {
                     $("#chartTypeDiv, #colorPi, #borderWi, #labelId, #submitColorBtn").hide();
                     $("#myChart").hide();
+                    $("#legendPositionShow").hide();
                     $("#dataOnly").show();
 
 
@@ -288,8 +256,28 @@ li.init { cursor: pointer; }
         }
 
         function defaultPalette() {
-            return ['#FF5733', '#36A2EB', '#FFC300', '#4BC0C0', '#FF6347', '#5F9EA0', '#FFA07A', '#20B2AA', '#8A2BE2',
+            return ['#FF5733', '#36A2EB', '#FFC300', '#4BC0C0', '#5F9EA0', '#FFA07A', '#20B2AA', '#8A2BE2', '#FF6347',
                 '#4682B4'
+            ];
+        }
+
+        function brightPalette() {
+            return [
+                '#FFA07A',
+                '#9370DB',
+                '#6A5ACD',
+                '#FF1493',
+                '#7FFF00',
+                '#4BC0C0',
+                '#FF4500',
+                '#FFD700',
+                '#32CD32',
+                '#1E90FF',
+                '#8A2BE2',
+                '#00FF7F',
+                '#FF1493',
+                '#FF6347',
+                '#00CED1'
             ];
         }
 
@@ -319,6 +307,7 @@ li.init { cursor: pointer; }
             clickedDataElement.innerHTML = '<h4>Clicked Data:</h4><p><strong>Label:</strong> ' + label +
                 ', <strong>Value:</strong> ' + value + '</p>';
         }
+
         var myPieChart; // Global variable to hold the chart instance
 
         // Function to create or update the chart based on the selected type
@@ -328,142 +317,87 @@ li.init { cursor: pointer; }
                 myPieChart.destroy();
             }
             console.log(myPieChart);
+            const options = {
+                responsive: true,
+                borderWidth: 3,
+                onClick: (evt, activeElements, chart) => {
+                    if (activeElements.length > 0) {
+                        var datasetIndex = activeElements[0].datasetIndex;
+                        var dataIndex = activeElements[0].index;
+                        var labelId = chart.data.labels[dataIndex];
+                        var datasetId = chart.data.datasets[datasetIndex].label;
 
+                        function filterDataById(data, labelId) {
+                            const entry = Object.entries(data).find(([key, value]) => key === labelId);
+                            return entry ? {
+                                [entry[0]]: entry[1]
+                            } : null;
+                        }
+
+
+                        var filteredData = filterDataById(countData, labelId);
+                        if (filteredData !== null) {
+                            console.log(filteredData);
+                            var form = document.createElement('form');
+                            form.method = 'GET';
+                            form.action =
+                                '{{ route('route.to.handle') }}';
+                            var filteredDataInput = document.createElement('input');
+                            filteredDataInput.type = 'hidden';
+                            filteredDataInput.name = 'filteredData';
+                            filteredDataInput.value = JSON.stringify(
+                                filteredData);
+                            form.appendChild(filteredDataInput);
+                            document.body.appendChild(form);
+                            form.submit();
+                        } else {
+                            console.log('No data found for labelId:', labelId);
+                        }
+                    }
+                }
+            };
+
+            if (chartType === 'bar-horizontal') {
+                options.indexAxis = 'y';
+            }
             myPieChart = new Chart(ctxPie, {
-                type: chartType,
+                type: chartType === 'bar-horizontal' ? 'bar' : chartType,
                 data: {
                     labels: Object.keys(countData),
                     datasets: [{
                         data: Object.values(countData),
-                        backgroundColor: dynamicColors()
+                        backgroundColor: defaultPalette()
                     }]
                 },
-                options: {
-                    responsive: true,
-                    borderWidth: 3,
-                    legend: {
-                        display: false,
-                    },
-                    onClick: (evt, activeElements, chart) => {
-                        if (activeElements.length > 0) {
-                            var datasetIndex = activeElements[0].datasetIndex;
-                            // console.log('datasetIndex:', datasetIndex);
-
-                            var dataIndex = activeElements[0].index;
-                            // console.log('dataIndex:', dataIndex);
-
-                            // Retrieve the IDs based on datasetIndex and dataIndex
-                            var labelId = chart.data.labels[dataIndex];
-                            var datasetId = chart.data.datasets[datasetIndex].label;
-                            // console.log('labelId:', labelId);
-                            // console.log('datasetId:', datasetId);
-                            function filterDataById(data, labelId) {
-                                const entry = Object.entries(data).find(([key, value]) => key === labelId);
-                                return entry ? {
-                                    [entry[0]]: entry[1]
-                                } : null;
-                            }
-
-
-                            var filteredData = filterDataById(countData, labelId);
-                            if (filteredData !== null) {
-                                console.log(filteredData);
-                                // Send AJAX request to Laravel backend
-                                // Create a form element
-                                var form = document.createElement('form');
-                                form.method = 'GET'; // Change the method if needed
-                                form.action =
-                                    '{{ route('route.to.handle') }}'; // Replace with the correct route URL
-
-                                // Create a hidden input field to store the filtered data
-                                var filteredDataInput = document.createElement('input');
-                                filteredDataInput.type = 'hidden';
-                                filteredDataInput.name = 'filteredData';
-                                filteredDataInput.value = JSON.stringify(
-                                    filteredData); // Fill in the filtered data
-
-                                // Append the hidden input field to the form
-                                form.appendChild(filteredDataInput);
-
-                                // Append the form to the document body
-                                document.body.appendChild(form);
-
-                                // Submit the form
-                                form.submit();
-
-
-                            } else {
-                                console.log('No data found for labelId:', labelId);
-                            }
-
-
-                        }
-                    }
-
-
-                }
+                options: options
 
             });
         }
         createOrUpdateChart('bar');
+        document.getElementById('legendPosition').addEventListener('change', function() {
+            var selectedPosition = this.value;
+            if (myPieChart) {
+                myPieChart.options.plugins.legend.position = selectedPosition;
+                myPieChart.update();
+            }
+        });
 
         // Dropdown change event listener
         document.getElementById('chartTypeSelect').addEventListener('change', function() {
             var selectedType = this.value;
             createOrUpdateChart(selectedType);
         });
-        document.getElementById('colorPalette').addEventListener('change', function() {
-            var selectedPalette = this.value;
-            var colors;
-alert(selectedPalette);
-            // Set colors based on selected palette
-            if (selectedPalette === 'random') {
-                colors = dynamicColors(); // Random colors
-            } else if (selectedPalette === 'default') {
-                colors = defaultPalette(); // Default palette
-            } else if (selectedPalette === 'custom') {
-                // colors = customPalette();
-                $('#customColorModal').modal('show');
-                return;
-            }
-
-            // Update chart colors
-            updateColors(colors);
-        });
         document.getElementById('borderWidth').addEventListener('change', function() {
             var selectedWidth = parseInt(this.value);
             myPieChart.options.borderWidth = selectedWidth;
             myPieChart.update();
         });
-        // document.getElementById('submitColorBtn').addEventListener('click', function() {
-        //     var selectedLabel = document.getElementById('labelSelector').value;
-        //     var selectedColor = document.getElementById('colorInput').value;
-
-        //     // Update the color of the selected label in the chart
-        //     updateLabelColor(selectedLabel, selectedColor);
-        // });
-        // Apply color button click event
-
-        // // Function to update the color of a specific label in the chart
-        // function updateLabelColor(selectedLabel, selectedColor) {
-        //     var datasets = myPieChart.data.datasets;
-        //     var labels = myPieChart.data.labels;
-
-        //     // Loop through all labels
-        //     for (var i = 0; i < labels.length; i++) {
-        //         // If label matches selected label, update its color
-        //         if (labels[i] === selectedLabel) {
-        //             datasets[0].backgroundColor[i] = selectedColor;
-        //         } else {
-        //             // Otherwise, set color to gray
-        //             datasets[0].backgroundColor[i] = '#d6d6d6';
-        //         }
-        //     }
-        //     // Update the chart
-        //     myPieChart.update();
-        // }
         document.getElementById('submitColorBtn').addEventListener('click', function() {
             applySelectedColors();
+            $('#customColorModal').modal('hide');
+        });
+        document.getElementById('CloseBtn').addEventListener('click', function() {
+            $('#customColorModal').modal('hide');
         });
 
         function applySelectedColors() {
@@ -492,30 +426,32 @@ alert(selectedPalette);
             }
             myPieChart.update();
         }
-        
+
         $("ul").on("click", ".init", function() {
-        $(this).closest("ul").children('li:not(.init)').toggle();
-    });
-    
-    var allOptions = $("ul").children('li:not(.init)');
-    $("ul").on("click", "li:not(.init)", function() {
-        allOptions.removeClass('selected');
-        $(this).addClass('selected');
-         var selected = $(this).find('span').html()
-         $("ul").children('.init').html(selected);
-         
-         
+            $(this).closest("ul").children('li:not(.init)').toggle();
+        });
+
+        var allOptions = $("ul").children('li:not(.init)');
+        $("ul").on("click", "li:not(.init)", function() {
+            allOptions.removeClass('selected');
+            $(this).addClass('selected');
+            var selected = $(this).find('span').html()
+            $("ul").children('.init').html(selected);
+
+
             var selectedPalette = $(this).attr('data-value');
             var colors;
             // Set colors based on selected palette
             if (selectedPalette === 'random') {
-                colors = dynamicColors(); // Random colors
-            } else if (selectedPalette === 'default') {
                 colors = defaultPalette(); // Default palette
+            } else if (selectedPalette === 'default') {
+                colors = dynamicColors(); // Random colors
             } else if (selectedPalette === 'custom') {
                 // colors = customPalette();
                 $('#customColorModal').modal('show');
                 return;
+            } else if (selectedPalette === 'bright') {
+                colors = brightPalette();
             }
             // Update chart colors
             updateColors(colors);

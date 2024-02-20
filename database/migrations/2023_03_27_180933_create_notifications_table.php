@@ -33,7 +33,7 @@ return new class extends Migration {
             $table->longText('group_list')->default(0);
             $table->longText('user_list')->default(0);
             $table->string('advanced_operator_logic')->nullable();
-            $table->string('user_cc')->nullable();
+            $table->longText('user_cc')->default(0);
             $table->integer('updated_by')->nullable();
             $table->integer('application_id')->nullable();
             $table->integer('user_id')->nullable();

@@ -112,51 +112,53 @@ class ReportController extends Controller
             $dropdowns = $request->input('dropdowns', []);
             $fieldNames = $request->input('fieldNames', []);
             $fieldStatisticsNames = $request->input('fieldStatisticsNames', []);
-            $fieldIds = $request->input('fieldIds', []);
-
-            $fieldIds = $request->input('field_id', []);
+            $dropdownFieldIds = $request->input('fieldIds', []);
             $filterOperators = $request->input('filter_operator', []);
             $filterValues = $request->input('filter_value', []);
             $advancedOperatorLogic = $request->input('advanced_operator_logic', []);
-
             $fieldIds = $request->input('field_id', []);
-
             if (in_array(null, $fieldIds)) {
                 if ($statisticsMode) {
                     if (count($fieldNames) > 0) {
                         $formData = Formdata::where('application_id', $applicationId)
                             ->pluck('data')
                             ->toArray();
-                        $allData = [];
-
-                        foreach ($fieldStatisticsNames as $fieldName) {
-                            $fieldValues = [];
-
-                            foreach ($formData as $item) {
-                                $data = json_decode($item, true);
-                                $fieldValues[] = $data[$fieldName] ?? null;
-                            }
-                            $allData[$fieldName] = $fieldValues;
-                        }
 
                         $countData = [];
                         $groupData = [];
+                        logger('dropdowns');
+                        logger($dropdowns);
+                        logger('fieldNames');
+                        logger($fieldNames);
+                        logger('dropdownFieldIds');
+                        logger($dropdownFieldIds);
+                        logger('formData');
+                        logger($formData);
 
                         foreach ($dropdowns as $key => $dropdown) {
                             $fieldName = $fieldNames[$key];
-                            $fieldId = $fieldIds[$key];
+                            $fieldId = $dropdownFieldIds[$key];
                             $groupedData = collect($formData)->groupBy(function ($item) use ($fieldName) {
                                 $data = json_decode($item, true);
                                 return $data[$fieldName];
                             });
 
                             foreach ($groupedData as $fieldName => $items) {
-                                $countData[$fieldName] = count($items);
-                                $groupData[$fieldName] = $items;
+                                // $countData[$fieldName] = count($items);
+                                // $groupData[$fieldName] = 1;
+                                $groupedItems = $items->all();
+                                if ($dropdown === 'group_by') {
+                                    $countData[$fieldName] = 1;
+                                } elseif ($dropdown === 'count_of') {
+                                    $countData[$fieldName] = count($groupedItems);
+                                }
                             }
                         }
+                        // logger($countData);
+                        // dd($countData);
+
                         if ($statisticsMode) {
-                            return view('backend.reports.viewCart', compact('countData', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
+                            return view('backend.reports.viewCart', compact('countData', 'groupData', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
                         } else {
                             return view('backend.reports.viewTable', compact('countData', 'allData', 'fieldStatisticsNames', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
                         }
@@ -198,6 +200,7 @@ class ReportController extends Controller
                                 $groupData[$fieldName] = $items;
                             }
                         }
+
                         if ($statisticsMode) {
                             return view('backend.reports.viewCart', compact('countData', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
                         } else {
@@ -210,83 +213,322 @@ class ReportController extends Controller
                     }
                 }
             } else {
-                $filterData = [];
-                $count = count($fieldIds);
-                for ($i = 0; $i < $count; $i++) {
-                    $filterData[] = [
-                        'field_id' => $fieldIds[$i],
-                        'filter_operator' => $filterOperators[$i],
-                        'filter_value' => $filterValues[$i],
-                    ];
-                }
-                logger($filterData);
 
-                $formData = Formdata::where('application_id', $applicationId)
-                    ->pluck('data')
-                    ->toArray();
+                if ($statisticsMode) {
+
+                    // dd('$fieldNames');
+                    // dd($fieldNames);
+
+                    if (count($fieldNames) > 0) {
+                        // dd('yahi hai');
+                        $formData = Formdata::where('application_id', $applicationId)
+                            ->pluck('data')
+                            ->toArray();
+                        $filterData = [];
+                        $count = count($fieldIds);
+                        for ($i = 0; $i < $count; $i++) {
+                            $filterData[] = [
+                                'field_id' => $fieldIds[$i],
+                                'filter_operator' => $filterOperators[$i],
+                                'filter_value' => $filterValues[$i],
+                            ];
+                        }
+
+                        $final_rows = [];
 
 
-                $final_rows = [];
+                        foreach ($formData as $data) {
+                            $data = json_decode($data, true);
+                            $filteredData = [];
+                            foreach ($filterData as $filter) {
+                                $fieldId = $filter['field_id'];
+                                $filterOperator = $filter['filter_operator'];
+                                $filterValue = $filter['filter_value'];
 
-
-                foreach ($formData as $data) {
-                    $data = json_decode($data, true);
-                    $filteredData = [];
-                    foreach ($filterData as $filter) {
-                        $fieldId = $filter['field_id'];
-                        $filterOperator = $filter['filter_operator'];
-                        $filterValue = $filter['filter_value'];
-
-                        if (is_array($data) && !empty($data)) {
-                            $fieldName = Field::find($fieldId)->name;
-                            switch ($filterOperator) {
-                                case 'C':
-                                    if (strpos($data[$fieldName], $filterValue) !== false) {
-                                        $filteredData[] = true;
-                                        logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
-                                    } else {
-                                        $filteredData[] = false;
-                                        logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                if (is_array($data) && !empty($data)) {
+                                    $fieldName = Field::find($fieldId)->name;
+                                    switch ($filterOperator) {
+                                        case 'C':
+                                            if (strpos($data[$fieldName], $filterValue) !== false) {
+                                                $filteredData[] = true;
+                                                logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            } else {
+                                                $filteredData[] = false;
+                                                logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            }
+                                            break;
+                                        case 'DNC':
+                                            if (strpos($data[$fieldName], $filterValue) === false) {
+                                                $filteredData[] = true;
+                                                logger("Does Not Contain comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            } else {
+                                                $filteredData[] = false;
+                                                logger("Does Not Contain comparison: IDs do not match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            }
+                                            break;
+                                        case 'E':
+                                            if ($data[$fieldName] === $filterValue) {
+                                                $filteredData[] = true;
+                                                logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            } else {
+                                                $filteredData[] = false;
+                                                logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            }
+                                            break;
+                                        case 'DNE':
+                                            if ($data[$fieldName] !== $filterValue) {
+                                                $filteredData[] = true;
+                                                logger("Does Not Equals comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            } else {
+                                                $filteredData[] = false;
+                                                logger("Does Not Equals comparison: IDs do not match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            }
+                                            break;
                                     }
-                                    break;
-                                case 'E':
-                                    if ($data[$fieldName] === $filterValue) {
-                                        $filteredData[] = true;
-                                        logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
-                                    } else {
-                                        $filteredData[] = false;
-                                        logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                }
+                            }
+                            $extractedTokens = $this->extractVariablesAndOperators($advancedOperatorLogic);
+                            $variables = $this->getVariables($extractedTokens);
+                            $reconstructedString = $this->rebuildString($extractedTokens);
+                            foreach ($extractedTokens as &$token) {
+                                if ($token["type"] === "variable") {
+                                    $variableValue = intval($token["value"]);
+                                    if (isset($filteredData[$variableValue - 1])) {
+                                        $token["value"] = $filteredData[$variableValue - 1] ? '1' : '0';
                                     }
-                                    break;
+                                }
+                            }
+
+                            $reconstructedString = $this->rebuildString($extractedTokens);
+                            $reconstructedString = str_replace("AND", "&&", $reconstructedString);
+                            $reconstructedString = str_replace("OR", "||", $reconstructedString);
+                            logger($reconstructedString);
+                            logger(eval("return $reconstructedString;"));
+
+                            if (eval("return $reconstructedString;")) {
+                                $final_rows[] = $data;
                             }
                         }
+                        if (count($final_rows) > 0) {
+                            $allData = [];
+                            foreach ($final_rows as $row) {
+                                foreach ($row as $key => $value) {
+                                    if (!isset($allData[$key])) {
+                                        $allData[$key] = [];
+                                    }
+                                    $allData[$key][] = $value;
+                                }
+                            }
+                            $transformedData = [];
+
+                            // Iterate over the data array and transform each element to JSON
+                            foreach ($allData['id'] as $index => $id) {
+                                $transformedData[] = json_encode([
+                                    'id' => $id,
+                                    'name' => $allData['name'][$index],
+                                    'email' => $allData['email'][$index]
+                                ]);
+                            }
+                            logger($transformedData);
+                            logger($dropdowns);
+                            // dd($allData);
+                            logger($formData);
+                            // dd($formData);
+
+                            // foreach ($dropdowns as $key => $dropdown) {
+                            //     $fieldName = $fieldNames[$key];
+                            //     $groupedData = collect($allData)->groupBy(function ($item) use ($fieldName) {
+                            //         return $item[$fieldName];
+                            //     });
+                            //     dd($groupedData);
+
+                            //     $countData = [];
+                            //     $groupData = [];
+                            //     foreach ($groupedData as $fieldName => $items) {
+                            //         // $countData[$fieldName] = count($items);
+                            //         // $groupData[$fieldName] = 1;
+                            //         $groupedItems = $items->all();
+                            //         if ($dropdown === 'group_by') {
+                            //             $countData[$fieldName] = 1;
+                            //         } elseif ($dropdown === 'count_of') {
+                            //             $countData[$fieldName] = count($groupedItems);
+                            //         }
+                            //     }
+                            // }
+                            $countData = [];
+                            $groupData = [];
+                            foreach ($dropdowns as $key => $dropdown) {
+                                $fieldName = $fieldNames[$key];
+                                // dd($allData);
+                                // Group the data by the current field
+                                $transformedGroup = collect($transformedData)->groupBy(function ($item) use ($fieldName) {
+                                    $data = json_decode($item, true);
+
+                                    return $data[$fieldName];
+                                });
+                                logger($transformedGroup);
+                                foreach ($transformedGroup as $fieldName => $items) {
+                                    // Get the items as an array
+                                    $groupedItems = $items->all();
+
+                                    // Calculate the count based on the dropdown value
+                                    if ($dropdown === 'group_by') {
+                                        // For 'group_by', set count to 1 for each group
+                                        $countData[$fieldName] = 1;
+                                    } elseif ($dropdown === 'count_of') {
+                                        // For 'count_of', count the number of items in each group
+                                        $countData[$fieldName] = count($groupedItems);
+                                    }
+                                }
+
+                                // Debug the countData for the current field
+                            }
+                            logger($countData);
+                            // dd($countData);
+
+
+                            // dd($allData);
+                            return view('backend.reports.viewCart', compact('countData', 'groupData', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
+
+                        } else {
+                            return redirect()
+                                ->back()
+                                ->with('error', 'Advanced Logic Not Valid.');
+                        }
+
+                        // logger('dropdowns');
+                        // logger($dropdowns);
+                        // logger('fieldNames');
+                        // logger($fieldNames);
+                        // logger('dropdownFieldIds');
+                        // logger($dropdownFieldIds);
+                        // logger('formData');
+                        // logger($formData);
+
+
+                    } else {
+                        return redirect()
+                            ->back()
+                            ->with('error', 'Field are empty.');
                     }
-                    $extractedTokens = $this->extractVariablesAndOperators($advancedOperatorLogic);
-                    $variables = $this->getVariables($extractedTokens);
-                    $reconstructedString = $this->rebuildString($extractedTokens);
-                    foreach ($extractedTokens as &$token) {
-                        if ($token["type"] === "variable") {
-                            $variableValue = intval($token["value"]);
-                            if (isset($filteredData[$variableValue - 1])) {
-                                $token["value"] = $filteredData[$variableValue - 1] ? '1' : '0';
+                } else {
+                    if (count($fieldStatisticsNames) > 0) {
+                        $filterData = [];
+                        $count = count($fieldIds);
+                        for ($i = 0; $i < $count; $i++) {
+                            $filterData[] = [
+                                'field_id' => $fieldIds[$i],
+                                'filter_operator' => $filterOperators[$i],
+                                'filter_value' => $filterValues[$i],
+                            ];
+                        }
+
+                        $formData = Formdata::where('application_id', $applicationId)
+                            ->pluck('data')
+                            ->toArray();
+
+
+                        $final_rows = [];
+
+
+                        foreach ($formData as $data) {
+                            $data = json_decode($data, true);
+                            $filteredData = [];
+                            foreach ($filterData as $filter) {
+                                $fieldId = $filter['field_id'];
+                                $filterOperator = $filter['filter_operator'];
+                                $filterValue = $filter['filter_value'];
+
+                                if (is_array($data) && !empty($data)) {
+                                    $fieldName = Field::find($fieldId)->name;
+                                    switch ($filterOperator) {
+                                        case 'C':
+                                            if (strpos($data[$fieldName], $filterValue) !== false) {
+                                                $filteredData[] = true;
+                                                logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            } else {
+                                                $filteredData[] = false;
+                                                logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            }
+                                            break;
+                                        case 'DNC':
+                                            if (strpos($data[$fieldName], $filterValue) === false) {
+                                                $filteredData[] = true;
+                                                logger("Does Not Contain comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            } else {
+                                                $filteredData[] = false;
+                                                logger("Does Not Contain comparison: IDs do not match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            }
+                                            break;
+                                        case 'E':
+                                            if ($data[$fieldName] === $filterValue) {
+                                                $filteredData[] = true;
+                                                logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            } else {
+                                                $filteredData[] = false;
+                                                logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            }
+                                            break;
+                                        case 'DNE':
+                                            if ($data[$fieldName] !== $filterValue) {
+                                                $filteredData[] = true;
+                                                logger("Does Not Equals comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            } else {
+                                                $filteredData[] = false;
+                                                logger("Does Not Equals comparison: IDs do not match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
+                                            }
+                                            break;
+                                    }
+                                }
+                            }
+                            $extractedTokens = $this->extractVariablesAndOperators($advancedOperatorLogic);
+                            $variables = $this->getVariables($extractedTokens);
+                            $reconstructedString = $this->rebuildString($extractedTokens);
+                            foreach ($extractedTokens as &$token) {
+                                if ($token["type"] === "variable") {
+                                    $variableValue = intval($token["value"]);
+                                    if (isset($filteredData[$variableValue - 1])) {
+                                        $token["value"] = $filteredData[$variableValue - 1] ? '1' : '0';
+                                    }
+                                }
+                            }
+
+                            $reconstructedString = $this->rebuildString($extractedTokens);
+                            $reconstructedString = str_replace("AND", "&&", $reconstructedString);
+                            $reconstructedString = str_replace("OR", "||", $reconstructedString);
+                            logger($reconstructedString);
+                            logger(eval("return $reconstructedString;"));
+
+                            if (eval("return $reconstructedString;")) {
+                                $final_rows[] = $data;
                             }
                         }
-                    }
-
-                    $reconstructedString = $this->rebuildString($extractedTokens);
-                    $reconstructedString = str_replace("AND", "&&", $reconstructedString);
-                    $reconstructedString = str_replace("OR", "||", $reconstructedString);
-                    logger($reconstructedString);
-                    logger(eval("return $reconstructedString;"));
-
-                    if (eval("return $reconstructedString;")) {
-                        $final_rows[] = $data;
+                        logger($reconstructedString);
+                        logger('final_rows');
+                        logger($final_rows);
+                        if (count($final_rows) > 0) {
+                            $allData = [];
+                            foreach ($final_rows as $row) {
+                                foreach ($row as $key => $value) {
+                                    if (!isset($allData[$key])) {
+                                        $allData[$key] = [];
+                                    }
+                                    $allData[$key][] = $value;
+                                }
+                            }
+                            logger($allData);
+                            return view('backend.reports.viewTable', compact('allData', 'fieldStatisticsNames', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
+                        } else {
+                            return redirect()
+                                ->back()
+                                ->with('error', 'Advanced Logic Not Valid.');
+                        }
+                    } else {
+                        return redirect()
+                            ->back()
+                            ->with('error', 'Field are empty.');
                     }
                 }
-                logger($reconstructedString);
-                logger('final_rows');
-                logger($final_rows);
-                dd(1);
             }
         } catch (\Exception $th) {
             //throw $th;
@@ -319,22 +561,46 @@ class ReportController extends Controller
     public function storeReport(Request $request)
     {
         try {
-            dd($request->all());
-            $statisticsMode = $request->input('statistics_mode', false);
-            $name = $request->input('name');
-            $data = $request->input('data');
-            $radioDefault = $request->input('radioDefault');
-            $userList = $request->input('user_list');
-            $groupList = $request->input('group_list');
-            $groupList = $request->input('group_list');
-            $description = $request->input('description');
-            $radioDefault = $request->input('radioDefault');
-            $permissions = $request->input('flexRadioDefault', null);
-            if ($statisticsMode) {
-            } else {
-            }
+            // dd($request->all());
+            $rules = [
+                'application_id' => 'required|numeric',
+                'user_id' => 'required|numeric',
+                'name' => 'required|string',
+                // Add more validation rules for 'data' if necessary
+            ];
 
-            return redirect()->route('get.view');
+            // Validate the request data
+            $validator = Validator::make($request->all(), $rules);
+
+            // Check if the validation fails
+            if ($validator->fails()) {
+                return back()->withErrors($validator)->withInput();
+                // You can return the errors to the user in whatever way you prefer
+            }
+            $report = new Report();
+            $report->statistics_mode = $request->input('statisticsMode') ? 'Y' : 'N';
+
+            $report->application_id = $request->input('application_id');
+            $report->user_id = $request->input('user_id');
+            $report->name = $request->input('name');
+            $report->data = $request->input('data');
+            $report->labelColor = $request->input('labelColor');
+            $report->radioDefault = $request->input('radioDefault');
+            $report->fieldStatisticsNames = $request->input('fieldStatisticsNames');
+            $report->user_list = json_encode($request->input('user_list'));
+            $report->group_list = json_encode($request->input('group_list'));
+            $report->description = $request->input('description');
+            $report->data_type = $request->input('data_type');
+            $report->chart_type = $request->input('chart_type');
+            $report->selectChart = $request->input('selectChart');
+            $report->borderWidth = $request->input('borderWidth');
+            $report->legendPosition = $request->input('legendPosition');
+            $report->fieldNames = $request->input('fieldNames');
+            $report->dropdowns = $request->input('dropdowns');
+            $report->permissions = $request->input('flexRadioDefault', null);
+            $report->save();
+
+            return redirect()->route('get.view')->with('success', 'Report Add successfully');
         } catch (\Exception $th) {
             return redirect()
                 ->back()
@@ -351,8 +617,12 @@ class ReportController extends Controller
             $fieldIds = $request->input('fieldIds');
             $fieldNames = $request->input('fieldNames');
             $statisticsMode = $request->input('statisticsMode');
+            $dataType = $request->input('data_type');
             $fieldStatisticsNames = $request->input('fieldStatisticsNames');
-
+            $selectChart = $request->input('selectChart');
+            $borderWidth = $request->input('borderWidth');
+            $legendPosition = $request->input('legendPosition');
+            $labelColor = json_encode($request->input('labelColor'));
             $users = User::where('status', 1)
                 ->latest()
                 ->get();
@@ -363,7 +633,7 @@ class ReportController extends Controller
             $selectedgroups = [];
 
             $selectedusers = [];
-            return view('backend.reports.saveReport', compact('users', 'groups', 'selectedgroups', 'selectedusers', 'applicationId', 'data', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'dropdowns'));
+            return view('backend.reports.saveReport', compact('users', 'groups', 'selectedgroups', 'selectedusers', 'applicationId', 'data', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'dropdowns', 'dataType', 'selectChart', 'borderWidth', 'labelColor', 'legendPosition'));
         } catch (\Exception $th) {
             //throw $th;
             return redirect()
@@ -396,12 +666,13 @@ class ReportController extends Controller
             $allData = json_decode($report->data, true);
             $countData = json_decode($report->data, true);
             $fieldStatisticsNames = json_decode($report->fieldStatisticsNames, true);
-            // dd($countData);
+            // dd($report->statistics_mode);
             // dd($allData);
 
             if ($report->statistics_mode == 'Y') {
                 return view('backend.reports.viewChartData', compact('countData', 'fieldStatisticsNames'));
             } else {
+                // dd($fieldStatisticsNames);
                 return view('backend.reports.viewTableData', compact('allData', 'fieldStatisticsNames'));
             }
         } catch (\Exception $th) {
