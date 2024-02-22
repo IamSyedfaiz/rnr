@@ -29,6 +29,7 @@
                                         <form action="{{ route('store.cert.report') }}" method="GET">
                                             @csrf
                                             <input type="hidden" name="application_id" value="{{ $applicationId }}">
+                                            <input type="hidden" name="report_id" value="{{ @$reportId }}">
                                             <input type="hidden" name="dropdowns" value="{{ json_encode(@$dropdowns) }}">
                                             <input type="hidden" name="fieldIds" value="{{ json_encode(@$fieldIds) }}">
                                             <input type="hidden" name="fieldNames" value="{{ json_encode(@$fieldNames) }}">
@@ -38,8 +39,13 @@
                                                 value="{{ json_encode($fieldStatisticsNames) }}">
                                             <input type="hidden" name="statisticsMode" value="{{ $statisticsMode }}">
                                             <button type="submit" class="btn btn-outline-primary fw-bold">SAVE</button>
-                                            <a href="{{ route('back.report.application', $applicationId) }}"
-                                                class="btn btn-outline-primary fw-bold">MODIFY</a>
+                                            @if ($reportId)
+                                                <a href="{{ route('edit.chart', $reportId) }}"
+                                                    class="btn btn-outline-primary fw-bold">MODIFY</a>
+                                            @else
+                                                <a href="{{ route('back.report.application', $applicationId) }}"
+                                                    class="btn btn-outline-primary fw-bold">MODIFY</a>
+                                            @endif
                                             {{-- <button type="button" class="btn btn-outline-primary fw-bold">MODIFY</button> --}}
                                             {{--   <button type="button" class="btn btn-outline-primary fw-bold">NEW
                                                 REPORT</button>
@@ -68,9 +74,7 @@
 
                                                     <select id="chartTypeSelect" class="form-control" name="selectChart"
                                                         onchange="updateChartType(this.value)">
-                                                        <option value=""
-                                                            {{ is_null($selectChart) ? 'selected' : '' }}>Select Chart
-                                                        </option>
+
                                                         <option value="line"
                                                             {{ $selectChart == 'line' ? 'selected' : '' }}>Single Line
                                                             Chart</option>

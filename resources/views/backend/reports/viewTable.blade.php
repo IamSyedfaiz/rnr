@@ -21,6 +21,7 @@
                                         <form action="{{ route('store.cert.report') }}" method="GET">
                                             @csrf
                                             <input type="hidden" name="application_id" value="{{ $applicationId }}">
+                                            <input type="hidden" name="report_id" value="{{ @$reportId }}">
                                             <input type="hidden" name="data" value="{{ json_encode($allData) }}">
                                             <input type="hidden" name="fieldStatisticsNames"
                                                 value="{{ json_encode($fieldStatisticsNames) }}">
@@ -30,8 +31,13 @@
 
 
                                             <button type="submit" class="btn btn-outline-primary fw-bold">SAVE</button>
-                                            <a href="{{ route('back.report.application', $applicationId) }}"
-                                                class="btn btn-outline-primary fw-bold">MODIFY</a>
+                                            @if ($reportId)
+                                                <a href="{{ route('edit.chart', $reportId) }}"
+                                                    class="btn btn-outline-primary fw-bold">MODIFY</a>
+                                            @else
+                                                <a href="{{ route('back.report.application', $applicationId) }}"
+                                                    class="btn btn-outline-primary fw-bold">MODIFY</a>
+                                            @endif
                                             {{-- <button type="button" class="btn btn-outline-primary fw-bold">NEW
                                                 REPORT</button>
                                             <button type="button" class="btn btn-outline-primary fw-bold">RELATED

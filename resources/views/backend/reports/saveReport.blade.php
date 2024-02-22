@@ -28,6 +28,7 @@
                         <input type="hidden" value="{{ @$borderWidth }}" name="borderWidth">
                         <input type="hidden" value="{{ @$labelColor }}" name="labelColor">
                         <input type="hidden" value="{{ @$legendPosition }}" name="legendPosition">
+                        <input type="hidden" value="{{ @$report_id }}" name="report_id">
 
                         <div class="accordion accordion-flush" id="accordionFlushExample">
                             <div class="accordion-item">
@@ -44,8 +45,13 @@
                                         <button type="submit" class="btn btn-primary m-2 fw-bold">
                                             save
                                         </button>
-                                        <a href="{{ route('back.report.application', $applicationId) }}"
-                                            class="btn btn-outline-primary fw-bold">MODIFY</a>
+                                        @if ($report_id)
+                                            <a href="{{ route('edit.chart', $report_id) }}"
+                                                class="btn btn-outline-primary fw-bold">MODIFY</a>
+                                        @else
+                                            <a href="{{ route('back.report.application', $applicationId) }}"
+                                                class="btn btn-outline-primary fw-bold">MODIFY</a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -112,14 +118,16 @@
                                                 <div class="col-6">
                                                     <div class="input-group mb-3">
                                                         <label for="name" class="col-form-label fw-bold mx-2">Created
-                                                            By: {{ @$report->created_at }}</label>
+                                                            By:
+                                                            {{ optional(@$report->created_at)->format('d-m-y') }}</label>
 
                                                     </div>
                                                 </div>
                                                 <div class="col-6">
                                                     <div class="input-group mb-3">
                                                         <label for="name" class="col-form-label fw-bold mx-2">Last
-                                                            Update: {{ @$report->updated_at }}</label>
+                                                            Update:
+                                                            {{ optional(@$report->updated_at)->format('d-m-y') }}</label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -202,7 +210,8 @@
                                                     </div>
                                                     <div class="col-auto">
                                                         <input class="form-check-input" type="radio" value="E"
-                                                            checked name="radioDefault" id="radioDefault2">
+                                                            {{ @$report->radioDefault == 'E' ? 'checked' : '' }} checked
+                                                            name="radioDefault" id="radioDefault2">
                                                         <label class="form-check-label text-dark fw-bold"
                                                             for="radioDefault1">
                                                             everyOne
@@ -210,6 +219,7 @@
                                                     </div>
                                                     <div class="col-2">
                                                         <input class="form-check-input" type="radio" value="U"
+                                                            {{ @$report->radioDefault == 'U' ? 'checked' : '' }}
                                                             name="radioDefault" id="radioDefault1">
                                                         <label class="form-check-label text-dark fw-bold"
                                                             for="radioDefault1">
@@ -217,7 +227,8 @@
                                                         </label>
                                                     </div>
                                                 </div>
-                                                <div class="usergrouplist" style="display: none;">
+                                                <div class="usergrouplist"
+                                                    @if (@$report->radioDefault == 'U') style="display: block;" @else style="display: none;" @endif>
                                                     <div class="d-flex mb-2">
                                                         <div class="col-md-2 addusers">
                                                             <button type="button" class="btn btn-primary text-end"

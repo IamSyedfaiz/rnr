@@ -94,6 +94,7 @@ class ReportController extends Controller
                 ->with('error', $th->getMessage());
         }
     }
+
     public function extractVariablesAndOperators($inputString)
     {
         $tokens = [];
@@ -146,6 +147,7 @@ class ReportController extends Controller
             // dd($request->all());
             $currentApplicationId = Session::get('applicationId');
             $applicationId = $request->input('application_id');
+            $reportId = $request->input('report_id');
 
             // Check if the new application ID is different from the current one
             if ($applicationId != $currentApplicationId) {
@@ -215,11 +217,8 @@ class ReportController extends Controller
                         // logger($countData);
                         // dd($countData);
 
-                        if ($statisticsMode) {
-                            return view('backend.reports.viewCart', compact('countData', 'groupData', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
-                        } else {
-                            return view('backend.reports.viewTable', compact('countData', 'allData', 'fieldStatisticsNames', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
-                        }
+                        return view('backend.reports.viewCart', compact('countData', 'groupData', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns', 'reportId'));
+
                     } else {
                         return redirect()
                             ->back()
@@ -258,11 +257,9 @@ class ReportController extends Controller
                             }
                         }
 
-                        if ($statisticsMode) {
-                            return view('backend.reports.viewCart', compact('countData', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
-                        } else {
-                            return view('backend.reports.viewTable', compact('countData', 'allData', 'fieldStatisticsNames', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
-                        }
+
+                        return view('backend.reports.viewTable', compact('countData', 'allData', 'fieldStatisticsNames', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns', 'reportId'));
+
                     } else {
                         return redirect()
                             ->back()
@@ -464,7 +461,7 @@ class ReportController extends Controller
 
 
                             // dd($allData);
-                            return view('backend.reports.viewCart', compact('countData', 'groupData', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
+                            return view('backend.reports.viewCart', compact('countData', 'groupData', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns', 'reportId'));
 
                         } else {
                             return redirect()
@@ -610,7 +607,7 @@ class ReportController extends Controller
                                     $allData[$key][] = $value;
                                 }
                             }
-                            return view('backend.reports.viewTable', compact('allData', 'fieldStatisticsNames', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
+                            return view('backend.reports.viewTable', compact('allData', 'fieldStatisticsNames', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns', 'reportId'));
                         } else {
                             return redirect()
                                 ->back()
@@ -633,6 +630,7 @@ class ReportController extends Controller
     public function viewSaveReport($id)
     {
         try {
+
             $users = User::where('status', 1)
                 ->latest()
                 ->get();
@@ -670,9 +668,17 @@ class ReportController extends Controller
                 return back()->withErrors($validator)->withInput();
                 // You can return the errors to the user in whatever way you prefer
             }
-            $report = new Report();
-            $report->statistics_mode = $request->input('statisticsMode') ? 'Y' : 'N';
+            $reportId = $request->input('report_id');
 
+            if ($reportId) {
+                $report = Report::findOrFail($reportId);
+                $message = 'Report updated successfully';
+
+            } else {
+                $report = new Report();
+                $message = 'Report Add successfully';
+            }
+            $report->statistics_mode = $request->input('statisticsMode') ? 'Y' : 'N';
             $report->application_id = $request->input('application_id');
             $report->user_id = $request->input('user_id');
             $report->name = $request->input('name');
@@ -693,7 +699,8 @@ class ReportController extends Controller
             $report->permissions = $request->input('flexRadioDefault', null);
             $report->save();
 
-            return redirect()->route('get.view')->with('success', 'Report Add successfully');
+
+            return redirect()->route('get.view')->with('success', $message);
         } catch (\Exception $th) {
             return redirect()
                 ->back()
@@ -705,6 +712,7 @@ class ReportController extends Controller
         try {
             // dd($request->all());
             $applicationId = $request->input('application_id');
+            $report_id = $request->input('report_id');
             $data = $request->input('data');
             $dropdowns = $request->input('dropdowns');
             $fieldIds = $request->input('fieldIds');
@@ -716,6 +724,42 @@ class ReportController extends Controller
             $borderWidth = $request->input('borderWidth');
             $legendPosition = $request->input('legendPosition');
             $labelColor = json_encode($request->input('labelColor'));
+            if ($report_id) {
+
+                $report = Report::findOrFail($report_id);
+                $selectedgroups = [];
+                if ($report->group_list != 'null') {
+                    $groupids = json_decode($report->group_list);
+                    # code...
+                    if ($groupids) {
+                        for ($i = 0; $i < count($groupids); $i++) {
+                            # code...
+                            $group = Group::find($groupids[$i]);
+                            array_push($selectedgroups, $group);
+                        }
+                    }
+                }
+
+                $selectedusers = [];
+                if ($report->user_list != 'null') {
+                    $userids = json_decode($report->user_list);
+                    # code...
+                    if ($userids) {
+                        for ($i = 0; $i < count($userids); $i++) {
+                            # code...
+                            $user = User::find($userids[$i]);
+                            array_push($selectedusers, $user);
+                        }
+                    }
+                }
+            } else {
+                $report = null;
+                $selectedgroups = [];
+                $selectedusers = [];
+
+
+            }
+
 
 
             Session::put('dataType', $dataType);
@@ -730,10 +774,8 @@ class ReportController extends Controller
                 ->latest()
                 ->get();
 
-            $selectedgroups = [];
 
-            $selectedusers = [];
-            return view('backend.reports.saveReport', compact('users', 'groups', 'selectedgroups', 'selectedusers', 'applicationId', 'data', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'dropdowns', 'dataType', 'selectChart', 'borderWidth', 'labelColor', 'legendPosition'));
+            return view('backend.reports.saveReport', compact('users', 'groups', 'selectedgroups', 'selectedusers', 'applicationId', 'data', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'dropdowns', 'dataType', 'selectChart', 'borderWidth', 'labelColor', 'legendPosition', 'report_id', 'report'));
         } catch (\Exception $th) {
             //throw $th;
             return redirect()
@@ -786,40 +828,14 @@ class ReportController extends Controller
     {
         try {
             $report = Report::findOrFail($id);
-            $users = User::where('status', 1)
-                ->latest()
+            $applicationId = $report->application_id;
+            $application = Application::find($applicationId);
+            $fields = Field::where('application_id', $applicationId)
+                ->where('status', 1)
+                ->orderBy('name')
                 ->get();
-            $groups = Group::where(['status' => 1])
-                ->latest()
-                ->get();
 
-            $selectedgroups = [];
-            if ($report->group_list != 'null') {
-                $groupids = json_decode($report->group_list);
-                # code...
-                if ($groupids) {
-                    for ($i = 0; $i < count($groupids); $i++) {
-                        # code...
-                        $group = Group::find($groupids[$i]);
-                        array_push($selectedgroups, $group);
-                    }
-                }
-            }
-
-            $selectedusers = [];
-            if ($report->user_list != 'null') {
-                $userids = json_decode($report->user_list);
-                # code...
-                if ($userids) {
-                    for ($i = 0; $i < count($userids); $i++) {
-                        # code...
-                        $user = User::find($userids[$i]);
-                        array_push($selectedusers, $user);
-                    }
-                }
-            }
-
-            return view('backend.reports.saveReport', compact('users', 'groups', 'selectedgroups', 'selectedusers', 'report', 'id'));
+            return view('backend.reports.applicationFields', compact('application', 'fields', 'id'));
         } catch (\Exception $th) {
             //throw $th;
             return redirect()
