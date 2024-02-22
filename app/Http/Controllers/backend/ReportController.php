@@ -11,6 +11,7 @@ use App\Models\backend\Report;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Session;
 
 class ReportController extends Controller
 {
@@ -33,6 +34,7 @@ class ReportController extends Controller
     public function sendReportApplication(Request $request)
     {
         try {
+
             $request->validate(
                 [
                     'selectedApplication' => 'required|exists:applications,id',
@@ -43,6 +45,41 @@ class ReportController extends Controller
                 ],
             );
             $id = $request->input('selectedApplication');
+            $currentApplicationId = Session::get('applicationId');
+
+            // Check if the new application ID is different from the current one
+            if ($id != $currentApplicationId) {
+                // Clear the entire session if a new application ID is received
+                // Session::flush();
+                Session::forget([
+                    'applicationId',
+                    'statisticsMode',
+                    'dropdowns',
+                    'fieldNames',
+                    'fieldStatisticsNames',
+                    'dropdownFieldIds',
+                    'filterOperators',
+                    'filterValues',
+                    'advancedOperatorLogic',
+                    'fieldIds'
+                ]);
+            }
+            $application = Application::find($id);
+            $fields = Field::where('application_id', $id)
+                ->where('status', 1)
+                ->orderBy('name')
+                ->get();
+            return view('backend.reports.applicationFields', compact('application', 'fields'));
+        } catch (\Exception $th) {
+            //throw $th;
+            return redirect()
+                ->back()
+                ->with('error', $th->getMessage());
+        }
+    }
+    public function backReportApplication($id)
+    {
+        try {
 
             $application = Application::find($id);
             $fields = Field::where('application_id', $id)
@@ -107,7 +144,22 @@ class ReportController extends Controller
     {
         try {
             // dd($request->all());
+            $currentApplicationId = Session::get('applicationId');
             $applicationId = $request->input('application_id');
+
+            // Check if the new application ID is different from the current one
+            if ($applicationId != $currentApplicationId) {
+                // Clear the entire session if a new application ID is received
+                // Session::flush();
+                Session::forget([
+                    'dataType',
+                    'selectChart',
+                    'borderWidth',
+                    'legendPosition',
+                    'labelColor',
+                ]);
+            }
+
             $statisticsMode = $request->input('statistics_mode', false);
             $dropdowns = $request->input('dropdowns', []);
             $fieldNames = $request->input('fieldNames', []);
@@ -117,27 +169,33 @@ class ReportController extends Controller
             $filterValues = $request->input('filter_value', []);
             $advancedOperatorLogic = $request->input('advanced_operator_logic', []);
             $fieldIds = $request->input('field_id', []);
+            Session::put('applicationId', $applicationId);
+            Session::put('statisticsMode', $statisticsMode);
+            Session::put('dropdowns', $dropdowns);
+            Session::put('fieldNames', $fieldNames);
+            Session::put('fieldStatisticsNames', $fieldStatisticsNames);
+            Session::put('dropdownFieldIds', $dropdownFieldIds);
+            Session::put('filterOperators', $filterOperators);
+            Session::put('filterValues', $filterValues);
+            Session::put('advancedOperatorLogic', $advancedOperatorLogic);
+            Session::put('fieldIds', $fieldIds);
+            // dd($fieldIds);
+
             if (in_array(null, $fieldIds)) {
+
                 if ($statisticsMode) {
                     if (count($fieldNames) > 0) {
+
                         $formData = Formdata::where('application_id', $applicationId)
                             ->pluck('data')
                             ->toArray();
 
                         $countData = [];
                         $groupData = [];
-                        logger('dropdowns');
-                        logger($dropdowns);
-                        logger('fieldNames');
-                        logger($fieldNames);
-                        logger('dropdownFieldIds');
-                        logger($dropdownFieldIds);
-                        logger('formData');
-                        logger($formData);
+
 
                         foreach ($dropdowns as $key => $dropdown) {
                             $fieldName = $fieldNames[$key];
-                            $fieldId = $dropdownFieldIds[$key];
                             $groupedData = collect($formData)->groupBy(function ($item) use ($fieldName) {
                                 $data = json_decode($item, true);
                                 return $data[$fieldName];
@@ -189,7 +247,6 @@ class ReportController extends Controller
 
                         foreach ($dropdowns as $key => $dropdown) {
                             $fieldName = $fieldNames[$key];
-                            $fieldId = $fieldIds[$key];
                             $groupedData = collect($formData)->groupBy(function ($item) use ($fieldName) {
                                 $data = json_decode($item, true);
                                 return $data[$fieldName];
@@ -220,7 +277,6 @@ class ReportController extends Controller
                     // dd($fieldNames);
 
                     if (count($fieldNames) > 0) {
-                        // dd('yahi hai');
                         $formData = Formdata::where('application_id', $applicationId)
                             ->pluck('data')
                             ->toArray();
@@ -287,29 +343,49 @@ class ReportController extends Controller
                                     }
                                 }
                             }
-                            $extractedTokens = $this->extractVariablesAndOperators($advancedOperatorLogic);
-                            $variables = $this->getVariables($extractedTokens);
-                            $reconstructedString = $this->rebuildString($extractedTokens);
-                            foreach ($extractedTokens as &$token) {
-                                if ($token["type"] === "variable") {
-                                    $variableValue = intval($token["value"]);
-                                    if (isset($filteredData[$variableValue - 1])) {
-                                        $token["value"] = $filteredData[$variableValue - 1] ? '1' : '0';
+
+                            // dd($advancedOperatorLogic);
+                            // dd('yahi hai');
+
+                            if ($advancedOperatorLogic) {
+                                $extractedTokens = $this->extractVariablesAndOperators($advancedOperatorLogic);
+                                $variables = $this->getVariables($extractedTokens);
+                                $reconstructedString = $this->rebuildString($extractedTokens);
+                                foreach ($extractedTokens as &$token) {
+                                    if ($token["type"] === "variable") {
+                                        $variableValue = intval($token["value"]);
+                                        if (isset($filteredData[$variableValue - 1])) {
+                                            $token["value"] = $filteredData[$variableValue - 1] ? '1' : '0';
+                                        }
                                     }
+                                }
+
+                                $reconstructedString = $this->rebuildString($extractedTokens);
+                                $reconstructedString = str_replace("AND", "&&", $reconstructedString);
+                                $reconstructedString = str_replace("OR", "||", $reconstructedString);
+                                logger($reconstructedString);
+                                logger(eval("return $reconstructedString;"));
+
+                                if (eval("return $reconstructedString;")) {
+                                    $final_rows[] = $data;
+                                }
+                            } else {
+
+                                $arrayAsString = implode(' && ', array_map(function ($value) {
+                                    return $value ? 'true' : 'false';
+                                }, $filteredData));
+                                if (eval("return $arrayAsString;")) {
+                                    $final_rows[] = $data;
+
                                 }
                             }
 
-                            $reconstructedString = $this->rebuildString($extractedTokens);
-                            $reconstructedString = str_replace("AND", "&&", $reconstructedString);
-                            $reconstructedString = str_replace("OR", "||", $reconstructedString);
-                            logger($reconstructedString);
-                            logger(eval("return $reconstructedString;"));
-
-                            if (eval("return $reconstructedString;")) {
-                                $final_rows[] = $data;
-                            }
                         }
+
+                        // dd($final_rows);
+                        // dd('yahi hai');
                         if (count($final_rows) > 0) {
+
                             $allData = [];
                             foreach ($final_rows as $row) {
                                 foreach ($row as $key => $value) {
@@ -434,6 +510,7 @@ class ReportController extends Controller
                         foreach ($formData as $data) {
                             $data = json_decode($data, true);
                             $filteredData = [];
+                            $filteredDataNor = [];
                             foreach ($filterData as $filter) {
                                 $fieldId = $filter['field_id'];
                                 $filterOperator = $filter['filter_operator'];
@@ -448,64 +525,81 @@ class ReportController extends Controller
                                                 logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
                                             } else {
                                                 $filteredData[] = false;
+
                                                 logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
                                             }
                                             break;
                                         case 'DNC':
                                             if (strpos($data[$fieldName], $filterValue) === false) {
                                                 $filteredData[] = true;
+
                                                 logger("Does Not Contain comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
                                             } else {
                                                 $filteredData[] = false;
+
                                                 logger("Does Not Contain comparison: IDs do not match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
                                             }
                                             break;
                                         case 'E':
                                             if ($data[$fieldName] === $filterValue) {
                                                 $filteredData[] = true;
+
                                                 logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
                                             } else {
                                                 $filteredData[] = false;
+
                                                 logger("Contains comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
                                             }
                                             break;
                                         case 'DNE':
                                             if ($data[$fieldName] !== $filterValue) {
                                                 $filteredData[] = true;
+
                                                 logger("Does Not Equals comparison: IDs match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
                                             } else {
                                                 $filteredData[] = false;
+
                                                 logger("Does Not Equals comparison: IDs do not match. Request value: {$data[$fieldName]}, filter value: {$filterValue}");
                                             }
                                             break;
                                     }
                                 }
                             }
-                            $extractedTokens = $this->extractVariablesAndOperators($advancedOperatorLogic);
-                            $variables = $this->getVariables($extractedTokens);
-                            $reconstructedString = $this->rebuildString($extractedTokens);
-                            foreach ($extractedTokens as &$token) {
-                                if ($token["type"] === "variable") {
-                                    $variableValue = intval($token["value"]);
-                                    if (isset($filteredData[$variableValue - 1])) {
-                                        $token["value"] = $filteredData[$variableValue - 1] ? '1' : '0';
+                            if ($advancedOperatorLogic) {
+
+                                $extractedTokens = $this->extractVariablesAndOperators($advancedOperatorLogic);
+                                $variables = $this->getVariables($extractedTokens);
+                                $reconstructedString = $this->rebuildString($extractedTokens);
+                                foreach ($extractedTokens as &$token) {
+                                    if ($token["type"] === "variable") {
+                                        $variableValue = intval($token["value"]);
+                                        if (isset($filteredData[$variableValue - 1])) {
+                                            $token["value"] = $filteredData[$variableValue - 1] ? '1' : '0';
+                                        }
                                     }
+                                }
+
+                                $reconstructedString = $this->rebuildString($extractedTokens);
+                                $reconstructedString = str_replace("AND", "&&", $reconstructedString);
+                                $reconstructedString = str_replace("OR", "||", $reconstructedString);
+                                logger($reconstructedString);
+                                logger(eval("return $reconstructedString;"));
+
+                                if (eval("return $reconstructedString;")) {
+                                    $final_rows[] = $data;
+                                }
+                            } else {
+
+                                $arrayAsString = implode(' && ', array_map(function ($value) {
+                                    return $value ? 'true' : 'false';
+                                }, $filteredData));
+                                if (eval("return $arrayAsString;")) {
+                                    $final_rows[] = $data;
+
                                 }
                             }
 
-                            $reconstructedString = $this->rebuildString($extractedTokens);
-                            $reconstructedString = str_replace("AND", "&&", $reconstructedString);
-                            $reconstructedString = str_replace("OR", "||", $reconstructedString);
-                            logger($reconstructedString);
-                            logger(eval("return $reconstructedString;"));
-
-                            if (eval("return $reconstructedString;")) {
-                                $final_rows[] = $data;
-                            }
                         }
-                        logger($reconstructedString);
-                        logger('final_rows');
-                        logger($final_rows);
                         if (count($final_rows) > 0) {
                             $allData = [];
                             foreach ($final_rows as $row) {
@@ -516,7 +610,6 @@ class ReportController extends Controller
                                     $allData[$key][] = $value;
                                 }
                             }
-                            logger($allData);
                             return view('backend.reports.viewTable', compact('allData', 'fieldStatisticsNames', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns'));
                         } else {
                             return redirect()
@@ -623,6 +716,13 @@ class ReportController extends Controller
             $borderWidth = $request->input('borderWidth');
             $legendPosition = $request->input('legendPosition');
             $labelColor = json_encode($request->input('labelColor'));
+
+
+            Session::put('dataType', $dataType);
+            Session::put('selectChart', $selectChart);
+            Session::put('borderWidth', $borderWidth);
+            Session::put('legendPosition', $legendPosition);
+            Session::put('labelColor', $labelColor);
             $users = User::where('status', 1)
                 ->latest()
                 ->get();
@@ -733,5 +833,29 @@ class ReportController extends Controller
 
         // Pass the filtered data to the Blade view
         return view('backend.reports.filteredDataView')->with('filteredData', $filteredData);
+    }
+    public function removeFromSession($fieldNameToRemove)
+    {
+
+        $fieldNames = session('fieldNames');
+        if (is_array($fieldNames)) {
+            if (($key = array_search($fieldNameToRemove, $fieldNames)) !== false) {
+                unset($fieldNames[$key]);
+                session(['fieldNames' => $fieldNames]);
+            }
+        }
+        return redirect()->back();
+    }
+    public function removeFromSessionNormal($fieldNameToRemove)
+    {
+        $fieldNames = session('fieldStatisticsNames');
+        // dd($fieldNameToRemove);
+        if (is_array($fieldNames)) {
+            if (($key = array_search($fieldNameToRemove, $fieldNames)) !== false) {
+                unset($fieldNames[$key]);
+                session(['fieldStatisticsNames' => $fieldNames]);
+            }
+        }
+        return redirect()->back();
     }
 }

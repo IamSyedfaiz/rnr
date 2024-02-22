@@ -6,6 +6,14 @@
             <div class="col-sm-12">
                 <div class="rounded h-100">
                     <div class="m-n2">
+                        @php
+                            $dataType = session('dataType');
+                            $selectChart = session('selectChart');
+                            $borderWidth = session('borderWidth');
+                            $legendPosition = session('legendPosition');
+                            $labelColor = session('labelColor');
+
+                        @endphp
                         <div class="accordion accordion-flush" id="accordionFlushExample">
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="flush-headingOne">
@@ -30,6 +38,8 @@
                                                 value="{{ json_encode($fieldStatisticsNames) }}">
                                             <input type="hidden" name="statisticsMode" value="{{ $statisticsMode }}">
                                             <button type="submit" class="btn btn-outline-primary fw-bold">SAVE</button>
+                                            <a href="{{ route('back.report.application', $applicationId) }}"
+                                                class="btn btn-outline-primary fw-bold">MODIFY</a>
                                             {{-- <button type="button" class="btn btn-outline-primary fw-bold">MODIFY</button> --}}
                                             {{--   <button type="button" class="btn btn-outline-primary fw-bold">NEW
                                                 REPORT</button>
@@ -41,31 +51,58 @@
 
                                                     <select class="form-control col-3" name="data_type" id="chartType">
                                                         {{-- <option value=""><i class="bi bi-clipboard-data"></i> Chart And Data</option> --}}
-                                                        <option value="dataOnly"><i class="bi bi-table"></i> Data Only
+                                                        <option value="dataOnly"
+                                                            {{ $dataType == 'dataOnly' ? 'selected' : '' }}>
+                                                            <i class="bi bi-table"></i> Data Only
                                                         </option>
-                                                        <option value="chartOnly"><i class="bi bi-bar-chart-line"></i>
+                                                        <option value="chartOnly"
+                                                            {{ $dataType == 'chartOnly' ? 'selected' : '' }}>
+                                                            <i class="bi bi-bar-chart-line"></i>
                                                             Chart
-                                                            Only</option>
+                                                            Only
+                                                        </option>
                                                     </select>
                                                 </div>
                                                 <div class="col-2 bg-light rounded" id="chartTypeDiv">
                                                     <label for="colorPicker">Select Chart:</label>
 
-                                                    <select id="chartTypeSelect" class="form-control" name="selectChart">
-                                                        <option value="line">Single Line Chart</option>
-                                                        <option value="bar">Vertical Bar Chart</option>
-                                                        <option value="bar-horizontal">Horizontal Bar Chart</option>
-                                                        <option value="pie">Pie Chart</option>
-                                                        <option value="doughnut">Doughnut Chart</option>
+                                                    <select id="chartTypeSelect" class="form-control" name="selectChart"
+                                                        onchange="updateChartType(this.value)">
+                                                        <option value=""
+                                                            {{ is_null($selectChart) ? 'selected' : '' }}>Select Chart
+                                                        </option>
+                                                        <option value="line"
+                                                            {{ $selectChart == 'line' ? 'selected' : '' }}>Single Line
+                                                            Chart</option>
+                                                        <option value="bar"
+                                                            {{ $selectChart == 'bar' ? 'selected' : '' }}>Vertical Bar
+                                                            Chart</option>
+                                                        <option value="bar-horizontal"
+                                                            {{ $selectChart == 'bar-horizontal' ? 'selected' : '' }}>
+                                                            Horizontal Bar Chart</option>
+                                                        <option value="pie"
+                                                            {{ $selectChart == 'pie' ? 'selected' : '' }}>Pie Chart
+                                                        </option>
+                                                        <option value="doughnut"
+                                                            {{ $selectChart == 'doughnut' ? 'selected' : '' }}>Doughnut
+                                                            Chart</option>
                                                     </select>
                                                 </div>
                                                 <div class="form-group col-2" id="legendPositionShow">
                                                     <label for="legendPosition">Legend Position:</label>
                                                     <select class="form-control" name="legendPosition" id="legendPosition">
-                                                        <option value="top">Position: top</option>
-                                                        <option value="right">Position: right</option>
-                                                        <option value="bottom">Position: bottom</option>
-                                                        <option value="left">Position: left</option>
+                                                        <option value="top"
+                                                            {{ $legendPosition == 'top' ? 'selected' : '' }}>Position: top
+                                                        </option>
+                                                        <option value="right"
+                                                            {{ $legendPosition == 'right' ? 'selected' : '' }}>Position:
+                                                            right</option>
+                                                        <option value="bottom"
+                                                            {{ $legendPosition == 'bottom' ? 'selected' : '' }}>Position:
+                                                            bottom</option>
+                                                        <option value="left"
+                                                            {{ $legendPosition == 'left' ? 'selected' : '' }}>Position:
+                                                            left</option>
                                                     </select>
                                                 </div>
 
@@ -220,10 +257,24 @@
             $("#myChart").hide();
             $("#legendPositionShow").hide();
 
+            @if (!is_null($dataType))
+                if ("{{ $dataType }}" === "chartOnly") {
+                    $("#chartTypeDiv, #colorPi, #borderWi, #labelId, #submitColorBtn").show();
+                    $("#myChart").show();
+                    $("#legendPositionShow").show();
+                    $(".list-unstyled").show();
+                    $("#dataOnly").hide();
+                } else if ("{{ $dataType }}" === "dataOnly") {
+                    $("#chartTypeDiv, #colorPi, #borderWi, #labelId, #submitColorBtn").hide();
+                    $("#myChart").hide();
+                    $("#legendPositionShow").hide();
+                    $("#dataOnly").show();
+                }
+            @endif
+
             // Add change event listener to chartType select
             $("#chartType").change(function() {
                 var selectedValue = $(this).val();
-
                 if (selectedValue === "chartOnly") {
                     $("#chartTypeDiv, #colorPi, #borderWi, #labelId, #submitColorBtn").show();
                     $("#myChart").show();
@@ -236,8 +287,6 @@
                     $("#myChart").hide();
                     $("#legendPositionShow").hide();
                     $("#dataOnly").show();
-
-
                 }
             });
         });
@@ -316,7 +365,7 @@
                 // If myPieChart exists, destroy it first
                 myPieChart.destroy();
             }
-            console.log(myPieChart);
+            // console.log(myPieChart);
             const options = {
                 responsive: true,
                 borderWidth: 3,
@@ -337,7 +386,7 @@
 
                         var filteredData = filterDataById(countData, labelId);
                         if (filteredData !== null) {
-                            console.log(filteredData);
+                            // console.log(filteredData);
                             var form = document.createElement('form');
                             form.method = 'GET';
                             form.action =
@@ -373,7 +422,30 @@
 
             });
         }
+
+        function updateChartType(chartType) {
+            // Call createOrUpdateChart function with the selected chart type
+            createOrUpdateChart(chartType);
+        }
+
+        // Call createOrUpdateChart function with the selected chart type on page load
+        $(document).ready(function() {
+            // Retrieve the selected chart type from the session
+            var selectedChartType = "{{ $selectChart }}";
+            if (selectedChartType) {
+                // Call createOrUpdateChart function with the selected chart type
+                createOrUpdateChart(selectedChartType);
+            }
+        });
+
+        // Example usage:
         createOrUpdateChart('bar');
+        var positionShow = "{{ $legendPosition }}";
+        if (positionShow && myPieChart) {
+            myPieChart.options.plugins.legend.position = positionShow;
+            console.log(myPieChart.options.plugins.legend.position)
+            myPieChart.update();
+        }
         document.getElementById('legendPosition').addEventListener('change', function() {
             var selectedPosition = this.value;
             if (myPieChart) {
@@ -381,6 +453,9 @@
                 myPieChart.update();
             }
         });
+
+
+
 
         // Dropdown change event listener
         document.getElementById('chartTypeSelect').addEventListener('change', function() {
@@ -426,6 +501,7 @@
             }
             myPieChart.update();
         }
+
 
         $("ul").on("click", ".init", function() {
             $(this).closest("ul").children('li:not(.init)').toggle();

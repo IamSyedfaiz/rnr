@@ -6,6 +6,20 @@
             <div class="col-sm-12">
                 <div class="rounded h-100">
                     <div class="m-n2">
+                        @php
+                            $applicationId = session('applicationId');
+                            $statisticsMode = session('statisticsMode');
+                            $dropdowns = session('dropdowns');
+                            $fieldNames = session('fieldNames');
+                            $fieldStatisticsNames = session('fieldStatisticsNames');
+                            $dropdownFieldIds = session('dropdownFieldIds');
+                            $filterOperators = session('filterOperators');
+                            $filterValues = session('filterValues');
+                            $advancedOperatorLogic = session('advancedOperatorLogic');
+                            $fieldIds = session('fieldIds');
+                            $fieldCounter = 0;
+
+                        @endphp
                         <div class="accordion accordion-flush" id="accordionFlushExample">
                             <form action="{{ route('search.report') }}" method="GET">
                                 <div class="accordion-item">
@@ -40,7 +54,7 @@
                                         <div class="accordion-body">
 
                                             <div class="row">
-                                                <div class="bg-light text-center rounded p-4 col-6">
+                                                <div class="bg-light rounded p-4 col-6">
                                                     <table class="table" id="example" style="width:100%">
                                                         <thead>
                                                             <tr class="text-white" style="background-color: #009CFF;">
@@ -65,11 +79,11 @@
                                                 <div class="bg-light rounded p-4 col-6" id="fieldData">
                                                     <input type="hidden" name="application_id" id="selectedApplication"
                                                         value="{{ $application->id }}">
-
                                                     <div class="d-flex align-items-center justify-content-between mb-4">
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="checkbox" value="1"
-                                                                id="statisticsModeCheckbox" name="statistics_mode">
+                                                                id="statisticsModeCheckbox" name="statistics_mode"
+                                                                {{ session('statisticsMode') ? 'checked' : '' }}>
                                                             <label class="form-check-label" for="statisticsModeCheckbox">
                                                                 Statistics Mode
                                                             </label>
@@ -78,8 +92,57 @@
                                                             value="{{ $application->id }}">
                                                     </div>
                                                     <h5>Select Field</h5>
-                                                    <div id="statisticsModeDiv" style="display: none;"></div>
-                                                    <div id="otherDiv"></div>
+                                                    <div id="statisticsModeDiv"
+                                                        style="{{ session('statisticsMode') ? '' : 'display: none;' }}">
+                                                        @if (is_array($fieldNames) || is_object($fieldNames))
+                                                            @foreach ($fieldNames as $key => $fieldName)
+                                                                @if (isset($fieldName))
+                                                                    <div class="row added-field">
+                                                                        <div class="mb-3 col-4">
+                                                                            <select name="dropdowns[]" class="form-control">
+                                                                                <option value="group_by">Group By</option>
+                                                                                <option value="count_of">Count of</option>
+                                                                            </select>
+                                                                        </div>
+                                                                        <div class="col-6">
+                                                                            <input type="text" class="form-control"
+                                                                                name="fieldNames[]"
+                                                                                value="{{ $fieldName }}">
+                                                                            <!-- Add field ID here if needed -->
+                                                                        </div>
+                                                                        <div class="col-2">
+                                                                            <a href="{{ route('remove.from.session', $fieldName) }}"
+                                                                                class="btn btn-danger">
+                                                                                <i class="bi bi-x-circle"></i>
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+                                                                @endif
+                                                            @endforeach
+                                                        @endif
+                                                    </div>
+                                                    <div id="otherDiv"
+                                                        style="{{ session('statisticsMode') ? 'display: none;' : '' }}">
+                                                        @if (is_array($fieldStatisticsNames) || is_object($fieldStatisticsNames))
+                                                            @foreach ($fieldStatisticsNames as $key => $fieldStatisticsName)
+                                                                @if (isset($fieldStatisticsName))
+                                                                    <div class="row added-field p-2">
+                                                                        <div class="col-6">
+                                                                            <input type="text" class="form-control"
+                                                                                name="fieldStatisticsNames[]"
+                                                                                value="{{ $fieldStatisticsName }}">
+                                                                        </div>
+                                                                        <div class="col-2">
+                                                                            <a href="{{ route('remove.from.session.normal', $fieldStatisticsName) }}"
+                                                                                class="btn btn-danger">
+                                                                                <i class="bi bi-x-circle"></i>
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+                                                                @endif
+                                                            @endforeach
+                                                        @endif
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -114,32 +177,202 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <tr class="data-row">
-                                                                <td>1</td>
-                                                                <td>
-                                                                    <select class="form-control" name="field_id[]">
-                                                                        <option value="">Select field</option>
-                                                                        @foreach (@$fields as $item)
-                                                                            <option value="{{ $item->id }}">
-                                                                                {{ $item->name }}
+
+                                                            {{-- @if (is_array($fieldIds) || is_object($fieldIds))
+                                                                @foreach ($fieldIds as $key => $fieldId)
+                                                                    @if (isset($fieldId))
+                                                                        <tr class="data-row">
+                                                                            <td class="row-id">{{ $key + 1 }}</td>
+                                                                            <td>
+                                                                                <select class="form-control"
+                                                                                    name="field_id[]">
+                                                                                    <option value="">Select field
+                                                                                    </option>
+                                                                                    @foreach ($fields as $item)
+                                                                                        <option
+                                                                                            value="{{ $item->id }}"
+                                                                                            {{ $item->id == $fieldId ? 'selected' : '' }}>
+                                                                                            {{ $item->name }}
+                                                                                        </option>
+                                                                                    @endforeach
+                                                                                </select>
+                                                                            </td>
+                                                                            <td>
+                                                                                <select class="form-control"
+                                                                                    name="filter_operator[]">
+                                                                                    <option value="C"
+                                                                                        {{ isset($filterOperators[$key]) && $filterOperators[$key] == 'C' ? 'selected' : '' }}>
+                                                                                        Contains</option>
+                                                                                    <option value="DNC"
+                                                                                        {{ isset($filterOperators[$key]) && $filterOperators[$key] == 'DNC' ? 'selected' : '' }}>
+                                                                                        Does Not Contain</option>
+                                                                                    <option value="E"
+                                                                                        {{ isset($filterOperators[$key]) && $filterOperators[$key] == 'E' ? 'selected' : '' }}>
+                                                                                        Equals</option>
+                                                                                    <option value="DNE"
+                                                                                        {{ isset($filterOperators[$key]) && $filterOperators[$key] == 'DNE' ? 'selected' : '' }}>
+                                                                                        Does Not Equals</option>
+                                                                                </select>
+                                                                            </td>
+                                                                            <td>
+                                                                                <input type="text" class="form-control"
+                                                                                    placeholder="Value"
+                                                                                    name="filter_value[]"
+                                                                                    value="{{ isset($filterValues[$key]) ? $filterValues[$key] : '' }}">
+                                                                            </td>
+                                                                            <td><button
+                                                                                    class="btn btn-danger removeRow">Remove</button>
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endif
+                                                                @endforeach
+                                                            @else
+                                                                <tr class="data-row">
+                                                                    <td>1</td>
+                                                                    <td>
+                                                                        <select class="form-control" name="field_id[]">
+                                                                            <option value="">Select field
                                                                             </option>
-                                                                        @endforeach
-                                                                    </select>
-                                                                </td>
-                                                                <td>
-                                                                    <select class="form-control" name="filter_operator[]">
-                                                                        <option value="C">Contains</option>
-                                                                        <option value="DNC">Does Not Contain</option>
-                                                                        <option value="E">Equals</option>
-                                                                        <option value="DNE">Does Not Equals</option>
-                                                                    </select>
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" class="form-control"
-                                                                        placeholder="Value" name="filter_value[]">
-                                                                </td>
-                                                                <td>-</td>
-                                                            </tr>
+                                                                            @foreach (@$fields as $item)
+                                                                                <option value="{{ $item->id }}">
+                                                                                    {{ $item->name }}
+                                                                                </option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        <select class="form-control"
+                                                                            name="filter_operator[]">
+                                                                            <option value="C">Contains
+                                                                            </option>
+                                                                            <option value="DNC">Does Not Contain
+                                                                            </option>
+                                                                            <option value="E">Equals</option>
+                                                                            <option value="DNE">Does Not Equals
+                                                                            </option>
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="text" class="form-control"
+                                                                            placeholder="Value" name="filter_value[]">
+                                                                    </td>
+                                                                    <td>-</td>
+                                                                </tr>
+                                                            @endif --}}
+                                                            @if (empty($fieldIds))
+                                                                <!-- Render default row if $fieldIds is empty -->
+                                                                <tr class="data-row">
+                                                                    <td>1</td>
+                                                                    <td>
+                                                                        <select class="form-control" name="field_id[]">
+                                                                            <option value="">Select field</option>
+                                                                            @foreach ($fields as $item)
+                                                                                <option value="{{ $item->id }}">
+                                                                                    {{ $item->name }}</option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        <select class="form-control"
+                                                                            name="filter_operator[]">
+                                                                            <option value="C">Contains</option>
+                                                                            <option value="DNC">Does Not Contain
+                                                                            </option>
+                                                                            <option value="E">Equals</option>
+                                                                            <option value="DNE">Does Not Equals</option>
+                                                                        </select>
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="text" class="form-control"
+                                                                            placeholder="Value" name="filter_value[]">
+                                                                    </td>
+                                                                    <td>-</td>
+                                                                </tr>
+                                                            @else
+                                                                <!-- Render rows based on $fieldIds -->
+                                                                @foreach ($fieldIds as $key => $fieldId)
+                                                                    @if (isset($fieldId))
+                                                                        <tr class="data-row">
+                                                                            <td class="row-id">{{ $key + 1 }}</td>
+                                                                            <td>
+                                                                                <select class="form-control"
+                                                                                    name="field_id[]">
+                                                                                    <option value="">Select field
+                                                                                    </option>
+                                                                                    @foreach ($fields as $item)
+                                                                                        <option
+                                                                                            value="{{ $item->id }}"
+                                                                                            {{ $item->id == $fieldId ? 'selected' : '' }}>
+                                                                                            {{ $item->name }}
+                                                                                        </option>
+                                                                                    @endforeach
+                                                                                </select>
+                                                                            </td>
+                                                                            <td>
+                                                                                <select class="form-control"
+                                                                                    name="filter_operator[]">
+                                                                                    <option value="C"
+                                                                                        {{ isset($filterOperators[$key]) && $filterOperators[$key] == 'C' ? 'selected' : '' }}>
+                                                                                        Contains</option>
+                                                                                    <option value="DNC"
+                                                                                        {{ isset($filterOperators[$key]) && $filterOperators[$key] == 'DNC' ? 'selected' : '' }}>
+                                                                                        Does Not Contain</option>
+                                                                                    <option value="E"
+                                                                                        {{ isset($filterOperators[$key]) && $filterOperators[$key] == 'E' ? 'selected' : '' }}>
+                                                                                        Equals</option>
+                                                                                    <option value="DNE"
+                                                                                        {{ isset($filterOperators[$key]) && $filterOperators[$key] == 'DNE' ? 'selected' : '' }}>
+                                                                                        Does Not Equals</option>
+                                                                                </select>
+                                                                            </td>
+                                                                            <td>
+                                                                                <input type="text" class="form-control"
+                                                                                    placeholder="Value"
+                                                                                    name="filter_value[]"
+                                                                                    value="{{ isset($filterValues[$key]) ? $filterValues[$key] : '' }}">
+                                                                            </td>
+                                                                            <td><button
+                                                                                    class="btn btn-danger removeRow">Remove</button>
+                                                                            </td>
+                                                                        </tr>
+                                                                    @else
+                                                                        <tr class="data-row">
+                                                                            <td>1</td>
+                                                                            <td>
+                                                                                <select class="form-control"
+                                                                                    name="field_id[]">
+                                                                                    <option value="">Select field
+                                                                                    </option>
+                                                                                    @foreach ($fields as $item)
+                                                                                        <option
+                                                                                            value="{{ $item->id }}">
+                                                                                            {{ $item->name }}</option>
+                                                                                    @endforeach
+                                                                                </select>
+                                                                            </td>
+                                                                            <td>
+                                                                                <select class="form-control"
+                                                                                    name="filter_operator[]">
+                                                                                    <option value="C">Contains
+                                                                                    </option>
+                                                                                    <option value="DNC">Does Not Contain
+                                                                                    </option>
+                                                                                    <option value="E">Equals</option>
+                                                                                    <option value="DNE">Does Not Equals
+                                                                                    </option>
+                                                                                </select>
+                                                                            </td>
+                                                                            <td>
+                                                                                <input type="text" class="form-control"
+                                                                                    placeholder="Value"
+                                                                                    name="filter_value[]">
+                                                                            </td>
+                                                                            <td>-</td>
+                                                                        </tr>
+                                                                    @endif
+                                                                @endforeach
+                                                            @endif
+
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -148,6 +381,8 @@
                                                         Logic</label>
                                                     <input type="text" class="form-control"
                                                         name="advanced_operator_logic" id="advancedOperatorLogic"
+                                                        oninput="this.value = this.value.toUpperCase()"
+                                                        value="{{ $advancedOperatorLogic ? $advancedOperatorLogic : '' }}"
                                                         aria-describedby="advancedOperatorLogichelp">
                                                     @error('advancedOperatorLogic')
                                                         <label id="advancedOperatorLogic-error" class="error text-danger"
@@ -200,7 +435,6 @@
             </div>
             <div class="col-6">
                 <input type="text" class="form-control" name="fieldNames[]" value="${fieldName}">
-                <input type="hidden" name="fieldIds[]" value="${fieldId}">
             </div>
             <div class="col-2">
                 <button class="removeFieldStatisticsMode btn btn-danger" data-remove-id="${fieldCounter}"><i class="bi bi-x-circle"></i> </button>
@@ -226,6 +460,7 @@
                 e.preventDefault();
                 var removeId = $(this).data('remove-id');
                 $('.added-field[data-remove-id="' + removeId + '"]').remove();
+
             });
             $('#otherDiv').on('click', '.removeFieldOtherDiv', function(e) {
                 e.preventDefault();

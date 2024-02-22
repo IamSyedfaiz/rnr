@@ -44,6 +44,8 @@
                                         <button type="submit" class="btn btn-primary m-2 fw-bold">
                                             save
                                         </button>
+                                        <a href="{{ route('back.report.application', $applicationId) }}"
+                                            class="btn btn-outline-primary fw-bold">MODIFY</a>
                                     </div>
                                 </div>
                             </div>
