@@ -22,6 +22,7 @@
                         @endphp
                         <div class="accordion accordion-flush" id="accordionFlushExample">
                             <form action="{{ route('search.report') }}" method="GET">
+                                <input type="hidden" name="report_id" value="{{ @$id }}">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header" id="flush-headingOne">
                                         <button class="accordion-button text-dark fw-bold" type="button"
