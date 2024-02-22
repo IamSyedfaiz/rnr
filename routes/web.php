@@ -97,6 +97,7 @@ Route::group(['middleware' => 'auth'], function () {
     // ReportController
     Route::get('/get-view', [ReportController::class, 'getView'])->name('get.view');
     Route::get('/send-report-application', [ReportController::class, 'sendReportApplication'])->name('report.report.application');
+    Route::get('/back-report-application/{id}', [ReportController::class, 'backReportApplication'])->name('back.report.application');
     Route::get('/search-report', [ReportController::class, 'searchReport'])->name('search.report');
     Route::get('/view-save-report/{id}', [ReportController::class, 'viewSaveReport'])->name('view.save.report');
     Route::get('/delete-report/{id}', [ReportController::class, 'deleteReport'])->name('delete.report');
@@ -105,6 +106,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/view-chart/{id}', [ReportController::class, 'viewChart'])->name('view.chart');
     Route::get('/edit-chart/{id}', [ReportController::class, 'editChart'])->name('edit.chart');
     Route::get('/route-to-handle-filtered-data', [ReportController::class, 'handleFilteredDataRequest'])->name('route.to.handle');
+    Route::get('/remove-from-session/{name}', [ReportController::class, 'removeFromSession'])->name('remove.from.session');
+    Route::get('/remove-from-session-normal/{name}', [ReportController::class, 'removeFromSessionNormal'])->name('remove.from.session.normal');
+
 });
 Route::get('/get-file', [IntegrationController::class, 'getFile'])->name('get.file');
 Route::get('/get-csv-data', [IntegrationController::class, 'getCsvData'])->name('get.csv.data');

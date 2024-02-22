@@ -30,11 +30,12 @@
 
 
                                             <button type="submit" class="btn btn-outline-primary fw-bold">SAVE</button>
-                                            <button type="button" class="btn btn-outline-primary fw-bold">MODIFY</button>
-                                            <button type="button" class="btn btn-outline-primary fw-bold">NEW
+                                            <a href="{{ route('back.report.application', $applicationId) }}"
+                                                class="btn btn-outline-primary fw-bold">MODIFY</a>
+                                            {{-- <button type="button" class="btn btn-outline-primary fw-bold">NEW
                                                 REPORT</button>
                                             <button type="button" class="btn btn-outline-primary fw-bold">RELATED
-                                                REPORTS</button>
+                                                REPORTS</button> --}}
                                             <div class="row mt-2">
                                                 <div class="col-12">
                                                     <div class="table-responsive">
