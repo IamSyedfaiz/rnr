@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->string('selectChart')->nullable();
             $table->string('borderWidth')->nullable();
             $table->string('legendPosition')->nullable();
+            $table->string('selectedPalette')->nullable();
             $table->enum('radioDefault', ['E', 'U'])->nullable();
             $table->enum('permissions', ['P', 'G'])->nullable();
             $table->enum('statistics_mode', ['Y', 'N'])->nullable();
