@@ -657,16 +657,12 @@ class ReportController extends Controller
                 'application_id' => 'required|numeric',
                 'user_id' => 'required|numeric',
                 'name' => 'required|string',
-                // Add more validation rules for 'data' if necessary
             ];
 
-            // Validate the request data
             $validator = Validator::make($request->all(), $rules);
 
-            // Check if the validation fails
             if ($validator->fails()) {
                 return back()->withErrors($validator)->withInput();
-                // You can return the errors to the user in whatever way you prefer
             }
             $reportId = $request->input('report_id');
 
@@ -694,6 +690,7 @@ class ReportController extends Controller
             $report->selectChart = $request->input('selectChart');
             $report->borderWidth = $request->input('borderWidth');
             $report->legendPosition = $request->input('legendPosition');
+            $report->selectedPalette = $request->input('selectedPalette');
             $report->fieldNames = $request->input('fieldNames');
             $report->dropdowns = $request->input('dropdowns');
             $report->permissions = $request->input('flexRadioDefault', null);
@@ -723,6 +720,7 @@ class ReportController extends Controller
             $selectChart = $request->input('selectChart');
             $borderWidth = $request->input('borderWidth');
             $legendPosition = $request->input('legendPosition');
+            $selectedPalette = $request->input('selectedPalette');
             $labelColor = json_encode($request->input('labelColor'));
             if ($report_id) {
 
@@ -767,6 +765,7 @@ class ReportController extends Controller
             Session::put('borderWidth', $borderWidth);
             Session::put('legendPosition', $legendPosition);
             Session::put('labelColor', $labelColor);
+            Session::put('selectedPalette', $selectedPalette);
             $users = User::where('status', 1)
                 ->latest()
                 ->get();
@@ -775,7 +774,7 @@ class ReportController extends Controller
                 ->get();
 
 
-            return view('backend.reports.saveReport', compact('users', 'groups', 'selectedgroups', 'selectedusers', 'applicationId', 'data', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'dropdowns', 'dataType', 'selectChart', 'borderWidth', 'labelColor', 'legendPosition', 'report_id', 'report'));
+            return view('backend.reports.saveReport', compact('users', 'groups', 'selectedgroups', 'selectedusers', 'applicationId', 'data', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'dropdowns', 'dataType', 'selectChart', 'borderWidth', 'labelColor', 'legendPosition', 'report_id', 'report', 'selectedPalette'));
         } catch (\Exception $th) {
             //throw $th;
             return redirect()

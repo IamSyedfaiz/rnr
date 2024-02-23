@@ -28,24 +28,21 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($reports as $report)
+                                @foreach (@$reports as $report)
                                     <tr>
-                                        <td class="text-primary">{{ $report->name }}</td>
-                                        <td>{{ $report->application->name }}</td>
-                                        <td>{{ $report->permissions == 'P' ? 'Personal' : ($report->permissions == 'G' ? 'Global' : '--') }}
+                                        <td class="text-primary">{{ @$report->name }}</td>
+                                        <td>{{ @$report->application->name }}</td>
+                                        <td>{{ @$report->permissions == 'P' ? 'Personal' : (@$report->permissions == 'G' ? 'Global' : '--') }}
                                         </td>
-                                        <td>{{ $report->created_at }}</td>
-                                        <td>{{ $report->user->name ?? '-' }}</td>
+                                        <td>{{ @$report->created_at }}</td>
+                                        <td>{{ @$report->user->name ?? '-' }}</td>
                                         <td>
-                                            {{-- <a href="{{ route('back.report.application', $report->application->id) }}"><i
-                                                    class="bi bi-pencil text-primary"></i></a> --}}
-                                            <a href="{{ route('edit.chart', $report->id) }}"><i
+                                            <a href="{{ route('edit.chart', @$report->id) }}"><i
                                                     class="bi bi-pencil text-primary"></i></a>
-                                            {{-- <a href="{{ route('view.chart', $report->id) }}"><i
+                                            {{-- <a href="{{ route('view.chart', @$report->id) }}"><i
                                                     class="bi bi-eye-fill text-primary"></i></a> --}}
-                                            <a href="{{ route('delete.report', $report->id) }}"><i
+                                            <a href="{{ route('delete.report', @$report->id) }}"><i
                                                     class="bi bi-trash-fill text-primary"></i></a>
-
                                         </td>
                                     </tr>
                                 @endforeach

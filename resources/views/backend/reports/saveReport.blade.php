@@ -28,6 +28,7 @@
                         <input type="hidden" value="{{ @$borderWidth }}" name="borderWidth">
                         <input type="hidden" value="{{ @$labelColor }}" name="labelColor">
                         <input type="hidden" value="{{ @$legendPosition }}" name="legendPosition">
+                        <input type="hidden" value="{{ @$selectedPalette }}" name="selectedPalette">
                         <input type="hidden" value="{{ @$report_id }}" name="report_id">
 
                         <div class="accordion accordion-flush" id="accordionFlushExample">

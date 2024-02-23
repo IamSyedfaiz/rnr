@@ -34,7 +34,8 @@
                                             <input type="hidden" name="fieldIds" value="{{ json_encode(@$fieldIds) }}">
                                             <input type="hidden" name="fieldNames" value="{{ json_encode(@$fieldNames) }}">
                                             <input type="hidden" name="data" value="{{ json_encode($countData) }}">
-
+                                            <input type="hidden" id="selectedPaletteInput" name="selectedPalette"
+                                                value="">
                                             <input type="hidden" name="fieldStatisticsNames"
                                                 value="{{ json_encode($fieldStatisticsNames) }}">
                                             <input type="hidden" name="statisticsMode" value="{{ $statisticsMode }}">
@@ -112,7 +113,7 @@
 
                                                 <div class="form-group col-5" id="colorPi">
                                                     <label for="colorPicker">Select Palette:</label>
-                                                    <ul class="list-unstyled form-control">
+                                                    <ul class="list-unstyled form-control" name="color">
                                                         <li class="init">Select Palette</li>
                                                         <li data-value="random"><span><img
                                                                     src="{{ asset('public/backend/dashmin/img/palette.png') }}"
@@ -443,7 +444,7 @@
         });
 
         // Example usage:
-        createOrUpdateChart('bar');
+        createOrUpdateChart('line');
         var positionShow = "{{ $legendPosition }}";
         if (positionShow && myPieChart) {
             myPieChart.options.plugins.legend.position = positionShow;
@@ -520,6 +521,7 @@
 
 
             var selectedPalette = $(this).attr('data-value');
+            $('#selectedPaletteInput').val(selectedPalette);
             var colors;
             // Set colors based on selected palette
             if (selectedPalette === 'random') {
