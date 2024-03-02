@@ -12,7 +12,7 @@
                 <div class="d-flex align-items-center justify-content-between mb-4">
                     <h6 class="mb-4">Group Edit</h6>
                     <a href="{{ route('group.index') }}">
-                        <button type="button" class="btn btn-danger"><-back</button>
+                        <button type="button" class="btn btn-danger"><-back< /button>
                     </a>
 
                 </div>
@@ -51,44 +51,47 @@
                     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
                         aria-hidden="true">
                         <div class="modal-dialog">
-                                <div class="modal-content">
+                            <div class="modal-content">
 
-                                    <div class="modal-body">
-        
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="mb-3 text-start">
-                                                    <label for="filter">Users&nbsp;</label><input id="filter" type="text"
-                                                        class="filter form-control" placeholder="Search Username">
-                                                    <br />
-        
-                                                    <div id="mdi" style="max-height: 10%; overflow:auto;">
-                                                        @foreach ($users as $item)
-                                                            <span><input class="talents_idmd-checkbox"
-                                                                    onchange="dragdrop(this.value, this.id);" type="checkbox"
-                                                                    id="{{ $item->name . ' ' . $item->lastname }}"
-                                                                    value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
-                                                        @endforeach
-                                                    </div>
-        
-        
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="users">Selected Users</label>
-                                                    <select name="userids[]" id="" class="form-control" multiple>
-                                                    </select>
-                                                </div>
-                                            </div>
+                                <div class="modal-body">
 
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3 text-start">
+                                                <label for="filter">Users&nbsp;</label><input id="filter"
+                                                    type="text" class="filter form-control"
+                                                    placeholder="Search Username">
+                                                <br />
+
+                                                <div id="mdi" style="max-height: 10%; overflow:auto;">
+                                                    @foreach ($users as $item)
+                                                        <span><input class="talents_idmd-checkbox" name="userids[]"
+                                                                onchange="dragdrop(this.value, this.id);" type="checkbox"
+                                                                id="{{ $item->name . ' ' . $item->lastname }}"
+                                                                @if (in_array($item->id, array_column($selectedusers, 'id'))) checked @endif
+                                                                value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
+                                                    @endforeach
+                                                </div>
+
+
                                             </div>
                                         </div>
+                                        {{-- <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="users">Selected Users</label>
+                                                <select name="userids[]" id="" class="form-control" multiple>
+                                                </select>
+                                            </div>
+                                        </div> --}}
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Close</button>
+                                        </div>
                                     </div>
-        
                                 </div>
+
+                            </div>
                         </div>
                     </div>
                     {{-- for modal --}}
@@ -158,21 +161,21 @@
         filterEl.addEventListener('keyup', () => handler.call(null, filterEl.value));
 
 
-        function dragdrop(value, name) {
-            // console.log(value);
-            if (document.getElementById(name).checked) {
-                var userselect = document.getElementsByName('userids[]')[0];
-                var option = document.createElement('option');
-                option.value = value;
-                option.id = value;
-                option.innerText = name;
-                option.selected = true;
-                userselect.appendChild(option);
-            } else {
-                var userselect = document.getElementsByName('userids[]')[0];
-                var removeoption = document.getElementById(value);
-                userselect.removeChild(removeoption);
-            }
-        }
+        // function dragdrop(value, name) {
+        //     // console.log(value);
+        //     if (document.getElementById(name).checked) {
+        //         var userselect = document.getElementsByName('userids[]')[0];
+        //         var option = document.createElement('option');
+        //         option.value = value;
+        //         option.id = value;
+        //         option.innerText = name;
+        //         option.selected = true;
+        //         userselect.appendChild(option);
+        //     } else {
+        //         var userselect = document.getElementsByName('userids[]')[0];
+        //         var removeoption = document.getElementById(value);
+        //         userselect.removeChild(removeoption);
+        //     }
+        // }
     </script>
 @endsection

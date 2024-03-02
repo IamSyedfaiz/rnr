@@ -5,7 +5,7 @@
         <div class="bg-light text-start rounded p-4">
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <h6 class="mb-0">Field Create</h6>
-                <a href="{{route('application.edit', $application->id)}}"><button class="btn btn-danger"><-back</button></a> 
+                <a href="{{ route('application.edit', $application->id) }}"><button class="btn btn-danger">back </a>
             </div>
             <div class="bg-light rounded h-100 p-4">
                 <div class="row">
@@ -75,15 +75,15 @@
                                     data-bs-parent="#accordionExample">
                                     <div class="accordion-body">
 
-                                            <input type="checkbox" id="" name="requiredfield" value="1">
-                                            <label for=""> Make it required field</label><br>
+                                        <input type="checkbox" id="" name="requiredfield" value="1">
+                                        <label for=""> Make it required field</label><br>
 
-                                            <input type="checkbox" id="" name="requireuniquevalue" value="1">
-                                            <label for=""> Make it unique field</label><br>
-                                
-                                            <input type="checkbox" id="" name="keyfield" value="1">
-                                            <label for=""> Make it key field</label><br>
-                                    
+                                        <input type="checkbox" id="" name="requireuniquevalue" value="1">
+                                        <label for=""> Make it unique field</label><br>
+
+                                        <input type="checkbox" id="" name="keyfield" value="1">
+                                        <label for=""> Make it key field</label><br>
+
                                     </div>
                                 </div>
                             </div>
@@ -115,8 +115,8 @@
                                             <div class="d-flex justify-content-between">
                                                 <div class="col-md-6">
                                                     <button type="button" class="btn btn-primary text-end"
-                                                    data-bs-toggle="modal" data-bs-target="#exampleModalusers"
-                                                    data-bs-whatever="@mdo">Add Users</button>
+                                                        data-bs-toggle="modal" data-bs-target="#exampleModalusers"
+                                                        data-bs-whatever="@mdo">Add Users</button>
 
                                                 </div>
 
@@ -171,11 +171,11 @@
                                     </div>
                                     <div class="showvaluelist d-none">
 
-                                            <div class="mb-3 valuelistvalue">
-                                                <input type="text" name="valuelistvalue[]" class="form-control mb-2"
-                                                    placeholder="Enter ValueList value">
-                                            </div>
-                                            
+                                        <div class="mb-3 valuelistvalue">
+                                            <input type="text" name="valuelistvalue[]" class="form-control mb-2"
+                                                placeholder="Enter ValueList value">
+                                        </div>
+
                                         <input type="button" class="btn btn-primary mb-2" onclick="addvaluelist()"
                                             value="add more">
                                         <input type="button" class="btn btn-danger mb-2" onclick="removevaluelist()"
@@ -188,98 +188,104 @@
                     </div>
 
 
-                    <div class="modal fade" id="exampleModalusers" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal fade" id="exampleModalusers" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
                         <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Add Users</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="mb-3 text-start">
-                                                    <label for="filter">Users&nbsp;</label><input id="filter" type="text"
-                                                        class="filter form-control" placeholder="Search Users">
-                                                    <br />
-        
-                                                    <div id="mdi" style="max-height: 10%; overflow:auto;">
-                                                        @foreach ($users as $item)
-                                                            <span><input class="talents_idmd-checkbox"
-                                                                    onchange="dragdrop1(this.value, this.id);" type="checkbox"
-                                                                    id="{{ $item->name . ' ' . $item->lastname }}"
-                                                                    value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
-                                                        @endforeach
-                                                    </div>
-        
-        
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Add Users</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3 text-start">
+                                                <label for="filter">Users&nbsp;</label><input id="filter"
+                                                    type="text" class="filter form-control"
+                                                    placeholder="Search Users">
+                                                <br />
+
+                                                <div id="mdi" style="max-height: 10%; overflow:auto;">
+                                                    @foreach ($users as $item)
+                                                        <span><input class="talents_idmd-checkbox"
+                                                                onchange="dragdrop1(this.value, this.id);" type="checkbox"
+                                                                id="{{ $item->name . ' ' . $item->lastname }}"
+                                                                value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
+                                                    @endforeach
                                                 </div>
+
+
                                             </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="users">Selected Users</label>
-                                                    <select name="users[]" id="" class="form-control" multiple>
-                                                    </select>
-                                                </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="users">Selected Users</label>
+                                                <select name="users[]" id="" class="form-control" multiple>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
-        
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
-                                    </div>
                                 </div>
-                         
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                    {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
-                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
                         <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Add Group</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="mb-3 text-start">
-                                                    <label for="filter">Groups&nbsp;</label><input id="filter" type="text"
-                                                        class="filter form-control" placeholder="Search Groups">
-                                                    <br />
-        
-                                                    <div id="mdi" style="max-height: 10%; overflow:auto;">
-                                                        @foreach ($groups as $item)
-                                                            <span><input class="talents_idmd-checkbox"
-                                                                    onchange="dragdrop(this.value, this.id);" type="checkbox"
-                                                                    id="{{ $item->name . ' ' . $item->lastname }}"
-                                                                    value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
-                                                        @endforeach
-                                                    </div>
-        
-        
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Add Group</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3 text-start">
+                                                <label for="filter">Groups&nbsp;</label><input id="filter"
+                                                    type="text" class="filter form-control"
+                                                    placeholder="Search Groups">
+                                                <br />
+
+                                                <div id="mdi" style="max-height: 10%; overflow:auto;">
+                                                    @foreach ($groups as $item)
+                                                        <span><input class="talents_idmd-checkbox"
+                                                                onchange="dragdrop(this.value, this.id);" type="checkbox"
+                                                                id="{{ $item->name . ' ' . $item->lastname }}"
+                                                                value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
+                                                    @endforeach
                                                 </div>
+
+
                                             </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="users">Selected Groups</label>
-                                                    <select name="groups[]" id="" class="form-control" multiple>
-                                                    </select>
-                                                </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="users">Selected Groups</label>
+                                                <select name="groups[]" id="" class="form-control" multiple>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
-
-        
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
-                                    </div>
                                 </div>
-                         
+
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                    {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                     <input type="hidden" value="{{ $application->id }}" name="application_id">
@@ -292,7 +298,6 @@
     <!-- Recent Sales End -->
 
     <script>
-
         function showgroupsname() {
             // var groupname = document.getElementsByClassName('groupsname')[0];
             // groupname.className = 'd-block groupsname';
@@ -665,7 +670,5 @@
                 userselect.removeChild(removeoption);
             }
         }
-
-
     </script>
 @endsection

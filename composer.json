@@ -14,7 +14,7 @@
         "laravel/ui": "^4.2",
         "maatwebsite/excel": "^3.1",
         "rap2hpoutre/laravel-log-viewer": "^2.3",
-        "the42coders/workflows": "^0.0.16"
+        "the42coders/workflows": "^0.0.19"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

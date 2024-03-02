@@ -6,7 +6,7 @@
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <h6 class="mb-0">Field Edit</h6>
                 <a href="{{ route('application.edit', $field->application_id) }}"><button class="btn btn-danger">
-                        <-back </button></a>
+                        back </a>
             </div>
             <div class="bg-light rounded h-100 p-4">
                 <div class="row">
@@ -148,7 +148,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="d-none groupsname row">
+                                        <div class="groupsname row">
                                             <div class="col-md-6">
                                                 <select id="" class="form-control " multiple disabled>
                                                     @foreach ($selectedusers as $item)
@@ -274,9 +274,10 @@
 
                                                 <div id="mdi" style="max-height: 10%; overflow:auto;">
                                                     @foreach ($users as $item)
-                                                        <span><input class="talents_idmd-checkbox"
+                                                        <span><input class="talents_idmd-checkbox" name="users[]"
                                                                 onchange="dragdrop1(this.value, this.id);" type="checkbox"
                                                                 id="{{ $item->name . ' ' . $item->lastname }}"
+                                                                @if (in_array($item->id, array_column($selectedusers, 'id'))) checked @endif
                                                                 value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
                                                     @endforeach
                                                 </div>
@@ -284,13 +285,13 @@
 
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        {{-- <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label for="users">Selected Users</label>
                                                 <select name="users[]" id="" class="form-control" multiple>
                                                 </select>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
 
@@ -324,9 +325,10 @@
 
                                                 <div id="mdi" style="max-height: 10%; overflow:auto;">
                                                     @foreach ($groups as $item)
-                                                        <span><input class="talents_idmd-checkbox"
+                                                        <span><input class="talents_idmd-checkbox" name="groups[]"
                                                                 onchange="dragdrop(this.value, this.id);" type="checkbox"
                                                                 id="{{ $item->name . ' ' . $item->lastname }}"
+                                                                @if (in_array($item->id, array_column($selectedgroups, 'id'))) checked @endif
                                                                 value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
                                                     @endforeach
                                                 </div>
@@ -334,13 +336,13 @@
 
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        {{-- <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label for="users">Selected Groups</label>
                                                 <select name="groups[]" id="" class="form-control" multiple>
                                                 </select>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                     </div>
                                 </div>
 
@@ -393,7 +395,7 @@
 
         if (radioselected == 'private') {
             var groupname = document.getElementsByClassName('groupsname')[0];
-            groupname.className = 'd-block groupsname';
+            groupname.className = 'd-flex groupsname';
         }
 
         if (radioselected == 'private') {
@@ -403,7 +405,7 @@
 
         function showgroupsname() {
             var groupname = document.getElementsByClassName('groupsname')[0];
-            groupname.className = 'd-block groupsname';
+            groupname.className = 'd-flex groupsname';
 
             var showaddbtn = document.getElementsByClassName('showaddbtn')[0];
             showaddbtn.className = 'col-md-2 d-block showaddbtn';

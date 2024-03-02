@@ -27,9 +27,7 @@ class ApplicationController extends Controller
             return view('backend.applications.index', compact('applications'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -45,9 +43,7 @@ class ApplicationController extends Controller
             return view('backend.applications.create');
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -68,7 +64,7 @@ class ApplicationController extends Controller
             ];
 
             $custommessages = [
-                'name.unique' => 'Application Name Should be Unique.'
+                'name.unique' => 'Application Name Should be Unique.',
             ];
 
             $this->validate($request, $rules, $custommessages);
@@ -92,14 +88,10 @@ class ApplicationController extends Controller
             $application = Application::create($data);
             // dd('Userid ' . auth()->user()->custom_userid . ' Application Created by ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Application Name -> ' . $application->name . ', Application Status -> ' . $application->status);
             Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Application Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' , Application Name -> ' . $application->name);
-            return redirect()
-                ->route('application.index')
-                ->with('success', 'Application Created.');
+            return redirect()->route('application.index')->with('success', 'Application Created.');
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -126,17 +118,11 @@ class ApplicationController extends Controller
             //code...
             $application = Application::find($id);
             // dd($application->attachments);
-            $attachments = Attachments::where('application_id', $id)
-                ->latest()
-                ->get();
-            $fields = Field::where('application_id', $id)
-                ->orderBy('forder', 'ASC')
-                ->get();
+            $attachments = Attachments::where('application_id', $id)->latest()->get();
+            $fields = Field::where('application_id', $id)->orderBy('forder', 'ASC')->get();
             // dd($fields);
 
-            $users = User::where('status', 1)
-                ->latest()
-                ->get();
+            $users = User::where('status', 1)->latest()->get();
 
             $groups = Group::where(['status' => 1])
                 ->latest()
@@ -157,9 +143,7 @@ class ApplicationController extends Controller
             // dd($audit);
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -199,14 +183,10 @@ class ApplicationController extends Controller
                 Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Attachment Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Application Name -> ' . $application->name);
                 if ($attachment) {
                     # code...
-                    return redirect()
-                        ->back()
-                        ->with('success', 'Successfully Attachments Create.');
+                    return redirect()->back()->with('success', 'Successfully Attachments Create.');
                 } else {
                     # code...
-                    return redirect()
-                        ->back()
-                        ->with('error', 'Technical Error.');
+                    return redirect()->back()->with('error', 'Technical Error.');
                 }
             } else {
                 # code...
@@ -270,21 +250,15 @@ class ApplicationController extends Controller
 
                 if ($application) {
                     # code...
-                    return redirect()
-                        ->back()
-                        ->with('success', 'Successfully Application Edit.');
+                    return redirect()->back()->with('success', 'Successfully Application Edit.');
                 } else {
                     # code...
-                    return redirect()
-                        ->back()
-                        ->with('error', 'Technical Error.');
+                    return redirect()->back()->with('error', 'Technical Error.');
                 }
             }
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -302,15 +276,11 @@ class ApplicationController extends Controller
             Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Application Deleted by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' , Application Name -> ' . $application->name);
             Application::destroy($id);
 
-            return redirect()
-                ->back()
-                ->with('success', 'Successfully Application Delete.');
+            return redirect()->back()->with('success', 'Successfully Application Delete.');
             // dd($audit);
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -323,15 +293,11 @@ class ApplicationController extends Controller
             Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Attachment Deleted by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' , Attachment Name -> ' . $attachment->name);
             Attachments::destroy($id);
 
-            return redirect()
-                ->back()
-                ->with('success', 'Successfully Attachments Delete.');
+            return redirect()->back()->with('success', 'Successfully Attachments Delete.');
             // dd($audit);
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 }

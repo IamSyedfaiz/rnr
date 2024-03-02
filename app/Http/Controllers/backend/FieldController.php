@@ -28,16 +28,14 @@ class FieldController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create($id)
     {
         //code...
         $field = Field::find($id);
         $groups = Group::where(['status' => 1])
             ->latest()
             ->get();
-        $users = User::where('status', 1)
-            ->latest()
-            ->get();
+        $users = User::where('status', 1)->latest()->get();
 
         return view('backend.field.create', compact('field', 'groups', 'users'));
     }
@@ -51,7 +49,7 @@ class FieldController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'name' => 'requiredunique:fields',
+            'name' => 'required.unique:fields',
             'type' => 'required',
             'status' => 'required',
         ];
@@ -64,14 +62,20 @@ class FieldController extends Controller
             'name' => 'required|unique:fields',
             'type' => 'required',
             'status' => 'required',
+            'requiredfield' => 'required',
+            'requireuniquevalue' => 'required',
+            'keyfield' => 'required',
+            'access' => 'required',
+            'application_id' => 'required',
         ]);
 
         try {
             $data = $validator->validate();
             // $this->validate($request, $rules, $custommessages);
+            // dd($data);
             //code...
-            // dd($request->all());
             // $data = $request->all();
+            // dd($data);
             unset($data['applicationid']);
 
             $application = Application::find($request->application_id);
@@ -157,9 +161,7 @@ class FieldController extends Controller
                 ->with(['success' => 'Field Created.', 'field' => 'active']);
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -176,9 +178,7 @@ class FieldController extends Controller
         $groups = Group::where(['status' => 1])
             ->latest()
             ->get();
-        $users = User::where('status', 1)
-            ->latest()
-            ->get();
+        $users = User::where('status', 1)->latest()->get();
         $application = Application::find($id);
 
         return view('backend.field.create', compact('field', 'groups', 'users', 'application'));
@@ -199,9 +199,7 @@ class FieldController extends Controller
                 ->latest()
                 ->get();
 
-            $users = User::where('status', 1)
-                ->latest()
-                ->get();
+            $users = User::where('status', 1)->latest()->get();
 
             $selectedgroups = [];
             if ($field->groups != null) {
@@ -258,9 +256,7 @@ class FieldController extends Controller
             return view('backend.field.edit', compact('userlist', 'selectedusers', 'grouplist', 'field', 'groups', 'selectedgroups', 'users'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -447,9 +443,7 @@ class FieldController extends Controller
         try {
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -480,15 +474,11 @@ class FieldController extends Controller
             $application->save();
             Log::channel('custom')->info('Userid ' . auth()->user()->custom_userid . ' , Field Deleted by ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Field Name -> ' . $field->name);
             Field::destroy($id);
-            return redirect()
-                ->back()
-                ->with('success', 'Successfully Field Delete.');
+            return redirect()->back()->with('success', 'Successfully Field Delete.');
             // dd($audit);
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 }

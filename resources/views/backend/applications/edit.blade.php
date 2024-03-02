@@ -32,8 +32,7 @@
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <h6 class="mb-4">Application Edit</h6>
                             <a href="{{ route('application.index') }}">
-                                <button type="button" class="btn btn-danger"><-back< /button>
-                            </a>
+                                <button type="button" class="btn btn-danger"><-back </a>
 
                         </div>
                         <form action="{{ route('application.update', $application->id) }}" class="form-horizontal"
