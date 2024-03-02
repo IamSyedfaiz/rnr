@@ -30,9 +30,7 @@ class NotificationController extends Controller
             return view('backend.notifications.index', compact('notifications'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -45,9 +43,7 @@ class NotificationController extends Controller
     {
         try {
             $applications = Application::latest()->get();
-            $users = User::where('status', 1)
-                ->latest()
-                ->get();
+            $users = User::where('status', 1)->latest()->get();
             $groups = Group::where(['status' => 1])
                 ->latest()
                 ->get();
@@ -58,9 +54,7 @@ class NotificationController extends Controller
             return view('backend.notifications.create', compact('selectedgroups', 'selectedusers', 'users', 'groups', 'applications'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
     public function addNotification(Request $request)
@@ -77,10 +71,7 @@ class NotificationController extends Controller
 
             $validator = Validator::make($request->all(), $rules, $messages);
             if ($validator->fails()) {
-                return redirect()
-                    ->back()
-                    ->withErrors($validator)
-                    ->withInput();
+                return redirect()->back()->withErrors($validator)->withInput();
             }
             $type = $request->input('type');
             $applicationId = $request->input('application_id');
@@ -88,13 +79,9 @@ class NotificationController extends Controller
             $applications = Application::latest()->get();
 
             $notification = Notification::all();
-            $fields = Field::where('application_id', $applicationId)
-                ->where('status', 1)
-                ->get();
+            $fields = Field::where('application_id', $applicationId)->where('status', 1)->get();
 
-            $users = User::where('status', 1)
-                ->latest()
-                ->get();
+            $users = User::where('status', 1)->latest()->get();
             $groups = Group::where(['status' => 1])
                 ->latest()
                 ->get();
@@ -106,9 +93,7 @@ class NotificationController extends Controller
             return view('backend.notifications.storeNoti', compact('type', 'applicationId', 'applications', 'application', 'fields', 'selectedusers', 'selectedgroups', 'users', 'groups', 'selectedusersCc'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
     public function createNotification()
@@ -118,9 +103,7 @@ class NotificationController extends Controller
             return view('backend.notifications.createNoti', compact('applications'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -134,30 +117,24 @@ class NotificationController extends Controller
     {
         try {
             // Validation rules
-            // $rules = [
-            //     'active' => 'required|in:Y,N',
-            //     'field_id.*' => 'exists:fields,id', // Assuming 'fields' is your fields table
-            //     'filter_operator.*' => 'required', // Add other validation rules as needed
-            //     'filter_value.*' => 'required', // Add other validation rules as needed
-            // ];
+            $rules = [
+                'name' => 'required|unique:notifications,name',
+            ];
 
-            // // Custom validation messages
-            // $messages = [
-            //     'active.required' => 'Active field is required.',
-            //     'active.in' => 'Invalid value for active field.',
-            //     'field_id.*.exists' => 'Invalid field selected.',
-            //     'filter_operator.*.required' => 'Filter operator is required.',
-            //     'filter_value.*.required' => 'Filter value is required.',
-            //     // Add other custom messages as needed
-            // ];
+            // Custom validation messages
+            $messages = [
+                'name.required' => 'The name field is required.',
+                'name.unique' => 'The name field must be unique.',
+                // Add other custom messages as needed
+            ];
 
-            // // Validate the request
-            // $validator = Validator::make($request->all(), $rules, $messages);
+            // Validate the request
+            $validator = Validator::make($request->all(), $rules, $messages);
 
-            // // If validation fails, throw an exception with validation errors
-            // if ($validator->fails()) {
-            //     throw ValidationException::withMessages($validator->errors()->toArray());
-            // }
+            // If validation fails, throw an exception with validation errors
+            if ($validator->fails()) {
+                throw ValidationException::withMessages($validator->errors()->toArray());
+            }
 
             // Validation passed, continue with the code
 
@@ -180,11 +157,8 @@ class NotificationController extends Controller
             // }
             if (!empty($filterFields) && !empty($filterValues) && count($filterFields) === count($filterValues)) {
                 foreach ($filterFields as $index => $field) {
-                    // Check if each value is an array
                     $operator = is_array($filterOperators) ? $filterOperators[$index] ?? null : null;
                     $value = is_array($filterValues) ? $filterValues[$index] ?? null : null;
-
-                    // Create FilterCriteria model and save it to the database
                     FilterCriteria::create([
                         'notification_id' => $notification->id,
                         'field_id' => $field,
@@ -193,16 +167,11 @@ class NotificationController extends Controller
                     ]);
                 }
             }
-            // dd(1);
             Log::channel('custom')->info('Attachment Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' , Notification Name -> ' . $notification->name . ' , Data -> ' . json_encode($data));
-            return redirect()
-                ->route('notifications.index')
-                ->with('success', 'Notification Created.');
+            return redirect()->route('notifications.index')->with('success', 'Notification Created.');
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -217,17 +186,13 @@ class NotificationController extends Controller
         //using show for indexing in notifications
         try {
             //code...
-            $notifications = Notification::where('application_id', $id)
-                ->latest()
-                ->get();
+            $notifications = Notification::where('application_id', $id)->latest()->get();
             $application = Application::find($id);
             // dd($notifications,  $application);
             return view('backend.notifications.index', compact('notifications', 'application'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -248,9 +213,7 @@ class NotificationController extends Controller
                 ->get();
             $filters = FilterCriteria::where('notification_id', $id)->get();
 
-            $users = User::where('status', 1)
-                ->latest()
-                ->get();
+            $users = User::where('status', 1)->latest()->get();
             $groups = Group::where(['status' => 1])
                 ->latest()
                 ->get();
@@ -298,9 +261,7 @@ class NotificationController extends Controller
             // dd($audit);
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -391,21 +352,15 @@ class NotificationController extends Controller
                 $notification->update($data);
 
                 Log::channel('custom')->info('Attachment Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' , Notification Name -> ' . $notification->name . ' , Data -> ' . json_encode($data));
-                return redirect()
-                    ->route('notifications.index')
-                    ->with('success', 'Notification updated successfully!');
+                return redirect()->route('notifications.index')->with('success', 'Notification updated successfully!');
                 // return redirect()->route('notifications.index')->with('success', 'Notification updated successfully!');
             } else {
                 // Handle case where the notification with the given ID is not found
-                return redirect()
-                    ->route('notifications.index')
-                    ->with('error', 'Notification not found.');
+                return redirect()->route('notifications.index')->with('error', 'Notification not found.');
             }
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
     /**
@@ -422,15 +377,11 @@ class NotificationController extends Controller
             Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Attachment Deleted by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' , Notification Name -> ' . $notification->name);
             // Notification::destroy($id)
             $notification->delete();
-            return redirect()
-                ->back()
-                ->with('success', 'Successfully Notification Delete.');
+            return redirect()->back()->with('success', 'Successfully Notification Delete.');
             // dd($audit);
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
     public function filtersDestroy($id)
@@ -438,13 +389,9 @@ class NotificationController extends Controller
         try {
             $filterCriteria = FilterCriteria::findOrFail($id);
             $filterCriteria->delete();
-            return redirect()
-                ->back()
-                ->with('success', 'FilterCriteria deleted successfully');
+            return redirect()->back()->with('success', 'FilterCriteria deleted successfully');
         } catch (\Exception $e) {
-            return redirect()
-                ->back()
-                ->with('success', 'Error deleting FilterCriteria');
+            return redirect()->back()->with('success', 'Error deleting FilterCriteria');
         }
     }
     public function custom_edit($id)
@@ -454,9 +401,7 @@ class NotificationController extends Controller
             // dd($id);
             $notification = Notification::find($id);
             // dd($notification);
-            $users = User::where('status', 1)
-                ->latest()
-                ->get();
+            $users = User::where('status', 1)->latest()->get();
             $groups = Group::where(['status' => 1])
                 ->latest()
                 ->get();
@@ -498,9 +443,7 @@ class NotificationController extends Controller
             // dd($audit);
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 }

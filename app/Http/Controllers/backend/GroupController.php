@@ -25,9 +25,7 @@ class GroupController extends Controller
             return view('backend.group.index', compact('groups', 'users'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -43,9 +41,7 @@ class GroupController extends Controller
             return view('backend.applications.create');
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -82,14 +78,10 @@ class GroupController extends Controller
             $group = Group::create($data);
             Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Group Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Group Name -> ' . $group->name);
 
-            return redirect()
-                ->route('group.index')
-                ->with('success', 'Group Created.');
+            return redirect()->route('group.index')->with('success', 'Group Created.');
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -132,9 +124,7 @@ class GroupController extends Controller
             // dd($audit);
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -236,14 +226,10 @@ class GroupController extends Controller
 
             // dd($group);
             # code...
-            return redirect()
-                ->back()
-                ->with('success', 'Successfully Group Updated.');
+            return redirect()->back()->with('success', 'Successfully Group Updated.');
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -261,15 +247,11 @@ class GroupController extends Controller
             Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Group Deleted by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Group Name -> ' . $group->name);
             Group::destroy($id);
 
-            return redirect()
-                ->back()
-                ->with('success', 'Successfully Group Delete.');
+            return redirect()->back()->with('success', 'Successfully Group Delete.');
             // dd($audit);
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 }
