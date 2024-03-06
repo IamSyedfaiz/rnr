@@ -48,23 +48,23 @@ class FieldController extends Controller
      */
     public function store(Request $request)
     {
-        $rules = [
-            'name' => 'required.unique:fields',
-            'type' => 'required',
-            'status' => 'required',
-        ];
+        // $rules = [
+        //     'name' => 'required.unique:fields',
+        //     'type' => 'required',
+        //     'status' => 'required',
+        // ];
 
-        $custommessages = [
-            'name.required' => 'The name field is required.',
-            'name.unique' => 'The name field must be unique.',
-        ];
+        // $custommessages = [
+        //     'name.required' => 'The name field is required.',
+        //     'name.unique' => 'The name field must be unique.',
+        // ];
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:fields',
             'type' => 'required',
             'status' => 'required',
-            'requiredfield' => 'required',
-            'requireuniquevalue' => 'required',
-            'keyfield' => 'required',
+            'requiredfield' => 'nullable',
+            'requireuniquevalue' => 'nullable',
+            'keyfield' => 'nullable',
             'access' => 'required',
             'application_id' => 'required',
         ]);

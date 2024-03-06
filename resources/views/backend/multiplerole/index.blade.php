@@ -6,13 +6,10 @@
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <h6 class="mb-0">
                     {{ strtoupper($application->name) }} Roles</h6>
-
                 <a href="{{ route('multiplerole.edit', $application->id) }}">
                     <button type="button" class="btn btn-primary">Add Role</button>
                 </a>
-
             </div>
-
             <div class="table-responsive">
                 <table class="table text-start align-middle table-bordered table-hover mb-0">
                     <thead>
@@ -35,9 +32,7 @@
                                 <td>
                                     <a href="{{ route('role.edit', $item->id) }}">
                                         {{ $item->name }}</a>
-
                                 </td>
-
                                 <td>
                                     @if ($item->import == 1)
                                         Active
@@ -45,7 +40,6 @@
                                         In-Active
                                     @endif
                                 </td>
-
                                 <td>
                                     @if ($item->create == 1)
                                         Active

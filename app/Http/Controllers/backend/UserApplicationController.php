@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Traits\WorkflowTraits;
 use App\Models\backend\FilterCriteria;
 use App\Models\backend\Notification;
+use App\Models\backend\Role;
 
 class UserApplicationController extends Controller
 {
@@ -29,9 +30,7 @@ class UserApplicationController extends Controller
             //code...
             $loggedinuser = auth()->id();
             // dd($userid);
-            $application = Application::where('status', 1)
-                ->latest()
-                ->get();
+            $application = Application::where('status', 1)->latest()->get();
 
             $userapplication = [];
             $userid = [];
@@ -72,9 +71,7 @@ class UserApplicationController extends Controller
             // dd($application);
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -154,9 +151,7 @@ class UserApplicationController extends Controller
             // dd($application);
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -344,10 +339,7 @@ class UserApplicationController extends Controller
         $fieldDatas = Field::where('application_id', $application->id)
             ->where('status', 1)
             ->get();
-        $notifications = Notification::where('active', 'Y')
-            ->where('recurring', 'instantly')
-            ->where('application_id', $id)
-            ->get();
+        $notifications = Notification::where('active', 'Y')->where('recurring', 'instantly')->where('application_id', $id)->get();
         $validationRules = [];
         foreach ($fieldDatas as $field) {
             $rules = [];
@@ -365,9 +357,7 @@ class UserApplicationController extends Controller
                 }
                 foreach ($jsonDataArray as $jsonData) {
                     if ($this->isDataMatch($request->all(), $jsonData)) {
-                        return redirect()
-                            ->back()
-                            ->with('error', 'Duplicate data found!');
+                        return redirect()->back()->with('error', 'Duplicate data found!');
                     }
                 }
             }
@@ -424,7 +414,7 @@ class UserApplicationController extends Controller
                             case 'CF': // Changed From
                                 // Perform action for 'Changed From' case
                                 break;
-                                // Handle other comparison cases
+                            // Handle other comparison cases
                         }
                     }
                 }
@@ -435,23 +425,22 @@ class UserApplicationController extends Controller
             $variables = $this->getVariables($extractedTokens);
             $reconstructedString = $this->rebuildString($extractedTokens);
             foreach ($extractedTokens as &$token) {
-                if ($token["type"] === "variable") {
-                    $variableValue = intval($token["value"]);
+                if ($token['type'] === 'variable') {
+                    $variableValue = intval($token['value']);
                     if (isset($bolos[$variableValue - 1])) {
                         // Set the value of the variable token based on the value in $bolos
-                        $token["value"] = $bolos[$variableValue - 1] ? '1' : '0';
+                        $token['value'] = $bolos[$variableValue - 1] ? '1' : '0';
                     }
                 }
             }
 
             $reconstructedString = $this->rebuildString($extractedTokens);
-            $reconstructedString = str_replace("AND", "&&", $reconstructedString);
-            $reconstructedString = str_replace("OR", "||", $reconstructedString);
+            $reconstructedString = str_replace('AND', '&&', $reconstructedString);
+            $reconstructedString = str_replace('OR', '||', $reconstructedString);
 
             // logger($reconstructedString);
             logger(eval("return $reconstructedString;"));
             if (eval("return $reconstructedString;")) {
-
                 logger('Email sent!');
                 $selectedGroups = [];
                 if ($notification->group_list != 'null') {
@@ -566,7 +555,6 @@ class UserApplicationController extends Controller
             }
         }
 
-
         if (isset($request->formdataid)) {
             $data1['data'] = json_encode($data);
             $data1['userid'] = $request->userid;
@@ -577,9 +565,7 @@ class UserApplicationController extends Controller
             $formdata->update($data1);
             Log::channel('user')->info('Userid -> ' . auth()->user()->custom_userid . ' , Application Edited by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Application Name -> ' . $application->name . ' Current Data -> ' . $currentarray . ' Change Data -> ' . $changearray);
 
-            return redirect()
-                ->back()
-                ->with('success', 'Form Updated.');
+            return redirect()->back()->with('success', 'Form Updated.');
         } else {
             # code...
             $data1['data'] = json_encode($data);
@@ -587,17 +573,13 @@ class UserApplicationController extends Controller
             $data1['application_id'] = $id;
             Log::channel('user')->info('Application Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Application Name -> ' . $application->name . ' Current Data -> ' . $data1['data']);
             Formdata::create($data1);
-            return redirect()
-                ->route('userapplication.list', $id)
-                ->with('success', 'Form Saved.');
+            return redirect()->route('userapplication.list', $id)->with('success', 'Form Saved.');
         }
         try {
         } catch (\Exception $th) {
             //throw $th;
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
     private function isDataMatch($array1, $array2)
@@ -635,27 +617,23 @@ class UserApplicationController extends Controller
             $application = Application::find($form->application_id);
             Log::channel('user')->info('Userid ' . auth()->user()->custom_userid . ' , Application Deleted by ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Application Name -> ' . $application->name);
             Formdata::destroy($id);
-            return redirect()
-                ->back()
-                ->with('success', 'Successfully Deleted.');
+            return redirect()->back()->with('success', 'Successfully Deleted.');
             // dd($audit);
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
     public function userapplication_list($id)
     {
         try {
-            // dd('----');
-            //code...
-
             $forms = Formdata::where(['userid' => auth()->id(), 'application_id' => $id])->get();
             $application = Application::find($id);
-            $roles = $application->rolestable()->first();
+            $roles = Role::whereJsonContains('application_id', $id)->first();
+
+            // dd($roles);
+            // $roles = $application->rolestable()->first();
             $dbfields = Field::where(['application_id' => $application->id, 'status' => 1])
                 ->orderBy('forder', 'ASC')
                 ->get();
@@ -714,9 +692,7 @@ class UserApplicationController extends Controller
         } catch (\Exception $th) {
             //throw $th;
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -775,9 +751,7 @@ class UserApplicationController extends Controller
         } catch (\Exception $th) {
             //throw $th;
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -900,9 +874,7 @@ class UserApplicationController extends Controller
         } catch (\Exception $th) {
             //throw $th;
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -921,9 +893,7 @@ class UserApplicationController extends Controller
                 $indexingvalue = ApplicationIndexing::where('userid', auth()->id())->first();
 
                 $indexingvalue->update($data);
-                return redirect()
-                    ->back()
-                    ->with('success', 'Successfully Updated.');
+                return redirect()->back()->with('success', 'Successfully Updated.');
             } else {
                 # code...
                 $data = $request->all();
@@ -939,9 +909,7 @@ class UserApplicationController extends Controller
         } catch (\Exception $th) {
             //throw $th;
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 }

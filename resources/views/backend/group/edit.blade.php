@@ -12,7 +12,7 @@
                 <div class="d-flex align-items-center justify-content-between mb-4">
                     <h6 class="mb-4">Group Edit</h6>
                     <a href="{{ route('group.index') }}">
-                        <button type="button" class="btn btn-danger"><-back< /button>
+                        <button type="button" class="btn btn-danger"><-back </button>
                     </a>
 
                 </div>

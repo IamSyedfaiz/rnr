@@ -13,7 +13,7 @@
                     <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <h6 class="mb-4"> {{ strtoupper($application->name) }} Role </h6>
+                                <h6 class="mb-4"> Role </h6>
                             </div>
                             <div>
                                 <a href="{{ route('role.index') }}">
@@ -80,104 +80,176 @@
                                                     data-bs-toggle="modal" data-bs-target="#exampleModalgroups"
                                                     data-bs-whatever="@mdo">Add Groups</button>
                                             </div>
-
-                                        </div>
-
-                                        <div class="modal fade" id="exampleModalusers" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="exampleModalLabel">Add Users</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                                aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="row">
-                                                                <div class="col-md-6">
-                                                                    <div class="mb-3 text-start">
-                                                                        <label for="filter">Users&nbsp;</label><input id="filter" type="text"
-                                                                            class="filter form-control" placeholder="Search Users">
-                                                                        <br />
-                            
-                                                                        <div id="mdi" style="max-height: 10%; overflow:auto;">
-                                                                            @foreach ($users as $item)
-                                                                                <span><input class="talents_idmd-checkbox"
-                                                                                        onchange="dragdrop1(this.value, this.id);" type="checkbox"
-                                                                                        id="{{ $item->name . ' ' . $item->lastname }}"
-                                                                                        value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
-                                                                            @endforeach
-                                                                        </div>
-                            
-                            
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="mb-3">
-                                                                        <label for="users">Selected Users</label>
-                                                                        <select name="user_list[]" id="" class="form-control" multiple>
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                            
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                            {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
-                                                        </div>
-                                                    </div>
-                                             
+                                            <div class="col-md-2 addApplication">
+                                                <button type="button" class="btn btn-primary text-end"
+                                                    data-bs-toggle="modal" data-bs-target="#exampleModalApplication"
+                                                    data-bs-whatever="@mdo">Add Application</button>
                                             </div>
                                         </div>
 
-                                        <div class="modal fade" id="exampleModalgroups" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal fade" id="exampleModalusers" tabindex="-1"
+                                            aria-labelledby="exampleModalLabel" aria-hidden="true">
                                             <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="exampleModalLabel">Add Group</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                                aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="row">
-                                                                <div class="col-md-6">
-                                                                    <div class="mb-3 text-start">
-                                                                        <label for="filter">Groups&nbsp;</label><input id="filter" type="text"
-                                                                            class="filter form-control" placeholder="Search Groups">
-                                                                        <br />
-                            
-                                                                        <div id="mdi" style="max-height: 10%; overflow:auto;">
-                                                                            @foreach ($groups as $item)
-                                                                                <span><input class="talents_idmd-checkbox"
-                                                                                        onchange="dragdrop(this.value, this.id);" type="checkbox"
-                                                                                        id="{{ $item->name . ' ' . $item->lastname }}"
-                                                                                        value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
-                                                                            @endforeach
-                                                                        </div>
-                            
-                            
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="exampleModalLabel">Add Users</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3 text-start">
+                                                                    <label for="filter">Users&nbsp;</label><input
+                                                                        id="filter" type="text"
+                                                                        class="filter form-control"
+                                                                        placeholder="Search Users">
+                                                                    <br />
+
+                                                                    <div id="mdi"
+                                                                        style="max-height: 10%; overflow:auto;">
+                                                                        @foreach ($users as $item)
+                                                                            <span><input class="talents_idmd-checkbox"
+                                                                                    onchange="dragdrop1(this.value, this.id);"
+                                                                                    type="checkbox"
+                                                                                    id="{{ $item->name . ' ' . $item->lastname }}"
+                                                                                    value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
+                                                                        @endforeach
                                                                     </div>
+
+
                                                                 </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="mb-3">
-                                                                        <label for="users">Selected Groups</label>
-                                                                        <select name="group_list[]" id="" class="form-control" multiple>
-                                                                        </select>
-                                                                    </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3">
+                                                                    <label for="users">Selected Users</label>
+                                                                    <select name="user_list[]" id=""
+                                                                        class="form-control" multiple>
+                                                                    </select>
                                                                 </div>
                                                             </div>
                                                         </div>
-                    
-                            
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                            {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
-                                                        </div>
                                                     </div>
-                                             
+
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close</button>
+                                                        {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
+                                                    </div>
+                                                </div>
+
                                             </div>
                                         </div>
 
+                                        <div class="modal fade" id="exampleModalgroups" tabindex="-1"
+                                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="exampleModalLabel">Add Group</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3 text-start">
+                                                                    <label for="filter">Groups&nbsp;</label><input
+                                                                        id="filter" type="text"
+                                                                        class="filter form-control"
+                                                                        placeholder="Search Groups">
+                                                                    <br />
+
+                                                                    <div id="mdi"
+                                                                        style="max-height: 10%; overflow:auto;">
+                                                                        @foreach ($groups as $item)
+                                                                            <span><input class="talents_idmd-checkbox"
+                                                                                    onchange="dragdrop(this.value, this.id);"
+                                                                                    type="checkbox"
+                                                                                    id="{{ $item->name . ' ' . $item->lastname }}"
+                                                                                    value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
+                                                                        @endforeach
+                                                                    </div>
+
+
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3">
+                                                                    <label for="users">Selected Groups</label>
+                                                                    <select name="group_list[]" id=""
+                                                                        class="form-control" multiple>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close</button>
+                                                        {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="modal fade" id="exampleModalApplication" tabindex="-1"
+                                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="exampleModalLabel">Add Application
+                                                        </h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3 text-start">
+                                                                    <label for="filter">Application&nbsp;</label><input
+                                                                        id="filter" type="text"
+                                                                        class="filter form-control"
+                                                                        placeholder="Search Application">
+                                                                    <br />
+
+                                                                    <div id="mdi"
+                                                                        style="max-height: 10%; overflow:auto;">
+                                                                        @foreach ($applications as $item)
+                                                                            <span><input class="talents_idmd-checkbox"
+                                                                                    onchange="dragdrop3(this.value, this.id);"
+                                                                                    type="checkbox"
+                                                                                    id="{{ $item->name . ' ' . $item->lastname }}"
+                                                                                    value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
+                                                                        @endforeach
+                                                                    </div>
+
+
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3">
+                                                                    <label for="users">Selected Application</label>
+                                                                    <select name="application_id[]" id=""
+                                                                        class="form-control" multiple>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close</button>
+                                                        {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
                                     </div>
 
                                 </div>
@@ -185,41 +257,15 @@
                             </div>
 
                             <input type="hidden" value="{{ auth()->id() }}" name="updated_by">
-                            <input type="hidden" value="{{ $application->id }}" name="application_id">
-
-
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </form>
                     </div>
                 </div>
-
             </div>
-
-
         </div>
     </div>
-
-
     <!-- Recent Sales End -->
-
     <script>
-        // var status = "{{ $application->status }}";
-        // var currentstatus = document.getElementsByName('status')[0];
-        // for (let index = 0; index < currentstatus.length; index++) {
-        //     if (currentstatus[index].value == status) {
-        //         currentstatus[index].selected = true;
-        //     }
-        // }
-        // var field = "{{ Session::get('field') }}";
-        // if (field == 'active') {
-        //     document.getElementById('pills-home-tab').className = 'nav-link';
-        //     document.getElementById('pills-profile-tab').className = 'nav-link active';
-        //     document.getElementById('pills-home').className = 'tab-pane fade';
-        //     document.getElementById('pills-profile').className = 'tab-pane fade show active';
-        // }
-
-        //script for js
-
         const filterEl = document.querySelector('#filter');
         const els = Array.from(document.querySelectorAll('#mdi > span'));
         const labels = els.map(el => el.textContent);
@@ -268,6 +314,23 @@
                 userselect.appendChild(option);
             } else {
                 var userselect = document.getElementsByName('user_list[]')[0];
+                var removeoption = document.getElementById(value);
+                userselect.removeChild(removeoption);
+            }
+        }
+
+        function dragdrop3(value, name) {
+            // console.log(value);
+            if (document.getElementById(name).checked) {
+                var userselect = document.getElementsByName('application_id[]')[0];
+                var option = document.createElement('option');
+                option.value = value;
+                option.id = value;
+                option.innerText = name;
+                option.selected = true;
+                userselect.appendChild(option);
+            } else {
+                var userselect = document.getElementsByName('application_id[]')[0];
                 var removeoption = document.getElementById(value);
                 userselect.removeChild(removeoption);
             }

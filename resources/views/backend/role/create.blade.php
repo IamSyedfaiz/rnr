@@ -4,8 +4,6 @@
     <div class="container-fluid pt-4 px-4">
         <div class="bg-light text-start rounded p-4">
             <div class="d-flex align-items-center justify-content-between mb-4">
-                {{-- <h6 class="mb-0">Application Create</h6> --}}
-
             </div>
             <div class="bg-light rounded h-100 p-4">
                 <h6 class="mb-4">Application Create</h6>

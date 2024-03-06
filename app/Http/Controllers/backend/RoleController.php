@@ -24,7 +24,9 @@ class RoleController extends Controller
             $applications = Application::where('status', 1)
                 ->latest()
                 ->get();
-            return view('backend.role.index', compact('applications'));
+            $roles = Role::all();
+
+            return view('backend.role.index', compact('applications', 'roles'));
         } catch (\Exception $th) {
             //throw $th;
             return redirect()
@@ -58,10 +60,11 @@ class RoleController extends Controller
 
             $data['user_list'] = json_encode($request->user_list);
             $data['group_list'] = json_encode($request->group_list);
-            $application = Application::find($request->application_id);
+            $data['application_id'] = json_encode($request->application_id);
+            // $application = Application::find($request->application_id);
             // dd($application);
             $role1 = Role::create($data);
-            Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Role Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Application Name -> ' . $application->name);
+            Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Role Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname);
 
             return redirect()
                 ->route('role.edit', $role1->id)
@@ -117,22 +120,41 @@ class RoleController extends Controller
                 $groupids = json_decode($role->group_list);
                 # code...
                 // dd($groupids);
-                for ($i = 0; $i < count($groupids); $i++) {
-                    # code...
-                    $group = Group::find($groupids[$i]);
-                    array_push($selectedgroups, $group);
+                if ($groupids !== null) {
+                    for ($i = 0; $i < count($groupids); $i++) {
+                        # code...
+                        $group = Group::find($groupids[$i]);
+                        array_push($selectedgroups, $group);
+                    }
                 }
+
             }
 
             $selectedusers = [];
             if ($role != null && $role->user_list != null) {
                 $userids = json_decode($role->user_list);
                 # code...
-                for ($i = 0; $i < count($userids); $i++) {
-                    # code...
-                    $user = User::find($userids[$i]);
-                    array_push($selectedusers, $user);
+                if ($userids !== null) {
+                    for ($i = 0; $i < count($userids); $i++) {
+                        # code...
+                        $user = User::find($userids[$i]);
+                        array_push($selectedusers, $user);
+                    }
                 }
+
+            }
+            $selectedApplications = [];
+            if ($role != null && $role->user_list != null) {
+                $applicationIds = json_decode($role->application_id);
+                # code...
+                if ($applicationIds !== null) {
+                    for ($i = 0; $i < count($applicationIds); $i++) {
+                        # code...
+                        $user = Application::find($applicationIds[$i]);
+                        array_push($selectedApplications, $user);
+                    }
+                }
+
             }
             // dd($selectedusers);
 
@@ -142,8 +164,11 @@ class RoleController extends Controller
             $groups = Group::where('status', 1)
                 ->latest()
                 ->get();
+            $applications = Application::where('status', 1)
+                ->latest()
+                ->get();
 
-            return view('backend.role.edit', compact('selectedgroups', 'selectedusers', 'application', 'applicationrole', 'users', 'groups'));
+            return view('backend.role.edit', compact('selectedgroups', 'selectedusers', 'applications', 'applicationrole', 'users', 'groups', 'selectedApplications'));
         } catch (\Exception $th) {
             //throw $th;
             return redirect()
@@ -165,7 +190,7 @@ class RoleController extends Controller
             //code...
             // dd($request->all());
             $role = Role::find($id);
-            $application = Application::find($request->application_id);
+            // $application = Application::find($request->application_id);
 
             // dd($role);
             if ($role) {
@@ -258,7 +283,7 @@ class RoleController extends Controller
                     'read' => $currentread,
                     'update' => $currentupdate,
                     'delete' => $currentdelete,
-                    'application' => $application->name,
+
                 ];
 
                 if ($role->import != $data['import']) {
@@ -343,10 +368,23 @@ class RoleController extends Controller
                     $changearray['GroupChange'] = 'True';
                     // dd($changearray);
                 }
+                if (isset($data['application_id']) && $role->application_id != $data['application_id']) {
+                    # code...
+                    // dd($data);
+                    $changearray['Applicationnames'] = [];
+                    for ($i = 0; $i < count($request->application_id); $i++) {
+                        # code...
+                        $u = Application::find($request->application_id[$i]);
+                        // dd($request->userids, $u);
+                        array_push($changearray['Applicationnames'], $u->name);
+                    }
+                    $changearray['ApplicationChange'] = 'True';
+                    // dd($changearray);
+                }
                 // dd($changearray);
 
                 $role->update($data);
-                Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Role Edited by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Application Name -> ' . $application->name . ' Current Data -> ' . json_encode($currentarray) . ' Changed Data -> ' . json_encode($changearray));
+                Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Role Edited by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Current Data -> ' . json_encode($currentarray) . ' Changed Data -> ' . json_encode($changearray));
 
                 return redirect()
                     ->back()
@@ -363,9 +401,11 @@ class RoleController extends Controller
                     unset($data['_method']);
                     unset($data['user_list']);
                     unset($data['group_list']);
+                    unset($data['application_id']);
 
                     $data['user_list'] = json_encode($request->user_list);
                     $data['group_list'] = json_encode($request->group_list);
+                    $data['application_id'] = json_encode($request->application_id);
                     Role::create($data);
                     Log::channel('custom')->info('Userid ' . auth()->user()->custom_userid . ' , Role Edited by ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Application Name -> ' . $application->name);
 
