@@ -7,19 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\backend\Role;
 use Illuminate\Support\Facades\Schema;
+use the42coders\Workflows\Triggers\WorkflowObservable;
 
 class Application extends Model
 {
-    use HasFactory;
+    use HasFactory, WorkflowObservable;
     protected $fillable = ['fields', 'user_id', 'name', 'access', 'groups', 'status', 'updated_by', 'description', 'attachments'];
-
     protected $guarded = [];
-
     public function username1()
     {
         return $this->hasOne(User::class);
     }
-
     public function rolestable()
     {
         return $this->hasMany(Role::class);

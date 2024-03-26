@@ -88,7 +88,8 @@
                                 <td class="d-flex justify-content-betweenx"><a class="btn btn-sm btn-primary"
                                         href="{{ route('application.edit', $item->id) }}">Edit</a>
 
-                                    <form action="{{ route('application.destroy', $item->id) }}" method="post">
+                                    <form action="{{ route('application.destroy', $item->id) }}" method="post"
+                                        class="mx-2">
                                         @csrf
                                         @method('DELETE')
                                         <input class="btn btn-sm btn-danger" onclick="return confirm('Are You Sure ?')"
@@ -96,13 +97,21 @@
                                     </form>
                                     <a class="btn btn-sm btn-success"
                                         href="{{ route('workflow.show', $item->id) }}">Workflow</a>
-                                    <a href="{{ route('workflow.index') }}">Workflow</a>
+                                    {{-- <a class="btn btn-sm btn-success mx-2"
+                                        href="{{ route('custom-workflow.show', $item->id) }}">CustomWorkflow</a> --}}
+                                    <a class="btn btn-sm btn-success mx-2"
+                                        href="{{ route('triggerButtonShow', $item->id) }}">CustomWorkflow</a>
+                                    @php
+                                        $model = the42coders\Workflows\Workflow::find($item->id);
 
-
+                                    @endphp
+                                    <button>
+                                        {!! the42coders\Workflows\Triggers\ButtonTrigger::renderButtonByWorkflowId($model->id, $model) !!}
+                                    </button>
+                                    {{-- <a href="{{ route('workflow.index') }}">Workflow</a> --}}
                                 </td>
                             </tr>
                         @endforeach
-
                     </tbody>
                 </table>
             </div>

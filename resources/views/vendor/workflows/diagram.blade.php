@@ -59,16 +59,13 @@
                     {!! $taskClass::$icon !!}<span> {{ $taskName }}</span>
                 </div>
             @endforeach
-
+            <h3 class="mt-3">GENRAL</h3>
 
             @foreach (config('workflows.tasks') as $taskName => $taskClass)
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="{{ $taskName }}">
-                    {!! $taskClass::$icon !!}<span> {{ $taskName }}
+                    {!! @$taskClass::$icon !!}<span> {{ @$taskName }}
                     </span>
                 </div>
-                @if ($taskName == 'Stop')
-                    <h3 class="mt-3">GENRAL</h3>
-                @endif
             @endforeach
         </div>
 
@@ -115,7 +112,7 @@
                 var new_node = `@include('workflows::layouts.task_node_html', [
                     'elementName' => $task->name,
                     'element' => $task,
-                    'showname' => json_decode($task->data_fields),
+                    'showname' => $task->data_fields,
                     'type' => 'task',
                     'icon' => $task::$icon,
                 ])`;
@@ -129,7 +126,7 @@
                 var new_node = `@include('workflows::layouts.task_node_html', [
                     'elementName' => $task->name,
                     'element' => $task,
-                    'showname' => json_decode($task->data_fields),
+                    'showname' => $task->data_fields,
                     'type' => 'task',
                     'icon' => $task::$icon,
                 ])`;
@@ -142,7 +139,7 @@
                 var new_node = `@include('workflows::layouts.task_node_html', [
                     'elementName' => $task->name,
                     'element' => $task,
-                    'showname' => json_decode($task->data_fields),
+                    'showname' => $task->data_fields,
                     'type' => 'task',
                     'icon' => $task::$icon,
                 ])`;
@@ -244,14 +241,29 @@
         }
 
         @foreach ($workflow->tasks as $task)
-            @if (!empty($task->parentable))
+            @if (
+                !empty($task->parentable) &&
+                    !empty($task->parentable->family) &&
+                    !empty($task->parentable->id) &&
+                    !empty($task->id))
                 var parentNode = editor.getNodeByData('{{ $task->parentable->family }}_id', {{ $task->parentable->id }});
 
-                var node = editor.getNodeByData('task_id', {{ $task->id }});
+                if (parentNode) { // Check if parentNode exists
+                    var node = editor.getNodeByData('task_id', {{ $task->id }});
 
-                editor.addConnection('node-' + node.id, 'node-' + parentNode.id, 'input_1', 'output_1');
+                    if (node) { // Check if node exists
+                        editor.addConnection('node-' + node.id, 'node-' + parentNode.id, 'input_1', 'output_1');
+                    } else {
+                        console.error('Node with task_id {{ $task->id }} not found.');
+                    }
+                } else {
+                    console.error(
+                        'Parent node with family {{ $task->parentable->family }}_id and id {{ $task->parentable->id }} not found.'
+                    );
+                }
             @endif
         @endforeach
+
 
         // Events!
         editor.on('nodeCreated', function(node) {
@@ -582,9 +594,37 @@
             });
         }
 
+        // function loadSettings(type, element_id = 0, element) {
+
+        //     console.log(type, element_id, element);
+        //     if (element_id == 0) {
+        //         var div = $(element);
+        //         var count = 0;
+        //         while (div.attr('data-type') != type && count < 30) {
+        //             div = div.parent();
+        //             count++;
+        //         }
+        //         element_id = div.attr('data-' + type + '_id');
+        //     }
+
+        //     // console.log($workflow);
+        //     $.ajax({
+        //         type: "POST",
+        //         url: "{{ route('workflow.getElementSettings', ['workflow' => $workflow]) }}",
+        //         data: {
+        //             type: type,
+        //             element_id: element_id,
+        //         },
+        //         dataType: "text",
+        //         success: function(data) {
+        //             $('#settings-container').html(data);
+        //             $('#settings-container').fadeIn();
+        //         }
+        //     });
+        // }
         function loadSettings(type, element_id = 0, element) {
 
-            // console.log(type , element_id, element);
+            console.log(type, element_id, element);
             if (element_id == 0) {
                 var div = $(element);
                 var count = 0;
@@ -594,8 +634,6 @@
                 }
                 element_id = div.attr('data-' + type + '_id');
             }
-
-            // console.log($workflow);
             $.ajax({
                 type: "POST",
                 url: "{{ route('workflow.getElementSettings', ['workflow' => $workflow]) }}",
@@ -612,7 +650,6 @@
         }
 
         function loadContitions(type, element_id = 0, element) {
-
             if (element_id == 0) {
                 var div = $(element);
                 var count = 0;
@@ -622,7 +659,6 @@
                 }
                 element_id = div.attr('data-' + type + '_id');
             }
-
             $.ajax({
                 type: "POST",
                 url: "{{ route('workflow.getElementConditions', ['workflow' => $workflow]) }}",
@@ -639,9 +675,6 @@
             });
         }
     </script>
-</body>
-
-</html>
 </body>
 
 </html>
