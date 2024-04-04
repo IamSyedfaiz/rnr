@@ -2,58 +2,52 @@
 @section('content')
     <div class="container-fluid pt-4 px-4">
         <div class="bg-light text-start rounded p-4">
-            <div class="">
+            <form action="{{ route('evaluate.content') }}" class="form-horizontal" method="get">
+                @csrf
                 <h4 class="my-4">General Information</h4>
                 <div class="form-horizontal row ">
                     <div class="col-12 row">
-
                         <div class="mb-3 col-4">
                             <label for="exampleInputEmail1" class="form-label">Name</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" name="name"
-                                id="name" aria-describedby="namehelp" required>
+                            <input type="text" class="form-control" name="name" id="name" required
+                                value="{{ @$evaluateContent ? @$evaluateContent->name : '' }}">
+                            <input type="hidden" name="application_id" value="{{ @$element->application_id }}">
+                            <input type="hidden" name="workflow_id" value="{{ @$element->id }}">
+                            <input type="hidden" name="task_id" value="{{ @$task->id }}">
+                            <input type="hidden" name="id" value="{{ @$evaluateContent->id }}">
                             @error('name')
                                 <label id="name-error" class="error text-danger" for="name">
                                     {{ $message }}</label>
                             @enderror
-                            <div id="namehelp" class="form-text">
-                            </div>
                         </div>
                         <div class="mb-3 col-4">
-                            <label for="exampleInputEmail1" class="form-label">Name</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" name="name"
-                                id="name" aria-describedby="namehelp" required>
-                            @error('name')
+                            <label for="exampleInputEmail1" class="form-label">Alias</label>
+                            <input type="text" class="form-control" name="alias" id="alias" required
+                                value="{{ @$evaluateContent ? @$evaluateContent->alias : '' }}">
+                            @error('alias')
                                 <label id="name-error" class="error text-danger" for="name">
                                     {{ $message }}</label>
                             @enderror
-                            <div id="namehelp" class="form-text">
-                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-check-label">
-                                <input type="checkbox" name="active">
+                                <input type="checkbox" name="active"
+                                    {{ @$evaluateContent ? (@$evaluateContent->active == 'Y' ? 'checked' : '') : '' }}>
                                 Active
                             </label>
+                            <input type="hidden" name="active" value="{{ @$evaluateContent->active ? 'Y' : 'N' }}">
                         </div>
                     </div>
-
                     <div class="mb-3 col-12">
                         <label for="exampleInputEmail1" class="form-label">Descriptoin</label>
-                        <Textarea name="description" rows="5" cols="5" class="form-control"></Textarea>
-                        @error('type')
-                            <label id="type-error" class="error text-danger" for="type">
-                                {{ $message }}</label>
-                        @enderror
-                        <div id="typehelp" class="form-text">
-                        </div>
+                        <Textarea name="description" rows="5" cols="5" class="form-control">{{ @$evaluateContent ? @$evaluateContent->description : '' }}</Textarea>
                     </div>
                     <div class="col-12 row">
-
                         <div class="mb-3 col-4">
-                            <label for="exampleInputEmail1" class="form-label">Name</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" name="name"
-                                id="name" aria-describedby="namehelp" required>
-                            @error('name')
+                            <label for="exampleInputEmail1" class="form-label">type</label>
+                            <input type="text" class="form-control" name="type" id="type" required
+                                value="{{ @$evaluateContent ? @$evaluateContent->type : '' }}">
+                            @error('type')
                                 <label id="name-error" class="error text-danger" for="name">
                                     {{ $message }}</label>
                             @enderror
@@ -61,29 +55,18 @@
                             </div>
                         </div>
                         <div class="mb-3 col-4">
-                            <label for="exampleInputEmail1" class="form-label">Name</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" name="name"
-                                id="name" aria-describedby="namehelp" required>
-                            @error('name')
-                                <label id="name-error" class="error text-danger" for="name">
-                                    {{ $message }}</label>
-                            @enderror
-                            <div id="namehelp" class="form-text">
-                            </div>
+                            <label for="exampleInputEmail1" class="form-label">created_at</label>
+                            <input type="text" class="form-control" readonly
+                                value="{{ @$evaluateContent ? @$evaluateContent->created_at : '' }}">
                         </div>
                         <div class="mb-3 col-4">
-                            <label for="exampleInputEmail1" class="form-label">Name</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" name="name"
-                                id="name" aria-describedby="namehelp" required>
-                            @error('name')
-                                <label id="name-error" class="error text-danger" for="name">
-                                    {{ $message }}</label>
-                            @enderror
-                            <div id="namehelp" class="form-text">
-                            </div>
+                            <label for="exampleInputEmail1" class="form-label">updated_at</label>
+                            <input type="text" class="form-control" readonly
+                                value="{{ @$evaluateContent ? @$evaluateContent->updated_at : '' }}">
                         </div>
                     </div>
                 </div>
+                <h4 class="my-4">Rule</h4>
                 <div class="table-responsive mt-5">
                     <a class="btn btn-success mb-3" id="addRow"><i class="bi bi-plus-circle"></i> Add</a>
                     <table class="table  table-striped  text-start align-middle table-bordered table-hover mb-0"
@@ -136,16 +119,22 @@
                     <div class="settings-footer text-right">
                         <button class="btn btn-default"
                             onclick="closeSettings();">{{ __('workflows::workflows.Close') }}</button>
-                        <button class="btn btn-success"
-                            onclick="saveFields({{ $element->id }}, '{{ $element->family }}');">{{ __('workflows::workflows.Save') }}</button>
+                        {{-- <button class="btn btn-success"
+                            onclick="saveFields({{ $element->id }}, '{{ $element->family }}');">{{ __('workflows::workflows.Save') }}</button> --}}
+                        <button type="submit" class="btn btn-success">{{ __('workflows::workflows.Save') }}</button>
+
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
         $(document).ready(function() {
+            $('input[name="active"]').change(function() {
+                var isChecked = $(this).is(':checked');
+                $('input[name="active"]').val(isChecked ? 'Y' : 'N');
+            });
             $("#addRow").on("click", function() {
                 var rowCount = $(".table-striped tbody tr").length + 1;
                 var newRow = `<tr class="data-row">

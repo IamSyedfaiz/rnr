@@ -83,6 +83,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('custom-workflow', CustomWorkflowController::class);
     Route::get('/custom-workflow-triggerButtonShow/{id}', [CustomWorkflowController::class, 'triggerButtonShow'])->name('triggerButtonShow');
     Route::get('/custom-workflow-saveMail', [CustomWorkflowController::class, 'saveMail'])->name('saveMail');
+    Route::get('/custom-workflow-evaluate-content', [CustomWorkflowController::class, 'evaluateContent'])->name('evaluate.content');
     // IntegrationController
     Route::get('/data-feed', [IntegrationController::class, 'dataFeed'])->name('data.feed');
     Route::get('/data-imports', [IntegrationController::class, 'dataImports'])->name('data.imports');

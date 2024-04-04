@@ -100,14 +100,14 @@
                                     {{-- <a class="btn btn-sm btn-success mx-2"
                                         href="{{ route('custom-workflow.show', $item->id) }}">CustomWorkflow</a> --}}
                                     <a class="btn btn-sm btn-success mx-2"
-                                        href="{{ route('triggerButtonShow', $item->id) }}">CustomWorkflow</a>
+                                        href="{{ route('triggerButtonShow', $item->workFlow->id) }}">CustomWorkflow</a>
                                     @php
                                         $model = the42coders\Workflows\Workflow::find($item->id);
 
                                     @endphp
-                                    <button>
+                                    {{-- <button>
                                         {!! the42coders\Workflows\Triggers\ButtonTrigger::renderButtonByWorkflowId($model->id, $model) !!}
-                                    </button>
+                                    </button> --}}
                                     {{-- <a href="{{ route('workflow.index') }}">Workflow</a> --}}
                                 </td>
                             </tr>

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\backend\Role;
 use Illuminate\Support\Facades\Schema;
 use the42coders\Workflows\Triggers\WorkflowObservable;
+use the42coders\Workflows\Workflow;
 
 class Application extends Model
 {
@@ -25,5 +26,9 @@ class Application extends Model
     public static function getTableColumns()
     {
         return Schema::getColumnListing((new self())->getTable());
+    }
+    public function workFlow()
+    {
+        return $this->hasOne(Workflow::class, 'application_id');
     }
 }

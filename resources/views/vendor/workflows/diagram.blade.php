@@ -107,7 +107,7 @@
         editor.start();
 
         @foreach ($workflow->tasks as $task)
-            console.log('{{ $task->name }}');
+            // console.log('{{ $task->name }}');
             if ('{{ $task->name }}' == 'Start') {
                 var new_node = `@include('workflows::layouts.task_node_html', [
                     'elementName' => $task->name,
@@ -622,32 +622,59 @@
         //         }
         //     });
         // }
-        function loadSettings(type, element_id = 0, element) {
-
-            console.log(type, element_id, element);
-            if (element_id == 0) {
-                var div = $(element);
-                var count = 0;
-                while (div.attr('data-type') != type && count < 30) {
-                    div = div.parent();
-                    count++;
-                }
-                element_id = div.attr('data-' + type + '_id');
-            }
-            $.ajax({
+        // function loadSettings(type, element_id = 0, element) {
+        var ajaxRequest = null;
+        //     console.log(type, element_id, element);
+        //     if (element_id == 0) {
+        //         var div = $(element);
+        //         var count = 0;
+        //         while (div.attr('data-type') != type && count < 30) {
+        //             div = div.parent();
+        //             count++;
+        //         }
+        //         element_id = div.attr('data-' + type + '_id');
+        //     }
+        //    $.ajax({
+        //         type: "POST",
+        //         url: "{{ route('workflow.getElementSettings', ['workflow' => $workflow]) }}",
+        //         data: {
+        //             type: type,
+        //             element_id: element_id,
+        //         },
+        //         dataType: "text",
+        //         success: function(data) {
+        //             $('#settings-container').html(data);
+        //             $('#settings-container').fadeIn();
+        //         }
+        //     });
+        // }
+        $(document).on('click', '.settings-button', function() {
+            var type = $(this).data('type');
+            var elementid = $(this).data('element-id');
+            // alert(type);
+            // alert(elementid);
+            ajaxRequest = $.ajax({
                 type: "POST",
                 url: "{{ route('workflow.getElementSettings', ['workflow' => $workflow]) }}",
                 data: {
                     type: type,
-                    element_id: element_id,
+                    element_id: elementid,
+                    _token: '{{ csrf_token() }}'
                 },
                 dataType: "text",
+
+                beforeSend: function() {
+                    if (ajaxRequest !== null) {
+                        ajaxRequest.abort();
+                    }
+                },
                 success: function(data) {
+                    console.log("Before Send:", ajaxRequest);
                     $('#settings-container').html(data);
                     $('#settings-container').fadeIn();
                 }
             });
-        }
+        })
 
         function loadContitions(type, element_id = 0, element) {
             if (element_id == 0) {

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\backend;
 // namespace the42coders\Workflows\Http\Controllers;
 
 use App\Models\backend\Application;
+use App\Models\backend\EvaluateContent;
+use App\Models\backend\EvaluateRule;
 use App\Models\backend\Notification;
 use App\Models\backend\TriggerMail;
 use Illuminate\Http\Request;
@@ -12,11 +14,14 @@ use the42coders\Workflows\Loggers\WorkflowLog;
 use the42coders\Workflows\Tasks\Task;
 use the42coders\Workflows\Triggers\ReRunTrigger;
 use the42coders\Workflows\Triggers\Trigger;
-//use App\Http\Controllers\Controller;
 use the42coders\Workflows\Workflow;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use App\Models\backend\Field;
 use App\Models\backend\Formdata;
-use App\Models\User;
 use App\Models\backend\Group;
+use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
 class CustomWorkflowController extends Controller
@@ -104,7 +109,7 @@ class CustomWorkflowController extends Controller
             ->where('node_id', $request->id)
             ->first();
 
-        if (!empty ($task)) {
+        if (!empty($task)) {
             $task->pos_x = $request->pos_x;
             $task->pos_y = $request->pos_y;
             $task->save();
@@ -285,6 +290,10 @@ class CustomWorkflowController extends Controller
     public function getElementSettings($id, Request $request)
     {
         $workflow = Workflow::find($id);
+        $notifications = Notification::all();
+        $fields = Field::where('application_id', $workflow->application_id)
+            ->where('status', 1)
+            ->get();
 
         if ($request->type == 'task') {
             $element = Task::where('workflow_id', $workflow->id)
@@ -297,14 +306,27 @@ class CustomWorkflowController extends Controller
                 ->first();
         }
         if ($element->name == 'Start') {
-            logger('yes i am in');
+            // logger('yes i am in');
             return view('workflows::custom.start', [
                 'element' => $workflow,
             ]);
         } elseif ($element->name == 'EvaluateContent') {
-            logger('yes i am in');
-            return view('workflows::custom.evaluatecontentedit', [
+            // logger('yes i am in');
+            // logger($workflow);
+            // logger($fields);
+            // $evaluateContent = EvaluateContent::where('Workflow_id', $workflow->id)->get();
+            // logger($evaluateContent);
+
+            return view('workflows::custom.evaluatecontent', [
                 'element' => $workflow,
+                'notifications' => $notifications,
+                'fields' => $fields,
+            ]);
+        } elseif ($element->name == 'SendNotification') {
+            // logger('yes i am in');
+            return view('workflows::custom.sendnotification', [
+                'element' => $workflow,
+                'notifications' => $notifications,
             ]);
         }
         return view('workflows::layouts.settings_overlay', [
@@ -404,25 +426,387 @@ class CustomWorkflowController extends Controller
     }
     public function triggerButtonShow(Request $request, $triggerId)
     {
+        $task = Task::where('workflow_id', $triggerId)->first();
+        $parentTaskId = $task->parentableName->id ?? '';
+        // $childrenTasksIds = [];
+        // $childrenTasksNames = [];
+        // if ($task->childrenName) {
+        //     foreach ($task->childrenName as $childTask) {
+        //         $childrenTasksIds[] = $childTask->id;
+        //         $childrenTasksNames[] = $childTask->name;
+        //     }
+        // }
+        // logger('childrenTasksIds');
+        // logger($childrenTasksIds);
+        // logger('childrenTasksNames');
+        // logger($childrenTasksNames);
+        // logger('parentTaskId');
+        // logger($parentTaskId);
+        // logger('task');
+        // logger($task);
 
-        // $trigger = Trigger::where('workflow_id', $triggerId)
-        //     ->first();
-        // logger($trigger);
-        $tasks = Task::where('workflow_id', $triggerId)->where('parentable_id', $trigger->id)->get();
+
+        if ($parentTaskId) {
+            $taskParent = Task::find($parentTaskId);
+            if ($taskParent !== null && $taskParent->name == 'EvaluateContent') {
+                logger('=======');
+                logger('EvaluateContent');
+                logger($taskParent->id);
+                $getValue = $this->TriggerEvaluateContent($taskParent->id);
+
+                // logger('getValue');
+                // logger($getValue);
+                $childrenTasksIds = [];
+                $childrenTasksNames = [];
+                foreach ($taskParent->childrenName as $childTask) {
+                    $childrenTasksIds[] = $childTask->id;
+                    $childrenTasksNames[] = $childTask->name;
+                }
+                logger('childrenTasksIds');
+                logger($childrenTasksIds);
+                // // logger('childrenTasksNames');
+                // // logger($childrenTasksNames);
+                // if ($getValue) {
+                //     $this->triggerButtonChildren($childrenTasksIds[0]);
+                // } else {
+                //     $this->triggerButtonChildren($childrenTasksIds[1]);
+                // }
+            } elseif ($taskParent !== null && $taskParent->name == 'SendNotification') {
+                logger('=======');
+                logger('SendNotification');
+                $this->TriggerSendMail($taskParent->id);
+                $this->triggerButtonChildren($taskParent->id);
+            } elseif ($taskParent !== null && $taskParent->name == 'UpdateContent') {
+                logger('=======');
+                logger('UpdateContent');
+                $this->triggerButtonChildren($taskParent->id);
+
+            } elseif ($taskParent !== null && $taskParent->name == 'UserAction') {
+                logger('UpdateContent');
+                $this->triggerButtonChildren($taskParent->id);
+            } else {
+                return redirect()->back()->with('error', 'not found');
+            }
+        } else {
+            if ($task !== null && $task->name == 'EvaluateContent') {
+                logger('=======');
+                logger('EvaluateContent');
+                // logger($task->id);
+                $getValue = $this->TriggerEvaluateContent($task->id);
+                $childrenTasksIds = [];
+                $childrenTasksNames = [];
+                if ($task->childrenName) {
+                    foreach ($task->childrenName as $childTask) {
+                        $childrenTasksIds[] = $childTask->id;
+                        $childrenTasksNames[] = $childTask->name;
+                    }
+                }
+                logger('childrenTasksIds');
+                logger($childrenTasksIds);
+                logger('childrenTasksNames');
+                logger($childrenTasksNames);
+
+
+                logger('getValue');
+                logger($getValue);
+                if ($getValue) {
+                    $this->triggerButtonChildren($childrenTasksIds[0]);
+                } else {
+                    $this->triggerButtonChildren($childrenTasksIds[1]);
+                }
+            } elseif ($task !== null && $task->name == 'SendNotification') {
+                logger('=======');
+                logger('SendNotification');
+                $this->TriggerSendMail($task->id);
+                $this->triggerButtonChildren($task->id);
+            } elseif ($task !== null && $task->name == 'UpdateContent') {
+                logger('=======');
+                logger('UpdateContent');
+                $this->triggerButtonChildren($task->id);
+
+            } elseif ($task !== null && $task->name == 'UserAction') {
+                logger('=======');
+                logger('UpdateContent');
+                $this->triggerButtonChildren($task->id);
+            } else {
+                return redirect()->back()->with('error', 'not found');
+            }
+        }
+        return redirect()->back()->with('success', 'Button Triggered a Workflow');
+    }
+
+    public function triggerButtonChildren($triggerId)
+    {
+        logger('triggerButtonChildren');
+
+        $tasks = Task::find($triggerId);
         logger($tasks);
-        dd(1);
-        foreach ($tasks as $task) {
-            if ($task->parentable_type == 'the42coders\Workflows\Triggers\ButtonTrigger') {
-                $parentTaskId = $task->parentableName->id ?? '';
-                $taskParent = Task::where('parentable_id', $parentTaskId)->get();
-                logger('taskParent');
-                logger($taskParent);
+
+        $childrenTasksIds = [];
+        $childrenTasksNames = [];
+        foreach ($tasks->childrenName as $childTask) {
+            $childrenTasksIds[] = $childTask->id;
+            $childrenTasksNames[] = $childTask->name;
+        }
+        // logger('childrenTasksNames');
+        // logger($childrenTasksNames);
+        logger('childrenTasksIds');
+        logger($childrenTasksIds);
+
+        // if (in_array('SendNotification', $childrenTasksNames)) {
+        if ($tasks->name == 'SendNotification') {
+            logger('=======');
+            logger('SendNotification');
+
+            if ($childrenTasksIds) {
+                $this->TriggerSendMail($childrenTasksIds[0]);
+                $this->triggerButtonChildren($childrenTasksIds[0]);
+            } else {
+                $this->TriggerSendMail($tasks->id);
+            }
+        }
+        // if (in_array('EvaluateContent', $childrenTasksNames)) {
+        if ($tasks->name == 'EvaluateContent') {
+
+            logger('=======');
+            logger('EvaluateContent');
+            // $getValue = $this->TriggerEvaluateContent($childrenTasksIds[0]);
+
+            // logger('getValue');
+            // logger($getValue);
+
+            // if ($getValue) {
+            //     $this->triggerButtonChildren($childrenTasksIds[0]);
+
+            // } else {
+            //     $this->triggerButtonChildren($childrenTasksIds[1]);
+
+            // }
+
+
+        }
+        if (in_array('UpdateContent', $childrenTasksNames)) {
+            logger('=======');
+            logger('UpdateContent');
+            $this->triggerButtonChildren($childrenTasksIds[0]);
+
+        }
+        if (in_array('UserAction', $childrenTasksNames)) {
+            logger('=======');
+            logger('UserAction');
+            $this->triggerButtonChildren($childrenTasksIds[0]);
+
+        }
+        // logger('taskParent triggerButtonChildren');
+        return redirect()->back()->with('success', 'Button Triggered a Workflow');
+    }
+    public function saveMail(Request $request)
+    {
+        $workflowId = $request->input('workflow_id');
+        $applicationId = $request->input('application_id');
+        $notificationId = $request->input('notification');
+
+        // Save the data to the database
+        $triggerMail = new TriggerMail();
+        $triggerMail->workflow_id = $workflowId;
+        $triggerMail->notification_id = $notificationId;
+        $triggerMail->application_id = $applicationId;
+        $triggerMail->save();
+
+        return redirect()->back()->with('success', 'Data saved successfully');
+    }
+    public function evaluateContent(Request $request)
+    {
+        try {
+            // dd($request->all());
+            $id = $request->input('id');
+            $rules = [
+                'name' => 'nullable',
+            ];
+            $messages = [
+                'name.nullable' => 'The name field is required.',
+                'name.unique' => 'The name field must be unique.',
+            ];
+            $validator = Validator::make($request->all(), $rules, $messages);
+            if ($validator->fails()) {
+                throw ValidationException::withMessages($validator->errors()->toArray());
             }
 
-            $childrenTasksIds = [];
-            foreach ($task->childrenName as $childTask) {
-                $childrenTasksIds[] = $childTask->id;
+            $data = $request->except(['_token', 'field_id', 'filter_operator', 'filter_value']);
+            $data['active'] = $request->input('active') == 'Y' ? 'Y' : 'N';
+            // dd($data);
+            // $evaluateContent = new EvaluateContent();
+            $evaluateContent = EvaluateContent::find($id); // If editing, find the existing entity
+            if (!$evaluateContent) {
+                $evaluateContent = new EvaluateContent();
             }
+            $evaluateContent->workflow_id = $request->input('workflow_id');
+            $evaluateContent->application_id = $request->input('application_id');
+            $evaluateContent->task_id = $request->input('task_id');
+            $evaluateContent->name = $request->input('name');
+            $evaluateContent->alias = $request->input('alias');
+            $evaluateContent->description = $request->input('description');
+            $evaluateContent->type = $request->input('type');
+            $evaluateContent->advanced_operator_logic = $request->input('advanced_operator_logic');
+            $evaluateContent->active = $request->input('active') == 'Y' ? 'Y' : 'N';
+            $evaluateContent->save();
+            // $evaluateContent = EvaluateContent::create($data);
+            // dd($evaluateContent);
+            $filterFields = $request->input('field_id', []);
+            $filterOperators = $request->input('filter_operator', []);
+            $filterValues = $request->input('filter_value', []);
+            if (!empty($filterFields) && !empty($filterValues) && count($filterFields) === count($filterValues)) {
+                foreach ($filterFields as $index => $field) {
+                    $operator = is_array($filterOperators) ? $filterOperators[$index] ?? null : null;
+                    $value = is_array($filterValues) ? $filterValues[$index] ?? null : null;
+                    $evaluateRule = EvaluateRule::where('evaluate_content_id', $evaluateContent->id)
+                        ->where('field_id', $field)
+                        ->first();
+                    if (!$evaluateRule) {
+                        $evaluateRule = new EvaluateRule();
+                    }
+                    $evaluateRule->evaluate_content_id = $evaluateContent->id;
+                    $evaluateRule->field_id = $field;
+                    $evaluateRule->filter_operator = $operator;
+                    $evaluateRule->filter_value = $value;
+                    $evaluateRule->save();
+
+                    // EvaluateRule::create([
+                    //     'evaluate_content_id' => $evaluateContent->id,
+                    //     'field_id' => $field,
+                    //     'filter_operator' => $operator,
+                    //     'filter_value' => $value,
+                    // ]);
+                }
+            }
+            Log::channel('custom')->info('Attachment Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname);
+            return redirect()->back()->with('success', 'Data saved successfully');
+        } catch (\Exception $th) {
+            //throw $th;
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+
+    }
+    public function TriggerSendMail($id)
+    {
+        try {
+            logger('TriggerSendMail');
+            logger($id);
+
+            $tasksGet = Task::find($id);
+            logger($tasksGet);
+
+            if ($tasksGet->name == "SendNotification") {
+                $triggerMail = TriggerMail::find($tasksGet->workflow_id);
+                logger('triggerMail mil gayi');
+                logger($triggerMail);
+                $notification = Notification::where('active', 'Y')->where('recurring', 'instantly')->where('id', $triggerMail->notification_id)->first();
+                logger('notification mil gayi');
+                logger($notification);
+                $selectedGroups = [];
+                if ($notification->group_list != 'null') {
+                    $groupIds = json_decode($notification->group_list);
+
+                    if ($groupIds) {
+                        foreach ($groupIds as $groupId) {
+                            $group = Group::find($groupId);
+
+                            if ($group) {
+                                $selectedGroups[] = $group->userids;
+                            }
+                        }
+                    }
+                }
+                $userGroups = [];
+                foreach ($selectedGroups as $groupUserIds) {
+                    $groupUserIdsArray = json_decode($groupUserIds, true);
+                    if (!is_array($groupUserIdsArray)) {
+                        $this->error('Invalid data for groupUserIds: ' . $groupUserIds);
+                        continue;
+                    }
+                    foreach ($groupUserIdsArray as $userId) {
+                        if (!is_numeric($userId) || intval($userId) <= 0) {
+                            $this->error("Invalid user ID: $userId");
+                            continue;
+                        }
+                        $user = User::find(intval($userId));
+                        if ($user) {
+                            $userGroups[] = $user->email;
+                        } else {
+                            $this->error("User not found for ID: $userId");
+                        }
+                    }
+                }
+                $selectedUsers = [];
+                if ($notification->user_list != 'null') {
+                    $UserIds = json_decode($notification->user_list);
+                    if ($UserIds) {
+                        foreach ($UserIds as $UserId) {
+                            $User = User::find($UserId);
+                            if ($User) {
+                                $selectedUsers[] = $User->email;
+                            }
+                        }
+                    }
+                }
+                $template = $notification->body;
+                $Formdata01 = Formdata::where('application_id', $notification->application_id)->get();
+                $parsedData = collect(json_decode($Formdata01, true));
+                $replacedTemplates = [];
+                $parsedData->each(function ($entry) use ($template, &$replacedTemplates) {
+                    $data = json_decode($entry['data'], true);
+                    $replacedTemplate = $template;
+                    foreach ($data as $key => $value) {
+                        $placeholder = "[field:$key]";
+                        $replacedTemplate = str_replace($placeholder, $value, $replacedTemplate);
+                    }
+                    $replacedTemplates[] = $replacedTemplate;
+                });
+                $replaceddata['body'] = $replacedTemplates;
+                // $data['body'] = $notification->body;
+                if ($userGroups) {
+                    foreach ($userGroups as $recipient) {
+                        Mail::send('email.loginmail', @$replaceddata, function ($msg) use ($recipient, $notification) {
+                            $msg->from(env('MAIL_FROM_ADDRESS'));
+                            $msg->to($recipient, env('MAIL_FROM_NAME'));
+                            $msg->subject($notification->subject);
+                        });
+                    }
+                }
+                if ($selectedUsers) {
+                    foreach ($selectedUsers as $recipient) {
+                        Mail::send('email.loginmail', @$replaceddata, function ($msg) use ($recipient, $notification) {
+                            $msg->from(env('MAIL_FROM_ADDRESS'));
+                            $msg->to($recipient, env('MAIL_FROM_NAME'));
+                            $msg->subject($notification->subject);
+                        });
+                    }
+                }
+            } else {
+                logger('go');
+            }
+
+
+            // $childrenTasksIds = [];
+            // $childrenTasksNames = [];
+            // foreach ($task->childrenName as $childTask) {
+            //     $childrenTasksIds[] = $childTask->id;
+            //     $childrenTasksNames[] = $childTask->name;
+            // }
+            // // logger('=======');
+            // // logger('childrenTasksIds');
+            // // logger($childrenTasksIds);
+            // // logger('=======');
+            // // logger('childrenTasksNames');
+            // // logger($childrenTasksNames);
+            // if (in_array('SendNotification', $childrenTasksNames)) {
+            //     logger('=======');
+            //     logger('SendNotification');
+            // }
+            // if (in_array('Stop', $childrenTasksNames)) {
+            //     logger('=======');
+            //     logger('Stop');
+            // }
 
             // logger('parentTaskId');
             // logger($parentTaskId);
@@ -556,29 +940,226 @@ class CustomWorkflowController extends Controller
             //     }
             // }
 
-
-
+            // dd($tasks);
+        } catch (\Exception $th) {
+            //throw $th;
+            return redirect()->back()->with('error', $th->getMessage());
         }
 
-        // dd($tasks);
-
-        return redirect()->back()->with('success', 'Button Triggered a Workflow');
     }
-    public function saveMail(Request $request)
+    public function extractVariablesAndOperators($inputString)
     {
+        $tokens = [];
+        $operators = ['AND', 'OR', '(', ')'];
 
-        // If validation passes, retrieve the data from the request
-        $workflowId = $request->input('workflow_id');
-        $applicationId = $request->input('application_id');
-        $notificationId = $request->input('notification');
+        // Build a regular expression pattern for capturing tokens
+        $pattern = '/\b(?:' . implode('|', array_map('preg_quote', $operators)) . ')\b|\d+|\(|\)/';
 
-        // Save the data to the database
-        $triggerMail = new TriggerMail();
-        $triggerMail->workflow_id = $workflowId;
-        $triggerMail->notification_id = $notificationId;
-        $triggerMail->application_id = $applicationId;
-        $triggerMail->save();
+        // Use preg_match_all to capture all matching tokens
+        preg_match_all($pattern, $inputString, $matches);
 
-        return redirect()->back()->with('success', 'Data saved successfully');
+        // Flatten the matches array
+        $matches = array_reduce($matches, 'array_merge', []);
+
+        foreach ($matches as $match) {
+            $tokens[] = ['type' => is_numeric($match) ? 'variable' : 'operator', 'value' => $match];
+        }
+
+        return $tokens;
     }
+    public function rebuildString($tokens)
+    {
+        $result = '';
+
+        foreach ($tokens as $token) {
+            if ($token['type'] === 'operator' && ($token['value'] === '(' || $token['value'] === ')')) {
+                $result .= $token['value'] . ' ';
+            } else {
+                $result .= $token['value'] . ' ';
+            }
+        }
+
+        return trim(preg_replace('/\s+/', ' ', $result));
+    }
+    public function getVariables($tokens)
+    {
+        $variables = [];
+
+        foreach ($tokens as $token) {
+            if ($token['type'] === 'variable') {
+                $variables[] = $token['value'];
+            }
+        }
+
+        return $variables;
+    }
+    public function TriggerEvaluateContent($id)
+    {
+        try {
+            logger('TriggerEvaluateContent');
+            logger($id);
+            $evaluateContent = EvaluateContent::where('task_id', $id)->first();
+
+            if ($evaluateContent) {
+                $operatorLogic = $evaluateContent->advanced_operator_logic;
+                $inputString = $evaluateContent->evaluateRules;
+                $fieldDatas = Field::where('application_id', $evaluateContent->application_id)
+                    ->where('status', 1)
+                    ->get();
+                $formDataCheck = FormData::where('application_id', $evaluateContent->application_id)->get();
+                $jsonDataArray = [];
+
+                foreach ($formDataCheck as $dataceck) {
+                    $jsonData = json_decode($dataceck->data, true);
+                    $jsonDataArray[] = $jsonData;
+                }
+
+                foreach ($evaluateContent->evaluateRules as $evaluateRule) {
+                    $bolos = [];
+                    foreach ($jsonDataArray as $value) {
+                        $fieldId = $evaluateRule->field_id;
+                        if ($evaluateRule->field) {
+                            $fieldName = $evaluateRule->field->name;
+                            if (array_key_exists($fieldName, $value)) {
+                                $fieldValue = $value[$fieldName];
+                                switch ($evaluateRule->filter_operator) {
+                                    case 'C':
+                                        if (strpos($fieldValue, $evaluateRule->filter_value) !== false) {
+                                            $bolos[] = true;
+                                            logger("Contains comparison: IDs match. Request value: {$fieldValue}, filter value: {$evaluateRule->filter_value}");
+                                        } else {
+                                            $bolos[] = false;
+                                            logger("Contains comparison: IDs do not match. Request value: {$fieldValue}, filter value: {$evaluateRule->filter_value}");
+                                        }
+                                        break;
+                                    case 'DNC':
+                                        if (strpos($fieldValue, $evaluateRule->filter_value) === false) {
+                                            $bolos[] = true;
+                                            logger("Does not contain comparison: IDs match. Request value: {$fieldValue}, filter value: {$evaluateRule->filter_value}");
+                                        } else {
+                                            $bolos[] = false;
+                                            logger("Does not contain comparison: IDs do not match. Request value: {$fieldValue}, filter value: {$evaluateRule->filter_value}");
+                                        }
+                                        break;
+                                    case 'E':
+                                        if ($fieldValue == $evaluateRule->filter_value) {
+                                            $bolos[] = true;
+                                            logger("Equals comparison: IDs match. Request value: {$fieldValue}, filter value: {$evaluateRule->filter_value}");
+                                        } else {
+                                            $bolos[] = false;
+                                            logger("Equals comparison: IDs do not match. Request value: {$fieldValue}, filter value: {$evaluateRule->filter_value}");
+                                        }
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                    // Check if any value in $bolos is true
+                    if (in_array(true, $bolos)) {
+                        return true;
+                    }
+                }
+                // If no true value found in $bolos, return false
+                return false;
+            } else {
+                logger("No evaluate content found for ID: {$id}");
+                return false;
+            }
+
+
+
+
+            // $evaluateContent = EvaluateContent::where('task_id', $id)->first();
+            // $operatorLogic = $evaluateContent->advanced_operator_logic;
+            // $inputString = $evaluateContent->evaluateRules;
+            // $fieldDatas = Field::where('application_id', $evaluateContent->application_id)
+            //     ->where('status', 1)
+            //     ->get();
+            // $formDataCheck = FormData::where('application_id', $evaluateContent->application_id)->get();
+            // $jsonDataArray = [];
+
+            // foreach ($formDataCheck as $dataceck) {
+            //     $jsonData = json_decode($dataceck->data, true);
+            //     $jsonDataArray[] = $jsonData;
+            // }
+            // foreach ($evaluateContent->evaluateRules as $evaluateRule) {
+            //     $bolos = [];
+            //     foreach ($jsonDataArray as $value) {
+            //         $fieldId = $evaluateRule->field_id;
+            //         $fieldName = $evaluateRule->field->name;
+            //         if (array_key_exists($fieldName, $value)) {
+            //             $fieldValue = $value[$fieldName];
+            //             switch ($evaluateRule->filter_operator) {
+            //                 case 'C':
+            //                     if (strpos($fieldValue, $evaluateRule->filter_value) !== false) {
+            //                         $bolos[] = true;
+            //                         logger("Contains comparison: IDs match. Request value: {$fieldValue}, filter value: {$evaluateRule->filter_value}");
+            //                     } else {
+            //                         $bolos[] = false;
+            //                         logger("Contains comparison: IDs do not match. Request value: {$fieldValue}, filter value: {$evaluateRule->filter_value}");
+            //                     }
+            //                     break;
+            //                 case 'DNC':
+            //                     if (strpos($fieldValue, $evaluateRule->filter_value) === false) {
+            //                         $bolos[] = true;
+            //                         logger("Does not contain comparison: IDs match. Request value: {$fieldValue}, filter value: {$evaluateRule->filter_value}");
+            //                     } else {
+            //                         $bolos[] = false;
+            //                         logger("Does not contain comparison: IDs do not match. Request value: {$fieldValue}, filter value: {$evaluateRule->filter_value}");
+            //                     }
+            //                     break;
+            //                 case 'E':
+            //                     if ($fieldValue == $evaluateRule->filter_value) {
+            //                         $bolos[] = true;
+
+            //                         logger("Equals comparison: IDs match. Request value: {$fieldValue}, filter value: {$evaluateRule->filter_value}");
+            //                     } else {
+            //                         $bolos[] = false;
+            //                         logger("Equals comparison: IDs do not match. Request value: {$fieldValue}, filter value: {$evaluateRule->filter_value}");
+            //                     }
+            //                     break;
+            //             }
+            //         }
+            //     }
+            //     if (in_array(true, $bolos)) {
+            //         return true;
+            //     }
+            //     // logger($bolos);
+            //     // if ($inputString) {
+
+            //     //     $extractedTokens = $this->extractVariablesAndOperators($inputString);
+            //     //     $variables = $this->getVariables($extractedTokens);
+            //     //     $reconstructedString = $this->rebuildString($extractedTokens);
+            //     //     foreach ($extractedTokens as &$token) {
+            //     //         if ($token['type'] === 'variable') {
+            //     //             $variableValue = intval($token['value']);
+            //     //             if (isset($bolos[$variableValue - 1])) {
+            //     //                 // Set the value of the variable token based on the value in $bolos
+            //     //                 $token['value'] = $bolos[$variableValue - 1] ? '1' : '0';
+            //     //             }
+            //     //         }
+            //     //     }
+
+            //     //     $reconstructedString = $this->rebuildString($extractedTokens);
+            //     //     $reconstructedString = str_replace('AND', '&&', $reconstructedString);
+            //     //     $reconstructedString = str_replace('OR', '||', $reconstructedString);
+
+            //     //     // logger($reconstructedString);
+            //     //     logger(eval ("return $reconstructedString;"));
+            //     // }
+            //     if ($bolos) {
+            //         return true;
+            //     } else {
+            //         return false;
+
+            //     }
+            // }
+
+
+        } catch (\Exception $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+
+    }
+
 }
