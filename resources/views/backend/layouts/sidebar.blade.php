@@ -187,13 +187,13 @@
                     foreach ($roles as $role) {
                         $userIdsJson = $role->user_list;
                         $userIdsArray = json_decode($userIdsJson, true);
-                        logger('userIdsArray');
-                        logger($userIdsArray);
+                        // logger('userIdsArray');
+                        // logger($userIdsArray);
 
                         $groupsIdsJson = $role->group_list;
                         $groupsIdsArray = Helper::findusers($role->group_list);
-                        logger('groupsIds');
-                        logger($groupsIdsArray);
+                        // logger('groupsIds');
+                        // logger($groupsIdsArray);
                         $mergedIdsArray = [];
 
                         if ($userIdsArray !== null) {
@@ -204,8 +204,8 @@
                             $mergedIdsArray = array_merge($mergedIdsArray, $groupsIdsArray);
                         }
 
-                        logger('mergedIdsArray');
-                        logger($mergedIdsArray);
+                        // logger('mergedIdsArray');
+                        // logger($mergedIdsArray);
                         $applicationsIdsJson = $role->application_id;
                         $applicationsIdsArray = json_decode($applicationsIdsJson, true);
                         $useridfound = false;
@@ -217,14 +217,13 @@
                             $allApplicationsIds = array_merge($allApplicationsIds, $applicationsIdsArray);
                         }
                     }
-                    logger($allApplicationsIds);
+                    // logger($allApplicationsIds);
                     $uniqueApplicationsIds = array_unique($allApplicationsIds);
                     $applications = App\Models\backend\Application::whereIn('id', $uniqueApplicationsIds)->get();
                     $loggedinuser = auth()->id();
                     $userapplication = [];
                     $userId = [];
-                    logger($applications);
-
+                    // logger($applications);
                 @endphp
 
                 <div class="nav-item dropdown">

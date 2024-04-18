@@ -99,12 +99,14 @@
                                         href="{{ route('workflow.show', $item->id) }}">Workflow</a>
                                     {{-- <a class="btn btn-sm btn-success mx-2"
                                         href="{{ route('custom-workflow.show', $item->id) }}">CustomWorkflow</a> --}}
-                                    <a class="btn btn-sm btn-success mx-2"
-                                        href="{{ route('triggerButtonShow', $item->workFlow->id) }}">CustomWorkflow</a>
-                                    @php
+                                    @if ($item->workFlow)
+                                        <a class="btn btn-sm btn-success mx-2"
+                                            href="{{ route('triggerButtonShow', @$item->workFlow->id) }}">CustomWorkflow</a>
+                                    @endif
+                                    {{-- @php
                                         $model = the42coders\Workflows\Workflow::find($item->id);
 
-                                    @endphp
+                                    @endphp --}}
                                     {{-- <button>
                                         {!! the42coders\Workflows\Triggers\ButtonTrigger::renderButtonByWorkflowId($model->id, $model) !!}
                                     </button> --}}

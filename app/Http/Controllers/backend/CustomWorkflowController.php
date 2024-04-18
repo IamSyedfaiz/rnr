@@ -21,6 +21,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\backend\Field;
 use App\Models\backend\Formdata;
 use App\Models\backend\Group;
+use App\Models\backend\UpdateContent;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
@@ -428,22 +429,6 @@ class CustomWorkflowController extends Controller
     {
         $task = Task::where('workflow_id', $triggerId)->first();
         $parentTaskId = $task->parentableName->id ?? '';
-        // $childrenTasksIds = [];
-        // $childrenTasksNames = [];
-        // if ($task->childrenName) {
-        //     foreach ($task->childrenName as $childTask) {
-        //         $childrenTasksIds[] = $childTask->id;
-        //         $childrenTasksNames[] = $childTask->name;
-        //     }
-        // }
-        // logger('childrenTasksIds');
-        // logger($childrenTasksIds);
-        // logger('childrenTasksNames');
-        // logger($childrenTasksNames);
-        // logger('parentTaskId');
-        // logger($parentTaskId);
-        // logger('task');
-        // logger($task);
 
 
         if ($parentTaskId) {
@@ -488,6 +473,7 @@ class CustomWorkflowController extends Controller
                 return redirect()->back()->with('error', 'not found');
             }
         } else {
+
             if ($task !== null && $task->name == 'EvaluateContent') {
                 logger('=======');
                 logger('EvaluateContent');
@@ -522,6 +508,8 @@ class CustomWorkflowController extends Controller
             } elseif ($task !== null && $task->name == 'UpdateContent') {
                 logger('=======');
                 logger('UpdateContent');
+                $this->TriggerUpdateContent($task->id);
+
                 $this->triggerButtonChildren($task->id);
 
             } elseif ($task !== null && $task->name == 'UserAction') {
@@ -650,8 +638,7 @@ class CustomWorkflowController extends Controller
             $evaluateContent->advanced_operator_logic = $request->input('advanced_operator_logic');
             $evaluateContent->active = $request->input('active') == 'Y' ? 'Y' : 'N';
             $evaluateContent->save();
-            // $evaluateContent = EvaluateContent::create($data);
-            // dd($evaluateContent);
+            $existingRules = EvaluateRule::where('evaluate_content_id', $evaluateContent->id)->get();
             $filterFields = $request->input('field_id', []);
             $filterOperators = $request->input('filter_operator', []);
             $filterValues = $request->input('filter_value', []);
@@ -659,27 +646,58 @@ class CustomWorkflowController extends Controller
                 foreach ($filterFields as $index => $field) {
                     $operator = is_array($filterOperators) ? $filterOperators[$index] ?? null : null;
                     $value = is_array($filterValues) ? $filterValues[$index] ?? null : null;
-                    $evaluateRule = EvaluateRule::where('evaluate_content_id', $evaluateContent->id)
-                        ->where('field_id', $field)
-                        ->first();
-                    if (!$evaluateRule) {
-                        $evaluateRule = new EvaluateRule();
-                    }
-                    $evaluateRule->evaluate_content_id = $evaluateContent->id;
-                    $evaluateRule->field_id = $field;
-                    $evaluateRule->filter_operator = $operator;
-                    $evaluateRule->filter_value = $value;
-                    $evaluateRule->save();
+                    // $operator = $filterOperators[$index] ?? null;
+                    // $value = $filterValues[$index] ?? null;
 
-                    // EvaluateRule::create([
-                    //     'evaluate_content_id' => $evaluateContent->id,
-                    //     'field_id' => $field,
-                    //     'filter_operator' => $operator,
-                    //     'filter_value' => $value,
-                    // ]);
+                    // Check if there's an existing rule with the same field
+                    $existingRule = $existingRules->where('field_id', $field)->first();
+
+                    if ($existingRule) {
+                        // Update the existing rule
+                        $existingRule->update([
+                            'filter_operator' => $operator,
+                            'filter_value' => $value,
+                        ]);
+
+                        // Remove the updated rule from the existing rules collection
+                        $existingRules = $existingRules->reject(function ($item) use ($existingRule) {
+                            return $item->id === $existingRule->id;
+                        });
+                    } else {
+                        // Create a new rule
+                        EvaluateRule::create([
+                            'evaluate_content_id' => $evaluateContent->id,
+                            'field_id' => $field,
+                            'filter_operator' => $operator,
+                            'filter_value' => $value,
+                        ]);
+                    }
                 }
             }
             Log::channel('custom')->info('Attachment Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname);
+            return redirect()->back()->with('success', 'Data saved successfully');
+        } catch (\Exception $th) {
+            //throw $th;
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+
+    }
+    public function UpdateContentStore(Request $request)
+    {
+        try {
+            $attributes = [
+                'task_id' => $request->task_id,
+            ];
+            $values = [
+                'application_id' => $request->application_id,
+                'workflow_id' => $request->workflow_id,
+                'name' => $request->name,
+            ];
+            $dataForJson = $request->except(['_token', 'application_id', 'workflow_id', 'task_id', 'name']);
+            $values['data'] = json_encode($dataForJson);
+            $updateContent = UpdateContent::updateOrCreate($attributes, $values);
+
+            Log::channel('custom')->info('UpdateContent Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname);
             return redirect()->back()->with('success', 'Data saved successfully');
         } catch (\Exception $th) {
             //throw $th;
@@ -993,6 +1011,18 @@ class CustomWorkflowController extends Controller
 
         return $variables;
     }
+    public function evaluateRulesDestroy($id)
+    {
+        $evaluateRule = EvaluateRule::find($id);
+
+        if (!$evaluateRule) {
+            return redirect()->back()->with('error', 'EvaluateRule not found.');
+        }
+        $evaluateRule->delete();
+        Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Attachment Deleted by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' , evaluateRule Name -> ' . $evaluateRule->name);
+
+        return redirect()->back()->with('success', 'Successfully Notification Delete.');
+    }
     public function TriggerEvaluateContent($id)
     {
         try {
@@ -1161,5 +1191,16 @@ class CustomWorkflowController extends Controller
         }
 
     }
-
+    public function TriggerUpdateContent($id)
+    {
+        try {
+            logger('TriggerUpdateContent');
+            logger($id);
+            $updateContent = UpdateContent::where('task_id', $id)->first();
+            logger($updateContent);
+            dd(1234243);
+        } catch (\Exception $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
 }

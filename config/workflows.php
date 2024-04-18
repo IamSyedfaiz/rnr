@@ -90,7 +90,7 @@ return [
             'Start' => the42coders\Workflows\Triggers\ButtonTrigger::class,
             'Stop' => the42coders\Workflows\Tasks\ChangeModel::class,
             'TextNode' => the42coders\Workflows\Tasks\HtmlInput::class,
-            'Transition' => the42coders\Workflows\Tasks\Execute::class,
+            // 'Transition' => the42coders\Workflows\Tasks\Execute::class,
         ],
 
         'Observers' => [

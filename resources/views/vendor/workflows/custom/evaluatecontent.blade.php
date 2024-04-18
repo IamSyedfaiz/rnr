@@ -110,6 +110,44 @@
                         </tbody>
                     </table>
                 </div>
+                @if ($evaluateRules)
+                    <div class="table-responsive mt-5">
+                        <table class="table">
+                            <thead>
+                                <tr class="text-white " style="background-color: #009CFF;">
+                                    <th scope="col">ID</th>
+                                    <th scope="col">FIELD NAME</th>
+                                    <th scope="col">OPERATOR</th>
+                                    <th scope="col">VALUE</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach ($evaluateRules as $index => $filter)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $filter->field->name }}</td>
+                                        <td> {{ [
+                                            'C' => 'Contains',
+                                            'DNC' => 'Does Not Contain',
+                                            'E' => 'Equals',
+                                            'DNE' => 'Does Not Equal',
+                                            'CH' => 'Changed',
+                                            'CT' => 'Changed To',
+                                            'CF' => 'Changed From',
+                                        ][$filter->filter_operator] ?? 'Unknown' }}
+                                        </td>
+                                        <td>{{ $filter->filter_value }}</td>
+                                        <td><a href="{{ route('evaluateRules.destroy', $filter->id) }}"
+                                                class="btn btn-danger">delete</a> </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+
                 <div class="mb-3 col-6">
                     <label for="exampleInputEmail1" class="form-label">Advanced Operator Logic</label>
                     <input type="text" class="form-control" name="advanced_operator_logic" value=""
