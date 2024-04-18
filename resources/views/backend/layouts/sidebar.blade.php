@@ -133,10 +133,8 @@
 
                     </div>
                 </div>
-            @endif
-
-            @if (auth()->user()->role != 'admin')
-                @php
+            @else
+                {{-- @php
                     $loggedinuser = auth()->id();
                     // dd($userid);
                     $application = App\Models\backend\Application::where('status', 1)
@@ -145,7 +143,9 @@
 
                     $userapplication = [];
                     $userid = [];
-                    // dd($application[1]->rolestable()->first());
+                    logger($application[0]->rolestable()->get());
+                    // logger($application);
+                    logger($loggedinuser);
 
                     for ($i = 0; $i < count($application); $i++) {
                         # code...
@@ -179,6 +179,51 @@
                         }
                     }
 
+
+                @endphp --}}
+                @php
+                    $roles = App\Models\backend\Role::all();
+                    $allApplicationsIds = [];
+                    foreach ($roles as $role) {
+                        $userIdsJson = $role->user_list;
+                        $userIdsArray = json_decode($userIdsJson, true);
+                        // logger('userIdsArray');
+                        // logger($userIdsArray);
+
+                        $groupsIdsJson = $role->group_list;
+                        $groupsIdsArray = Helper::findusers($role->group_list);
+                        // logger('groupsIds');
+                        // logger($groupsIdsArray);
+                        $mergedIdsArray = [];
+
+                        if ($userIdsArray !== null) {
+                            $mergedIdsArray = array_merge($mergedIdsArray, $userIdsArray);
+                        }
+
+                        if ($groupsIdsArray !== null) {
+                            $mergedIdsArray = array_merge($mergedIdsArray, $groupsIdsArray);
+                        }
+
+                        // logger('mergedIdsArray');
+                        // logger($mergedIdsArray);
+                        $applicationsIdsJson = $role->application_id;
+                        $applicationsIdsArray = json_decode($applicationsIdsJson, true);
+                        $useridfound = false;
+                        if (in_array(auth()->id(), $mergedIdsArray)) {
+                            $useridfound = true;
+                        }
+
+                        if ($useridfound) {
+                            $allApplicationsIds = array_merge($allApplicationsIds, $applicationsIdsArray);
+                        }
+                    }
+                    // logger($allApplicationsIds);
+                    $uniqueApplicationsIds = array_unique($allApplicationsIds);
+                    $applications = App\Models\backend\Application::whereIn('id', $uniqueApplicationsIds)->get();
+                    $loggedinuser = auth()->id();
+                    $userapplication = [];
+                    $userId = [];
+                    // logger($applications);
                 @endphp
 
                 <div class="nav-item dropdown">
@@ -187,10 +232,14 @@
                     <div class="dropdown-menu bg-transparent border-0">
                         {{-- <a href="{{ route('user-application.index') }}" class="dropdown-item">View All</a> --}}
                         {{-- <a href="{{ route('application.create') }}" class="dropdown-item">New</a> --}}
-                        @foreach ($userapplication as $item)
+                        @foreach ($applications as $item)
                             <a class="dropdown-item" href="{{ route('userapplication.list', $item->id) }}">
                                 {{ $item->name }}</a>
                         @endforeach
+                        {{-- @foreach ($userapplication as $item)
+                            <a class="dropdown-item" href="{{ route('userapplication.list', $item->id) }}">
+                                {{ $item->name }}</a>
+                        @endforeach --}}
 
                     </div>
                 </div>

@@ -1,146 +1,105 @@
 @extends('workflows::layouts.workflow_app')
 @section('content')
-    <!-- Recent Sales Start -->
     <div class="container-fluid pt-4 px-4">
         <div class="bg-light text-start rounded p-4">
             <div class="d-flex align-items-center justify-content-between mb-4">
-                {{-- <h6 class="mb-0">Application Create</h6> --}}
-
-            </div>
-            {{-- {{ dd(Session::get('genral'), Session::get('field')) }} --}}
-
-            <div class="bg-light rounded h-100 p-4">
-                <div class="tab-content" id="pills-tabContent">
-                    <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-                        <div class="d-flex align-items-center justify-content-between mb-4">
-                            <h6 class="mb-4">Evaluating Content</h6>
-                            <button type="button" class="btn btn-danger">
-                                <a href="{{route('workflow.show', $application->id)}}" style="color:aliceblue">
-                                    <- back</a>
-                            </button>
-                        </div>
-
+                {{-- <div class="col-md-12">
+                    <div class="settings-footer text-right">
+                        <button class="btn btn-default"
+                            onclick="closeSettings();">{{ __('workflows::workflows.Close') }}</button>
+                        <button class="btn btn-success"
+                            onclick="saveFields({{ $element->id }}, '{{ $element->family }}');">{{ __('workflows::workflows.Save') }}</button>
                     </div>
-
-                    <form action="{{ route('updatecontent.save') }}" class="form-horizontal" enctype="multipart/form-data"
-                        method="post">
-                        @csrf
-                        <div class="mb-3">
-                            <label for="exampleInputEmail1" class="form-label"> Name</label>
-                            <input type="text" class="form-control" name="name" value="{{ $content->name }}" required>
-
-                        </div>
-
-
-                        <div class="mb-3">
-                            <label for="exampleInputEmail1" class="form-label">Description</label>
-                            <textarea class="form-control" name="description" id="" cols="30" rows="10" required>{{ $content->description }}</textarea>
-                        </div>
-
-                        <div class="mb-3 col-md-3">
-                            <label for="exampleInputEmail1" class="form-label">Status</label>
-                            <select name="status" id="" class="form-control" required>
-                                <option value="active">Active</option>
-                                <option value="inactive">InActive</option>
-                            </select>
-                        </div>
-
-                        <hr>
-                        <div class="row d-flex justify-content-between">
-                            <div class="row">
-                                <h3>Rules</h3>
-
-                            </div>
-                            <div class="row">
-                                <input type="button" class="btn btn-primary" onclick="addvaluelist()" value="++">
-                                <input type="button" class="btn btn-danger" onclick="removevaluelist()" value="--">
-                                {{-- <button class="btn btn-primary" onclick="addvaluelist()">++</button>
-                    <button class="btn btn-danger" onclick="removevaluelist()">--</button> --}}
-
-                            </div>
-                        </div>
-                        <div class="productcontainer">
-                            @for ($i = 0; $i < count($content->fieldname); $i++)
-                            <div class="col-md-12 row productdiv">
-                                <div class="col-md-4">
-                                    <label for="">Field Name</label>
-                                    <select name="fieldname[]" id="" class="form-control" required>
-                                        @foreach ($fields as $item)
-                                            <option value="{{ $item->name }}" @if ($content->fieldname[$i] == $item->name) selected @endif>{{ $item->name }}</option>
-                                        @endforeach
+                </div> --}}
+                <div class="table-responsive mt-5">
+                    <a class="btn btn-success mb-3" id="addRow"><i class="bi bi-plus-circle"></i>Add</a>
+                    <table class="table  table-striped  text-start align-middle table-bordered table-hover mb-0"
+                        id="dataTable">
+                        <thead>
+                            <tr class="text-white" style="background-color: #009CFF;">
+                                <th scope="col">ID</th>
+                                <th scope="col">FIELD NAME</th>
+                                <th scope="col">OPERATOR</th>
+                                <th scope="col">VALUE</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="data-row">
+                                <td>1</td>
+                                <td>
+                                    <select class="form-control" name="field_id[]">
+                                        <option value="">Select field</option>
                                     </select>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label for="">Operators</label>
-                                    <select name="operators[]" id="" class="form-control" required>
-                                        <option value="equal"  @if ($content->operators[$i] == "equal") selected @endif>Equal</option>
-                                        <option value="notequal"  @if ($content->operators[$i] == "notequal") selected @endif>Not Equal</option>
-
+                                </td>
+                                <td>
+                                    <select class="form-control" name="filter_operator[]">
+                                        <option value="C">Contains</option>
+                                        <option value="DNC">Does Not Contain</option>
+                                        <option value="E">Equals</option>
+                                        <option value="DNE">Does Not Equals</option>
                                     </select>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label for="">Values</label>
-                                    <input type="text" name="values[]" class="form-control" value="{{$content->values[$i]}}" name="value" required>
-
-                                </div>
-
-                            </div>
-                                
-                            @endfor
-                        </div>
-
-                        <input type="hidden" value="{{ auth()->id() }}" name="userid">
-                        <input type="hidden" value="{{ $task->id }}" name="taskid">
-
-                        <button type="submit" class="btn btn-primary mt-3">Submit</button>
-                    </form>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" placeholder="Value" name="filter_value[]">
+                                </td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-
+                <div class="mb-3 col-6">
+                    <label for="exampleInputEmail1" class="form-label">Advanced Operator Logic</label>
+                    <input type="text" class="form-control" name="advanced_operator_logic" value=""
+                        id="advancedOperatorLogic" aria-describedby="advancedOperatorLogichelp">
+                </div>
             </div>
-
-
         </div>
     </div>
-
-
-    <!-- Recent Sales End -->
-
-
-
-    {{-- <script src="https://cdn.ckeditor.com/4.20.1/standard/ckeditor.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
-        CKEDITOR.replace('editor1');
-    </script> --}}
+        $(document).ready(function() {
+            $("#addRow").on("click", function() {
+                var rowCount = $(".table-striped tbody tr").length + 1;
+                var newRow = `<tr class="data-row">
+                    <td class="row-id">${rowCount}</td>
+                    <td>
+                        <select class="form-control" name="field_id[]">
+                            <option value="">Select field</option>
+                            @foreach ($fields as $item)
+                                <option value="{{ $item->id }}">
+                                    {{ $item->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td>
+                      <select class="form-control" name="filter_operator[]">
+                        <option value="C">Contains</option>
+                                                        <option value="DNC">Does Not Contain</option>
+                                                        <option value="E">Equals</option>
+                                                        <option value="DNE">Does Not Equals</option>
+                                                </select>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" placeholder="Value" name="filter_value[]">
+                    </td>
+                    <td><button class="btn btn-danger removeRow">Remove</button></td>
+                </tr>`;
+                $(".table-striped tbody").append(newRow);
+            });
 
-    <script>
-        var leadstatus = "{{ $content->status }}";
-        var lead_status = document.getElementsByName('status')[0];
-        lead_status.value = leadstatus;
+            $(".table-striped").on("click", ".removeRow", function() {
+                $(this).closest("tr").remove();
+                updateRowIds();
+            });
 
-        function addvaluelist() {
-            // preventDefault();
-            var productcontainer = document.getElementsByClassName('productcontainer')[0];
-            var productdiv = document.getElementsByClassName('productdiv')[0];
-            var copy = productdiv.cloneNode(true);
-            productcontainer.appendChild(copy);
-            var product = document.getElementsByName('product[]');
-            var productinput = document.getElementsByName('product[]')[product.length - 1];
-            console.log(product.length - 1, productinput);
-            productinput.id = parseInt(product.length - 1);
-            // console.log(productinput);
-            // console.log(productinput);
-
-        }
-
-        function removevaluelist() {
-            // preventDefault();
-            var productcontainer = document.getElementsByClassName('productdiv');
-            if (productcontainer.length > 1) {
-                productcontainer[productcontainer.length - 1].remove();
-
+            function updateRowIds() {
+                $(".table-striped tbody tr").each(function(index) {
+                    $(this).find('.row-id').text(index + 1);
+                });
             }
-        }
+
+        });
     </script>
 @endsection

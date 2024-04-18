@@ -19,7 +19,8 @@ class MultipleroleController extends Controller
      */
     public function index()
     {
-        //
+        $roles = Role::all();
+        return view('backend.multiplerole.index', compact('roles'));
     }
 
     /**
@@ -29,7 +30,13 @@ class MultipleroleController extends Controller
      */
     public function create()
     {
-        //
+        $selectedgroups = [];
+        $selectedusers = [];
+        $selectedApplications = [];
+        $users = User::where('status', 1)->latest()->get();
+        $groups = Group::where('status', 1)->latest()->get();
+        $applications = Application::where('status', 1)->latest()->get();
+        return view('backend.multiplerole.edit', compact('selectedgroups', 'selectedusers', 'selectedApplications', 'users', 'groups', 'applications'));
     }
 
     /**
@@ -54,17 +61,11 @@ class MultipleroleController extends Controller
         try {
             //code...
             $application = Application::find($id);
-            // dd($id);
-            $roles = Role::where('application_id', $id)
-                ->latest()
-                ->get();
-            // dd($applications, $roles);
+            $roles = Role::where('application_id', $id)->latest()->get();
             return view('backend.multiplerole.index', compact('application', 'roles'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -114,18 +115,12 @@ class MultipleroleController extends Controller
             }
             // dd($selectedusers);
 
-            $users = User::where('status', 1)
-                ->latest()
-                ->get();
-            $groups = Group::where('status', 1)
-                ->latest()
-                ->get();
+            $users = User::where('status', 1)->latest()->get();
+            $groups = Group::where('status', 1)->latest()->get();
             return view('backend.multiplerole.edit', compact('selectedgroups', 'selectedusers', 'application', 'applicationrole', 'users', 'groups'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 

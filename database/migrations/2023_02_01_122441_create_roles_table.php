@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->integer('read')->default(0);
             $table->integer('update')->default(0);
             $table->integer('delete')->default(0);
-            $table->integer('application_id')->nullable();
+            $table->longText('application_id')->nullable();
             $table->longText('user_list')->default(0);
             $table->longText('group_list')->default(0);
             $table->integer('updated_by')->nullable();
