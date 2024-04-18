@@ -14,8 +14,8 @@ return new class extends Migration {
     {
         Schema::create('evaluate_rules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('evaluate_content_id')->constrained()->nullable();
-            $table->foreignId('field_id')->constrained()->nullable();
+            $table->foreignId('evaluate_content_id')->nullable()->constrained('evaluate_contents');
+            $table->foreignId('field_id')->nullable()->constrained('fields');
             $table->string('filter_operator')->nullable();
             $table->string('filter_value')->nullable();
             $table->timestamps();
