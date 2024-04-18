@@ -14,9 +14,9 @@ return new class extends Migration {
     {
         Schema::create('evaluate_contents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('application_id')->constrained()->nullable();
-            $table->foreignId('Workflow_id')->constrained()->nullable();
-            $table->foreignId('task_id')->constrained()->nullable();
+            $table->foreignId('application_id')->nullable()->constrained('applications');
+            $table->foreignId('Workflow_id')->nullable()->constrained('workflows');
+            $table->foreignId('task_id')->nullable()->constrained('tasks');
             $table->string('name')->nullable();
             $table->text('description')->nullable();
             $table->string('active')->nullable();
