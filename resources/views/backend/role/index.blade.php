@@ -2,7 +2,7 @@
 @section('content')
     <!-- Recent Sales Start -->
     <div class="container-fluid pt-4 px-4">
-        <div class="bg-light text-center rounded p-4">
+        {{-- <div class="bg-light text-center rounded p-4">
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <h6 class="mb-0">Roles</h6>
 
@@ -13,7 +13,6 @@
                     <thead>
                         <tr class="text-dark">
                             <th scope="col">Application Name</th>
-                            {{-- <th scope="col">Name</th> --}}
                             <th scope="col">Status</th>
                             <th scope="col">Updated By</th>
                             <th scope="col">Created At</th>
@@ -23,7 +22,6 @@
                     </thead>
                     <tbody>
                         @foreach ($applications as $item)
-                            {{-- {{ dd($item) }} --}}
                             <tr>
                                 <td>
                                     <a href="{{ route('multiplerole.show', $item->id) }}"> {{ $item->name }}</a>
@@ -58,7 +56,7 @@
                 </table>
             </div>
 
-        </div>
+        </div> --}}
         <div class="bg-light text-center rounded p-4">
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <h6 class="mb-0"> Roles</h6>

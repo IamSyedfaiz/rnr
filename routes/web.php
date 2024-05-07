@@ -86,6 +86,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/custom-workflow-evaluate-content', [CustomWorkflowController::class, 'evaluateContent'])->name('evaluate.content');
     Route::get('/custom-workflow-evaluateRules-destroy/{id}', [CustomWorkflowController::class, 'evaluateRulesDestroy'])->name('evaluateRules.destroy');
     Route::get('/custom-workflow-UpdateContent-store', [CustomWorkflowController::class, 'UpdateContentStore'])->name('updateContent.store');
+    Route::get('/custom-workflow-userAction-store', [CustomWorkflowController::class, 'userActionStore'])->name('userAction.store');
     // IntegrationController
     Route::get('/data-feed', [IntegrationController::class, 'dataFeed'])->name('data.feed');
     Route::get('/data-imports', [IntegrationController::class, 'dataImports'])->name('data.imports');

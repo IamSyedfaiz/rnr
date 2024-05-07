@@ -116,27 +116,18 @@ class NotificationController extends Controller
     public function store(Request $request)
     {
         try {
-            // Validation rules
             $rules = [
                 'name' => 'required|unique:notifications,name',
             ];
-
-            // Custom validation messages
             $messages = [
                 'name.required' => 'The name field is required.',
                 'name.unique' => 'The name field must be unique.',
-                // Add other custom messages as needed
             ];
-
-            // Validate the request
             $validator = Validator::make($request->all(), $rules, $messages);
 
-            // If validation fails, throw an exception with validation errors
             if ($validator->fails()) {
                 throw ValidationException::withMessages($validator->errors()->toArray());
             }
-
-            // Validation passed, continue with the code
 
             $data = $request->except(['_token', 'field_id', 'filter_operator', 'filter_value']);
             $data['active'] = $request->input('active') == 'Y' ? 'Y' : 'N';
@@ -144,27 +135,20 @@ class NotificationController extends Controller
             $filterFields = $request->input('field_id', []);
             $filterOperators = $request->input('filter_operator', []);
             $filterValues = $request->input('filter_value', []);
-            // dd($filterFields);
-            // if (count(array_filter($filterFields)) > 0 && count(array_filter($filterValues)) > 0) {
-            //     foreach ($filterFields as $index => $field) {
-            //         FilterCriteria::create([
-            //             'notification_id' => $notification->id,
-            //             'field_id' => $field,
-            //             'filter_operator' => $filterOperators[$index],
-            //             'filter_value' => $filterValues[$index],
-            //         ]);
-            //     }
-            // }
+
             if (!empty($filterFields) && !empty($filterValues) && count($filterFields) === count($filterValues)) {
                 foreach ($filterFields as $index => $field) {
-                    $operator = is_array($filterOperators) ? $filterOperators[$index] ?? null : null;
-                    $value = is_array($filterValues) ? $filterValues[$index] ?? null : null;
-                    FilterCriteria::create([
-                        'notification_id' => $notification->id,
-                        'field_id' => $field,
-                        'filter_operator' => $operator,
-                        'filter_value' => $value,
-                    ]);
+                    // Check if field_id is set and not null before proceeding
+                    if (isset($field) && $field !== null) {
+                        $operator = is_array($filterOperators) ? $filterOperators[$index] ?? null : null;
+                        $value = is_array($filterValues) ? $filterValues[$index] ?? null : null;
+                        FilterCriteria::create([
+                            'notification_id' => $notification->id,
+                            'field_id' => $field,
+                            'filter_operator' => $operator,
+                            'filter_value' => $value,
+                        ]);
+                    }
                 }
             }
             Log::channel('custom')->info('Attachment Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' , Notification Name -> ' . $notification->name . ' , Data -> ' . json_encode($data));

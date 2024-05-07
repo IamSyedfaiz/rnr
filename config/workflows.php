@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Styling
@@ -35,7 +34,7 @@ return [
         // 'Stop' => the42coders\Workflows\Tasks\ChangeModel::class,
         // 'SaveModel' => the42coders\Workflows\Tasks\SaveModel::class,
         // 'SendSlackMessage' => the42coders\Workflows\Tasks\SendSlackMessage::class,
-        // 'TextInput' => the42coders\Workflows\Tasks\TextInput::class,
+        'WaitForContentUpdate' => the42coders\Workflows\Tasks\TextInput::class,
     ],
 
     'task_settings' => [
@@ -80,7 +79,6 @@ return [
     |
     */
     'triggers' => [
-
         'types' => [
             // 'Start' => the42coders\Workflows\Triggers\Start::class,
             // 'Stop' => the42coders\Workflows\Triggers\Stop::class,
@@ -88,26 +86,13 @@ return [
             // 'Start' => the42coders\Workflows\Tasks\LoadModel::class,
             'ObserverTrigger' => the42coders\Workflows\Triggers\ObserverTrigger::class,
             'Start' => the42coders\Workflows\Triggers\ButtonTrigger::class,
-            'Stop' => the42coders\Workflows\Tasks\ChangeModel::class,
+            'Stop' => the42coders\Workflows\Tasks\LoadModel::class,
             'TextNode' => the42coders\Workflows\Tasks\HtmlInput::class,
             // 'Transition' => the42coders\Workflows\Tasks\Execute::class,
         ],
 
         'Observers' => [
-            'events' => [
-                'retrieved',
-                'creating',
-                'created',
-                'updating',
-                'updated',
-                'saving',
-                'saved',
-                'deleting',
-                'deleted',
-                'restoring',
-                'restored',
-                'forceDeleted',
-            ],
+            'events' => ['retrieved', 'creating', 'created', 'updating', 'updated', 'saving', 'saved', 'deleting', 'deleted', 'restoring', 'restored', 'forceDeleted'],
             'classes' => [
                 \App\Models\User::class => 'User',
                 \the42coders\Workflows\Loggers\WorkflowLog::class => 'WorkflowLog',
@@ -121,7 +106,6 @@ return [
                 'all' => 'All',
             ],
         ],
-
     ],
     'queue' => 'redis',
 
@@ -145,5 +129,4 @@ return [
     | This changes needs to be done before the Migrations are running.
     */
     'db_prefix' => '',
-
 ];

@@ -19515,8 +19515,7 @@
   \********************************************/
             /*! no static exports found */
             /***/ function (module, exports, __webpack_require__) {
-                var __WEBPACK_AMD_DEFINE_ARRAY__,
-                    __WEBPACK_AMD_DEFINE_RESULT__;
+                var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;
                 /*!
                  * jQuery JavaScript Library v3.5.1
                  * https://jquery.com/
@@ -36425,15 +36424,13 @@
                                         i > 1 &&
                                             toSelector(
                                                 // If the preceding token was a descendant combinator, insert an implicit any-element `*`
-                                                tokens
-                                                    .slice(0, i - 1)
-                                                    .concat({
-                                                        value:
-                                                            tokens[i - 2]
-                                                                .type === " "
-                                                                ? "*"
-                                                                : "",
-                                                    })
+                                                tokens.slice(0, i - 1).concat({
+                                                    value:
+                                                        tokens[i - 2].type ===
+                                                        " "
+                                                            ? "*"
+                                                            : "",
+                                                })
                                             ).replace(rtrim, "$1"),
                                         matcher,
                                         i < j &&
