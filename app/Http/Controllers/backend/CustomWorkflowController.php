@@ -22,6 +22,7 @@ use App\Models\backend\Field;
 use App\Models\backend\Formdata;
 use App\Models\backend\Group;
 use App\Models\backend\UpdateContent;
+use App\Models\backend\UserAction;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
@@ -1199,6 +1200,20 @@ class CustomWorkflowController extends Controller
             $updateContent = UpdateContent::where('task_id', $id)->first();
             logger($updateContent);
             dd(1234243);
+        } catch (\Exception $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
+    public function userActionStore(Request $request)
+    {
+        try {
+            UserAction::create([
+                'name' => $request->name,
+                'task_id' => $request->task_id,
+            ]);
+
+            Log::channel('custom')->info('UserAction Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname);
+            return redirect()->back()->with('success', 'Data saved successfully');
         } catch (\Exception $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }

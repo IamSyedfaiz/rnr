@@ -21,10 +21,10 @@
                             <input type="hidden" name="workflow_id" value="{{ @$element->id }}">
                             <input type="hidden" name="task_id" value="{{ @$task->id }}">
                             {{-- <input type="hidden" value="{{ auth()->id() }}" name="user_id"> --}}
-                            <div class="mb-3">
+                            {{-- <div class="mb-3">
                                 <label for="exampleInputEmail1" class="form-label">Name</label>
                                 <input type="text" class="form-control" name="name">
-                            </div>
+                            </div> --}}
                             @foreach (@$fields as $item)
                                 @if ($item->type == 'date')
                                     <div class="mb-3">
@@ -122,15 +122,15 @@
                                                     {{ strtoupper($item1) }}</label><br>
                                             @endforeach
                                         @endif
-                                        @if ($item->valuelisttype == 'valuepopup')
+                                        @if (@$item->valuelisttype == 'valuepopup')
                                             @php
-                                                $valuelist = json_decode($item->valuelistvalue);
+                                                $valuelist = json_decode(@$item->valuelistvalue);
                                             @endphp
                                             @foreach ($valuelist as $item1)
                                                 <input type="checkbox" class="form-check-input"
-                                                    name="{{ $item->name }}[{{ $item1 }}]">
+                                                    name="{{ @$item->name }}[{{ $item1 }}]">
                                                 <label for="{{ $item1 }}">
-                                                    {{ strtoupper($item1) }}</label><br>
+                                                    {{ strtoupper(@$item1) }}</label><br>
                                             @endforeach
                                         @endif
                                     </div>
@@ -138,7 +138,7 @@
                                 @if ($item->type == 'user_group_list')
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1" class="form-label">
-                                            {{ strtoupper($item->name) }}</label>
+                                            {{ strtoupper(@$item->name) }}</label>
                                         <div class="usergrouplist">
                                             <div class="d-flex justify-content-between mb-2">
                                                 <div class="col-md-2 addusers">
@@ -167,7 +167,7 @@
                                                                 <label for="message-text"
                                                                     class="col-form-label fw-bold text-left ">Groups
                                                                     <small>(ctrl + click) multiple select</small> </label>
-                                                                <select name="{{ $item->name }}[user_list][]"
+                                                                <select name="{{ @$item->name }}[user_list][]"
                                                                     id="" class="form-control" multiple>
                                                                     @foreach ($users as $item2)
                                                                         <option value="{{ $item2->id }}">
@@ -232,10 +232,6 @@
                                 </thead>
                                 <tbody>
                                     <tr class="data-row">
-                                        @php
-                                            $data = json_decode($updateContent->data, true);
-                                        @endphp
-
                                         @foreach ($data as $key => $value)
                                     <tr>
                                         <td>1</td>
@@ -247,7 +243,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <div class="col-md-12">
+                            <div class="col-md-12 mt-5">
                                 <div class="settings-footer text-right">
                                     <button class="btn btn-default"
                                         onclick="closeSettings();">{{ __('workflows::workflows.Close') }}</button>

@@ -107,7 +107,7 @@
         editor.start();
 
         @foreach ($workflow->tasks as $task)
-            // console.log('{{ $task->name }}');
+            console.log('{{ $task->name }}');
             if ('{{ $task->name }}' == 'Start') {
                 var new_node = `@include('workflows::layouts.task_node_html', [
                     'elementName' => $task->name,
@@ -623,7 +623,7 @@
         //     });
         // }
         // function loadSettings(type, element_id = 0, element) {
-        var ajaxRequest = null;
+
         //     console.log(type, element_id, element);
         //     if (element_id == 0) {
         //         var div = $(element);
@@ -634,7 +634,7 @@
         //         }
         //         element_id = div.attr('data-' + type + '_id');
         //     }
-        //    $.ajax({
+        //     $.ajax({
         //         type: "POST",
         //         url: "{{ route('workflow.getElementSettings', ['workflow' => $workflow]) }}",
         //         data: {
@@ -648,6 +648,8 @@
         //         }
         //     });
         // }
+
+        var ajaxRequest = null;
         $(document).on('click', '.settings-button', function() {
             var type = $(this).data('type');
             var elementid = $(this).data('element-id');
@@ -674,7 +676,7 @@
                     $('#settings-container').fadeIn();
                 }
             });
-        })
+        });
 
         function loadContitions(type, element_id = 0, element) {
             if (element_id == 0) {
