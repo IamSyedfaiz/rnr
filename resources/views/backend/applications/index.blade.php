@@ -55,13 +55,11 @@
                             <th scope="col">Status</th>
                             <th scope="col">Created At</th>
                             <th scope="col">Updated At</th>
-                            {{-- <th scope="col">Updated At</th> --}}
                             <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($applications as $item)
-                            {{-- {{ dd($item) }} --}}
                             <tr>
                                 <td>
                                     <a href="{{ route('application.edit', $item->id) }}"> {{ $item->name }}</a>
@@ -74,15 +72,6 @@
                                         In-Active
                                     @endif
                                 </td>
-                                {{-- @php
-                                    if ($item->updated_by) {
-                                        $user = App\Models\User::find($item->updated_by);
-                                        $username = $user->name;
-                                    } else {
-                                        $username = 'none';
-                                    }
-                                @endphp
-                                <td>{{ $username }}</td> --}}
                                 <td>{{ $item->created_at->toDateString() }}</td>
                                 <td>{{ $item->updated_at->toDateString() }}</td>
                                 <td class="d-flex justify-content-betweenx"><a class="btn btn-sm btn-primary"
