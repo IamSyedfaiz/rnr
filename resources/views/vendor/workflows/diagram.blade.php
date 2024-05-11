@@ -163,81 +163,83 @@
                         type: 'trigger'
                     }, new_node);
             @endforeach
+        @endif
 
-            function loadResourceIntelligence(element_id, type, value, field_name, element) {
+        function loadResourceIntelligence(element_id, type, value, field_name, element) {
 
-                var resource = $(element).val()
-                //var field_name = $(element).attr('name');
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('workflow.loadResourceIntelligence', ['workflow' => $workflow]) }}",
-                    dataType: 'json',
-                    data: {
-                        'resource': resource,
-                        'field_name': field_name,
-                        'value': value,
-                        'type': type,
-                        'element_id': element_id,
-                    },
-                    dataType: "json",
-                    success: function(answer) {
-                        // console.log(answer);
-                        // console.log('#' + answer.id);
-                        // console.log($('#' + answer.id).length);
-                        $('#' + answer.id).html(answer.html);
-                    }
-                });
-            }
+            var resource = $(element).val()
+            //var field_name = $(element).attr('name');
+            $.ajax({
+                type: "POST",
+                url: "{{ route('workflow.loadResourceIntelligence', ['workflow' => $workflow]) }}",
+                dataType: 'json',
+                data: {
+                    'resource': resource,
+                    'field_name': field_name,
+                    'value': value,
+                    'type': type,
+                    'element_id': element_id,
+                },
+                dataType: "json",
+                success: function(answer) {
+                    // console.log(answer);
+                    // console.log('#' + answer.id);
+                    // console.log($('#' + answer.id).length);
+                    $('#' + answer.id).html(answer.html);
+                }
+            });
+        }
 
-            function saveConditions(id, type) {
-                var data = $('#builder').queryBuilder('getRules');
-                // console.log(data);
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('workflow.changeConditions', ['workflow' => $workflow]) }}",
-                    dataType: 'text',
-                    data: {
-                        'data': data,
-                        'type': type,
-                        'id': id,
-                    },
-                    dataType: "json",
-                    success: function(answer) {
-                        // console.log(answer);
-                        //editor.editor_mode = 'edit';
-                        //changeMode('lock');
-                        //$('#' + answer.name + '_' + answer.id).modal('hide');
-                        closeConditions();
-                    }
-                });
-            }
+        function saveConditions(id, type) {
+            var data = $('#builder').queryBuilder('getRules');
+            // console.log(data);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('workflow.changeConditions', ['workflow' => $workflow]) }}",
+                dataType: 'text',
+                data: {
+                    'data': data,
+                    'type': type,
+                    'id': id,
+                },
+                dataType: "json",
+                success: function(answer) {
+                    // console.log(answer);
+                    //editor.editor_mode = 'edit';
+                    //changeMode('lock');
+                    //$('#' + answer.name + '_' + answer.id).modal('hide');
+                    closeConditions();
+                }
+            });
+        }
 
-            function saveFields(id, type) {
-                var data = {};
-                $('#settings-overlay').find('.form-control').each(function(index) {
-                    data[$(this).attr('name')] = $(this).val();
-                });
-                // console.log(data);
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('workflow.changeValues', ['workflow' => $workflow]) }}",
-                    dataType: 'text',
-                    data: {
-                        'data': data,
-                        'type': type,
-                        'id': id,
-                    },
-                    dataType: "json",
-                    success: function(answer) {
-                        // console.log(answer);
-                        //editor.editor_mode = 'edit';
-                        //changeMode('lock');
-                        //$('#' + answer.name + '_' + answer.id).modal('hide');
-                        closeSettings();
-                    }
-                });
+        function saveFields(id, type) {
+            var data = {};
+            $('#settings-overlay').find('.form-control').each(function(index) {
+                data[$(this).attr('name')] = $(this).val();
+            });
+            // console.log(data);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('workflow.changeValues', ['workflow' => $workflow]) }}",
+                dataType: 'text',
+                data: {
+                    'data': data,
+                    'type': type,
+                    'id': id,
+                },
+                dataType: "json",
+                success: function(answer) {
+                    // console.log(answer);
+                    //editor.editor_mode = 'edit';
+                    //changeMode('lock');
+                    //$('#' + answer.name + '_' + answer.id).modal('hide');
+                    closeSettings();
+                }
+            });
 
-            }
+        }
+        @if (@$workflow)
 
             @foreach ($workflow->tasks as $task)
                 @if (
@@ -263,450 +265,449 @@
                     }
                 @endif
             @endforeach
+        @endif
 
-
-            // Events!
-            editor.on('nodeCreated', function(node) {
-                // console.log('Data Typ: ' + node.data.type);
-                // console.log('Node Id: ' + node.id);
-                switch (node.data.type) {
-                    case 'task':
-                        $.ajax({
-                            type: "POST",
-                            url: "{{ route('workflow.addTask', ['workflow' => $workflow]) }}",
-                            data: node,
-                            dataType: "json",
-                            success: function(data) {
-                                // console.log('BE: Node ID: ' + data.node_id);
-                                // console.log('BE: Task ID: ' + data.task.id);
-                                editor.setData(data.node_id, 'task_id', data.task.id);
-                                $('#node-' + data.node_id).attr('data-task_id', data.task.id);
-                            }
-                        });
-                        break;
-                    case 'trigger':
-                        $.ajax({
-                            type: "POST",
-                            url: "{{ route('workflow.addTrigger', ['workflow' => $workflow]) }}",
-                            data: node,
-                            dataType: "json",
-                            success: function(data) {
-                                editor.setData(data.node_id, 'trigger_id', data.trigger.id);
-                                $('#node-' + data.node_id).attr('data-trigger_id', data.trigger.id);
-                            }
-                        });
-                        break;
-                }
-
-            })
-
-            editor.on('nodeBeforeRemoved', function(id) {
-                var node = editor.getNode(id);
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('workflow.removeTask', ['workflow' => $workflow]) }}",
-                    data: {
-                        node: node
-                    },
-                    dataType: "json",
-                    success: function(data) {
-                        // console.log(data);
-                    }
-                });
-
-            })
-
-            var nodeDragDelay = null;
-
-            function updateNodePosition(node) {
-                // console.log(node);
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('workflow.updateNodePosition', ['workflow' => $workflow]) }}",
-                    data: {
-                        node: node
-                    },
-                    dataType: "json",
-                    success: function(data) {
-                        // console.log(data);
-                    }
-                });
+        // Events!
+        editor.on('nodeCreated', function(node) {
+            // console.log('Data Typ: ' + node.data.type);
+            // console.log('Node Id: ' + node.id);
+            switch (node.data.type) {
+                case 'task':
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('workflow.addTask', ['workflow' => $workflow]) }}",
+                        data: node,
+                        dataType: "json",
+                        success: function(data) {
+                            // console.log('BE: Node ID: ' + data.node_id);
+                            // console.log('BE: Task ID: ' + data.task.id);
+                            editor.setData(data.node_id, 'task_id', data.task.id);
+                            $('#node-' + data.node_id).attr('data-task_id', data.task.id);
+                        }
+                    });
+                    break;
+                case 'trigger':
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('workflow.addTrigger', ['workflow' => $workflow]) }}",
+                        data: node,
+                        dataType: "json",
+                        success: function(data) {
+                            editor.setData(data.node_id, 'trigger_id', data.trigger.id);
+                            $('#node-' + data.node_id).attr('data-trigger_id', data.trigger.id);
+                        }
+                    });
+                    break;
             }
 
-            editor.on('nodeSelected', function(id) {
-                // console.log("Node selected " + id);
-            })
+        })
 
-            editor.on('nodeMoved', function(node) {
-                clearTimeout(nodeDragDelay);
-                // console.log(node, );
-                nodeDragDelay = setTimeout(updateNodePosition, 100, node);
+        editor.on('nodeBeforeRemoved', function(id) {
+            var node = editor.getNode(id);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('workflow.removeTask', ['workflow' => $workflow]) }}",
+                data: {
+                    node: node
+                },
+                dataType: "json",
+                success: function(data) {
+                    // console.log(data);
+                }
             });
 
-            editor.on('moduleCreated', function(name) {
-                // console.log("Module Created " + name);
-            })
+        })
 
-            editor.on('moduleChanged', function(name) {
-                // console.log("Module Changed " + name);
-            })
+        var nodeDragDelay = null;
 
-            editor.on('connectionCreated', function(connection) {
-                $inputNode = editor.getNode(connection.input_id);
-                $outputNode = editor.getNode(connection.ouput_id);
-                console.log(connection);
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('workflow.addConnection', ['workflow' => $workflow]) }}",
-                    data: {
-                        'parent_element': $outputNode,
-                        'child_element': $inputNode,
-                    },
-                    dataType: "json",
-                    success: function(data) {
-                        console.log(data);
-                    }
-                });
+        function updateNodePosition(node) {
+            // console.log(node);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('workflow.updateNodePosition', ['workflow' => $workflow]) }}",
+                data: {
+                    node: node
+                },
+                dataType: "json",
+                success: function(data) {
+                    // console.log(data);
+                }
+            });
+        }
 
-                // console.log('Connection created');
-                // console.log(connection);
-            })
+        editor.on('nodeSelected', function(id) {
+            // console.log("Node selected " + id);
+        })
 
-            editor.on('connectionRemoved', function(connection) {
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('workflow.removeConnection', ['workflow' => $workflow]) }}",
-                    data: connection,
-                    dataType: "json",
-                    success: function(data) {
-                        // console.log(data);
-                    }
-                });
-                // console.log('Connection removed');
-                // console.log(connection);
-            })
+        editor.on('nodeMoved', function(node) {
+            clearTimeout(nodeDragDelay);
+            // console.log(node, );
+            nodeDragDelay = setTimeout(updateNodePosition, 100, node);
+        });
 
-            editor.on('mouseMove', function(position) {})
+        editor.on('moduleCreated', function(name) {
+            // console.log("Module Created " + name);
+        })
 
-            editor.on('zoom', function(zoom) {
-                // console.log('Zoom level ' + zoom);
-            })
+        editor.on('moduleChanged', function(name) {
+            // console.log("Module Changed " + name);
+        })
 
-            editor.on('translate', function(position) {
-                //console.log('Translate x:' + position.x + ' y:' + position.y);
-            })
+        editor.on('connectionCreated', function(connection) {
+            $inputNode = editor.getNode(connection.input_id);
+            $outputNode = editor.getNode(connection.ouput_id);
+            console.log(connection);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('workflow.addConnection', ['workflow' => $workflow]) }}",
+                data: {
+                    'parent_element': $outputNode,
+                    'child_element': $inputNode,
+                },
+                dataType: "json",
+                success: function(data) {
+                    console.log(data);
+                }
+            });
 
-            /* DRAG EVENT */
+            // console.log('Connection created');
+            // console.log(connection);
+        })
 
-            /* Mouse and Touch Actions */
+        editor.on('connectionRemoved', function(connection) {
+            $.ajax({
+                type: "POST",
+                url: "{{ route('workflow.removeConnection', ['workflow' => $workflow]) }}",
+                data: connection,
+                dataType: "json",
+                success: function(data) {
+                    // console.log(data);
+                }
+            });
+            // console.log('Connection removed');
+            // console.log(connection);
+        })
 
-            var elements = document.getElementsByClassName('drag-drawflow');
-            for (var i = 0; i < elements.length; i++) {
-                elements[i].addEventListener('touchend', drop, false);
-                elements[i].addEventListener('touchmove', positionMobile, false);
-                elements[i].addEventListener('touchstart', drag, false);
+        editor.on('mouseMove', function(position) {})
+
+        editor.on('zoom', function(zoom) {
+            // console.log('Zoom level ' + zoom);
+        })
+
+        editor.on('translate', function(position) {
+            //console.log('Translate x:' + position.x + ' y:' + position.y);
+        })
+
+        /* DRAG EVENT */
+
+        /* Mouse and Touch Actions */
+
+        var elements = document.getElementsByClassName('drag-drawflow');
+        for (var i = 0; i < elements.length; i++) {
+            elements[i].addEventListener('touchend', drop, false);
+            elements[i].addEventListener('touchmove', positionMobile, false);
+            elements[i].addEventListener('touchstart', drag, false);
+        }
+
+        var mobile_item_selec = '';
+        var mobile_last_move = null;
+
+        function positionMobile(ev) {
+            mobile_last_move = event;
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            // console.log(ev.dataTransfer);
+            if (ev.type === "touchstart") {
+                mobile_item_selec = ev.target.closest(".drag-drawflow").getAttribute('data-node');
+                // console.log(mobile_item_selec, 'prateek');
+            } else {
+                // console.log('elsepart', ev.target.getAttribute('data-node'));
+                ev.dataTransfer.setData("node", ev.target.getAttribute('data-node'));
             }
+        }
 
-            var mobile_item_selec = '';
-            var mobile_last_move = null;
-
-            function positionMobile(ev) {
-                mobile_last_move = event;
-            }
-
-            function allowDrop(ev) {
+        function drop(ev) {
+            if (ev.type === "touchend") {
+                // console.log('touchend');
+                var parentdrawflow = document.elementFromPoint(mobile_last_move.touches[0].clientX, mobile_last_move
+                    .touches[0].clientY).closest("#drawflow");
+                if (parentdrawflow != null) {
+                    addNodeToDrawFlow(mobile_item_selec, mobile_last_move.touches[0].clientX, mobile_last_move.touches[
+                            0]
+                        .clientY);
+                }
+                mobile_item_selec = '';
+            } else {
                 ev.preventDefault();
+                var data = ev.dataTransfer.getData("node");
+                addNodeToDrawFlow(data, ev.clientX, ev.clientY);
             }
 
-            function drag(ev) {
-                // console.log(ev.dataTransfer);
-                if (ev.type === "touchstart") {
-                    mobile_item_selec = ev.target.closest(".drag-drawflow").getAttribute('data-node');
-                    // console.log(mobile_item_selec, 'prateek');
-                } else {
-                    // console.log('elsepart', ev.target.getAttribute('data-node'));
-                    ev.dataTransfer.setData("node", ev.target.getAttribute('data-node'));
-                }
+        }
+
+        function addNodeToDrawFlow(name, pos_x, pos_y) {
+
+            if (editor.editor_mode === 'fixed') {
+                return false;
             }
-
-            function drop(ev) {
-                if (ev.type === "touchend") {
-                    // console.log('touchend');
-                    var parentdrawflow = document.elementFromPoint(mobile_last_move.touches[0].clientX, mobile_last_move
-                        .touches[0].clientY).closest("#drawflow");
-                    if (parentdrawflow != null) {
-                        addNodeToDrawFlow(mobile_item_selec, mobile_last_move.touches[0].clientX, mobile_last_move.touches[
-                                0]
-                            .clientY);
-                    }
-                    mobile_item_selec = '';
-                } else {
-                    ev.preventDefault();
-                    var data = ev.dataTransfer.getData("node");
-                    addNodeToDrawFlow(data, ev.clientX, ev.clientY);
-                }
-
-            }
-
-            function addNodeToDrawFlow(name, pos_x, pos_y) {
-
-                if (editor.editor_mode === 'fixed') {
-                    return false;
-                }
-                pos_x = pos_x * (editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)) - (editor
-                    .precanvas.getBoundingClientRect().x * (editor.precanvas.clientWidth / (editor.precanvas
-                        .clientWidth *
-                        editor.zoom)));
-                pos_y = pos_y * (editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)) - (editor
-                    .precanvas.getBoundingClientRect().y * (editor.precanvas.clientHeight / (editor.precanvas
-                        .clientHeight *
-                        editor.zoom)));
+            pos_x = pos_x * (editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)) - (editor
+                .precanvas.getBoundingClientRect().x * (editor.precanvas.clientWidth / (editor.precanvas
+                    .clientWidth *
+                    editor.zoom)));
+            pos_y = pos_y * (editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)) - (editor
+                .precanvas.getBoundingClientRect().y * (editor.precanvas.clientHeight / (editor.precanvas
+                    .clientHeight *
+                    editor.zoom)));
 
 
-                switch (name) {
-                    @foreach (config('workflows.tasks') as $taskName => $taskClass)
+            switch (name) {
+                @foreach (config('workflows.tasks') as $taskName => $taskClass)
 
-                        case '{{ $taskName }}':
-                        // console.log();
-                        if ('{{ $taskName }}' == 'Stop') {
-                            var {{ $taskName }}_new_node = `@include('workflows::layouts.task_node_html', [
-                                'elementName' => $taskName,
-                                'fields' => $taskClass::$fields,
-                                'type' => 'task',
-                                'icon' => $taskClass::$icon,
-                            ])`;
-                            editor.addNode(0, '{{ $taskName }}', 1, 0, pos_x, pos_y, '{{ $taskName }}', {
-                                type: 'task'
-                            }, {{ $taskName }}_new_node);
-                            break;
-                        } else if ('{{ $taskName }}' == 'Start') {
-                            var {{ $taskName }}_new_node = `@include('workflows::layouts.task_node_html', [
-                                'elementName' => $taskName,
-                                'fields' => $taskClass::$fields,
-                                'type' => 'task',
-                                'icon' => $taskClass::$icon,
-                            ])`;
-                            editor.addNode(0, '{{ $taskName }}', 0, 1, pos_x, pos_y, '{{ $taskName }}', {
-                                type: 'task'
-                            }, {{ $taskName }}_new_node);
-                            break;
-                        } else {
-                            var {{ $taskName }}_new_node = `@include('workflows::layouts.task_node_html', [
-                                'elementName' => $taskName,
-                                'fields' => $taskClass::$fields,
-                                'type' => 'task',
-                                'icon' => $taskClass::$icon,
-                            ])`;
-                            editor.addNode(0, '{{ $taskName }}', 1, 1, pos_x, pos_y, '{{ $taskName }}', {
-                                type: 'task'
-                            }, {{ $taskName }}_new_node);
-                            break;
-
-                        }
-                    @endforeach
-                    @foreach (config('workflows.triggers.types') as $triggerName => $triggerClass)
-                        case '{{ $triggerName }}':
+                    case '{{ $taskName }}':
+                    // console.log();
+                    if ('{{ $taskName }}' == 'Stop') {
                         var {{ $taskName }}_new_node = `@include('workflows::layouts.task_node_html', [
-                            'elementName' => $triggerName,
-                            'fields' => $triggerClass::$fields,
-                            'type' => 'trigger',
-                            'icon' => $triggerClass::$icon,
+                            'elementName' => $taskName,
+                            'fields' => $taskClass::$fields,
+                            'type' => 'task',
+                            'icon' => $taskClass::$icon,
                         ])`;
-                        editor.addNode(0, '{{ $triggerName }}', 1, 1, pos_x, pos_y, '{{ $triggerName }}', {
-                            type: 'trigger'
+                        editor.addNode(0, '{{ $taskName }}', 1, 0, pos_x, pos_y, '{{ $taskName }}', {
+                            type: 'task'
                         }, {{ $taskName }}_new_node);
                         break;
-                    @endforeach
-                    default:
-                }
-            }
+                    } else if ('{{ $taskName }}' == 'Start') {
+                        var {{ $taskName }}_new_node = `@include('workflows::layouts.task_node_html', [
+                            'elementName' => $taskName,
+                            'fields' => $taskClass::$fields,
+                            'type' => 'task',
+                            'icon' => $taskClass::$icon,
+                        ])`;
+                        editor.addNode(0, '{{ $taskName }}', 0, 1, pos_x, pos_y, '{{ $taskName }}', {
+                            type: 'task'
+                        }, {{ $taskName }}_new_node);
+                        break;
+                    } else {
+                        var {{ $taskName }}_new_node = `@include('workflows::layouts.task_node_html', [
+                            'elementName' => $taskName,
+                            'fields' => $taskClass::$fields,
+                            'type' => 'task',
+                            'icon' => $taskClass::$icon,
+                        ])`;
+                        editor.addNode(0, '{{ $taskName }}', 1, 1, pos_x, pos_y, '{{ $taskName }}', {
+                            type: 'task'
+                        }, {{ $taskName }}_new_node);
+                        break;
 
-            var transform = '';
-
-            function showpopup(e) {
-                e.target.closest(".drawflow-node").style.zIndex = "9999";
-                e.target.children[0].style.display = "block";
-                //document.getElementById("modalfix").style.display = "block";
-
-                //e.target.children[0].style.transform = 'translate('+translate.x+'px, '+translate.y+'px)';
-                transform = editor.precanvas.style.transform;
-                editor.precanvas.style.transform = '';
-                editor.precanvas.style.left = editor.canvas_x + 'px';
-                editor.precanvas.style.top = editor.canvas_y + 'px';
-                // console.log(transform);
-
-                //e.target.children[0].style.top  =  -editor.canvas_y - editor.container.offsetTop +'px';
-                //e.target.children[0].style.left  =  -editor.canvas_x  - editor.container.offsetLeft +'px';
-                editor.editor_mode = "fixed";
-
-            }
-
-            function closemodal(e) {
-                e.target.closest(".drawflow-node").style.zIndex = "2";
-                e.target.parentElement.parentElement.style.display = "none";
-                //document.getElementById("modalfix").style.display = "none";
-                editor.precanvas.style.transform = transform;
-                editor.precanvas.style.left = '0px';
-                editor.precanvas.style.top = '0px';
-                editor.editor_mode = "edit";
-            }
-
-            function changeModule(event) {
-                var all = document.querySelectorAll(".menu ul li");
-                for (var i = 0; i < all.length; i++) {
-                    all[i].classList.remove('selected');
-                }
-                event.target.classList.add('selected');
-            }
-
-            function changeMode(option) {
-
-                //console.log(lock.id);
-                if (option == 'lock') {
-                    lock.style.display = 'none';
-                    unlock.style.display = 'block';
-                } else {
-                    lock.style.display = 'block';
-                    unlock.style.display = 'none';
-                }
-
-            }
-
-            function closeSettings() {
-                $('#settings-container').html('');
-                $('#settings-container').fadeOut();
-                // location.reload();
-            }
-
-            function closeConditions() {
-                $('#conditions-container').html('');
-                $('#conditions-container').fadeOut();
-            }
-
-            function loadLogs() {
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('workflow.getLogs', ['workflow' => $workflow]) }}",
-                    data: {},
-                    dataType: "text",
-                    success: function(data) {
-                        console.log(data);
-                        $('#settings-container').html(data);
-                        $('#settings-container').fadeIn();
                     }
-                });
+                @endforeach
+                @foreach (config('workflows.triggers.types') as $triggerName => $triggerClass)
+                    case '{{ $triggerName }}':
+                    var {{ $taskName }}_new_node = `@include('workflows::layouts.task_node_html', [
+                        'elementName' => $triggerName,
+                        'fields' => $triggerClass::$fields,
+                        'type' => 'trigger',
+                        'icon' => $triggerClass::$icon,
+                    ])`;
+                    editor.addNode(0, '{{ $triggerName }}', 1, 1, pos_x, pos_y, '{{ $triggerName }}', {
+                        type: 'trigger'
+                    }, {{ $taskName }}_new_node);
+                    break;
+                @endforeach
+                default:
+            }
+        }
+
+        var transform = '';
+
+        function showpopup(e) {
+            e.target.closest(".drawflow-node").style.zIndex = "9999";
+            e.target.children[0].style.display = "block";
+            //document.getElementById("modalfix").style.display = "block";
+
+            //e.target.children[0].style.transform = 'translate('+translate.x+'px, '+translate.y+'px)';
+            transform = editor.precanvas.style.transform;
+            editor.precanvas.style.transform = '';
+            editor.precanvas.style.left = editor.canvas_x + 'px';
+            editor.precanvas.style.top = editor.canvas_y + 'px';
+            // console.log(transform);
+
+            //e.target.children[0].style.top  =  -editor.canvas_y - editor.container.offsetTop +'px';
+            //e.target.children[0].style.left  =  -editor.canvas_x  - editor.container.offsetLeft +'px';
+            editor.editor_mode = "fixed";
+
+        }
+
+        function closemodal(e) {
+            e.target.closest(".drawflow-node").style.zIndex = "2";
+            e.target.parentElement.parentElement.style.display = "none";
+            //document.getElementById("modalfix").style.display = "none";
+            editor.precanvas.style.transform = transform;
+            editor.precanvas.style.left = '0px';
+            editor.precanvas.style.top = '0px';
+            editor.editor_mode = "edit";
+        }
+
+        function changeModule(event) {
+            var all = document.querySelectorAll(".menu ul li");
+            for (var i = 0; i < all.length; i++) {
+                all[i].classList.remove('selected');
+            }
+            event.target.classList.add('selected');
+        }
+
+        function changeMode(option) {
+
+            //console.log(lock.id);
+            if (option == 'lock') {
+                lock.style.display = 'none';
+                unlock.style.display = 'block';
+            } else {
+                lock.style.display = 'block';
+                unlock.style.display = 'none';
             }
 
-            // function loadSettings(type, element_id = 0, element) {
+        }
 
-            //     console.log(type, element_id, element);
-            //     if (element_id == 0) {
-            //         var div = $(element);
-            //         var count = 0;
-            //         while (div.attr('data-type') != type && count < 30) {
-            //             div = div.parent();
-            //             count++;
-            //         }
-            //         element_id = div.attr('data-' + type + '_id');
-            //     }
+        function closeSettings() {
+            $('#settings-container').html('');
+            $('#settings-container').fadeOut();
+            // location.reload();
+        }
 
-            //     // console.log($workflow);
-            //     $.ajax({
-            //         type: "POST",
-            //         url: "{{ route('workflow.getElementSettings', ['workflow' => $workflow]) }}",
-            //         data: {
-            //             type: type,
-            //             element_id: element_id,
-            //         },
-            //         dataType: "text",
-            //         success: function(data) {
-            //             $('#settings-container').html(data);
-            //             $('#settings-container').fadeIn();
-            //         }
-            //     });
-            // }
-            // function loadSettings(type, element_id = 0, element) {
+        function closeConditions() {
+            $('#conditions-container').html('');
+            $('#conditions-container').fadeOut();
+        }
 
-            //     console.log(type, element_id, element);
-            //     if (element_id == 0) {
-            //         var div = $(element);
-            //         var count = 0;
-            //         while (div.attr('data-type') != type && count < 30) {
-            //             div = div.parent();
-            //             count++;
-            //         }
-            //         element_id = div.attr('data-' + type + '_id');
-            //     }
-            //     $.ajax({
-            //         type: "POST",
-            //         url: "{{ route('workflow.getElementSettings', ['workflow' => $workflow]) }}",
-            //         data: {
-            //             type: type,
-            //             element_id: element_id,
-            //         },
-            //         dataType: "text",
-            //         success: function(data) {
-            //             $('#settings-container').html(data);
-            //             $('#settings-container').fadeIn();
-            //         }
-            //     });
-            // }
-
-            var ajaxRequest = null;
-            $(document).on('click', '.settings-button', function() {
-                var type = $(this).data('type');
-                var elementid = $(this).data('element-id');
-                // alert(type);
-                // alert(elementid);
-                ajaxRequest = $.ajax({
-                    type: "POST",
-                    url: "{{ route('workflow.getElementSettings', ['workflow' => $workflow]) }}",
-                    data: {
-                        type: type,
-                        element_id: elementid,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    dataType: "text",
-
-                    beforeSend: function() {
-                        if (ajaxRequest !== null) {
-                            ajaxRequest.abort();
-                        }
-                    },
-                    success: function(data) {
-                        console.log("Before Send:", ajaxRequest);
-                        $('#settings-container').html(data);
-                        $('#settings-container').fadeIn();
-                    }
-                });
+        function loadLogs() {
+            $.ajax({
+                type: "POST",
+                url: "{{ route('workflow.getLogs', ['workflow' => $workflow]) }}",
+                data: {},
+                dataType: "text",
+                success: function(data) {
+                    console.log(data);
+                    $('#settings-container').html(data);
+                    $('#settings-container').fadeIn();
+                }
             });
+        }
 
-            function loadContitions(type, element_id = 0, element) {
-                if (element_id == 0) {
-                    var div = $(element);
-                    var count = 0;
-                    while (div.attr('data-type') != type && count < 30) {
-                        div = div.parent();
-                        count++;
+        // function loadSettings(type, element_id = 0, element) {
+
+        //     console.log(type, element_id, element);
+        //     if (element_id == 0) {
+        //         var div = $(element);
+        //         var count = 0;
+        //         while (div.attr('data-type') != type && count < 30) {
+        //             div = div.parent();
+        //             count++;
+        //         }
+        //         element_id = div.attr('data-' + type + '_id');
+        //     }
+
+        //     // console.log($workflow);
+        //     $.ajax({
+        //         type: "POST",
+        //         url: "{{ route('workflow.getElementSettings', ['workflow' => $workflow]) }}",
+        //         data: {
+        //             type: type,
+        //             element_id: element_id,
+        //         },
+        //         dataType: "text",
+        //         success: function(data) {
+        //             $('#settings-container').html(data);
+        //             $('#settings-container').fadeIn();
+        //         }
+        //     });
+        // }
+        // function loadSettings(type, element_id = 0, element) {
+
+        //     console.log(type, element_id, element);
+        //     if (element_id == 0) {
+        //         var div = $(element);
+        //         var count = 0;
+        //         while (div.attr('data-type') != type && count < 30) {
+        //             div = div.parent();
+        //             count++;
+        //         }
+        //         element_id = div.attr('data-' + type + '_id');
+        //     }
+        //     $.ajax({
+        //         type: "POST",
+        //         url: "{{ route('workflow.getElementSettings', ['workflow' => $workflow]) }}",
+        //         data: {
+        //             type: type,
+        //             element_id: element_id,
+        //         },
+        //         dataType: "text",
+        //         success: function(data) {
+        //             $('#settings-container').html(data);
+        //             $('#settings-container').fadeIn();
+        //         }
+        //     });
+        // }
+
+        var ajaxRequest = null;
+        $(document).on('click', '.settings-button', function() {
+            var type = $(this).data('type');
+            var elementid = $(this).data('element-id');
+            // alert(type);
+            // alert(elementid);
+            ajaxRequest = $.ajax({
+                type: "POST",
+                url: "{{ route('workflow.getElementSettings', ['workflow' => $workflow]) }}",
+                data: {
+                    type: type,
+                    element_id: elementid,
+                    _token: '{{ csrf_token() }}'
+                },
+                dataType: "text",
+
+                beforeSend: function() {
+                    if (ajaxRequest !== null) {
+                        ajaxRequest.abort();
                     }
-                    element_id = div.attr('data-' + type + '_id');
+                },
+                success: function(data) {
+                    console.log("Before Send:", ajaxRequest);
+                    $('#settings-container').html(data);
+                    $('#settings-container').fadeIn();
                 }
-                $.ajax({
-                    type: "POST",
-                    url: "{{ route('workflow.getElementConditions', ['workflow' => $workflow]) }}",
-                    data: {
-                        type: type,
-                        element_id: element_id,
-                    },
-                    dataType: "text",
-                    success: function(data) {
-                        // console.log('test');
-                        $('#conditions-container').html(data);
-                        $('#conditions-container').fadeIn();
-                    }
-                });
+            });
+        });
+
+        function loadContitions(type, element_id = 0, element) {
+            if (element_id == 0) {
+                var div = $(element);
+                var count = 0;
+                while (div.attr('data-type') != type && count < 30) {
+                    div = div.parent();
+                    count++;
+                }
+                element_id = div.attr('data-' + type + '_id');
             }
-        @endif
+            $.ajax({
+                type: "POST",
+                url: "{{ route('workflow.getElementConditions', ['workflow' => $workflow]) }}",
+                data: {
+                    type: type,
+                    element_id: element_id,
+                },
+                dataType: "text",
+                success: function(data) {
+                    // console.log('test');
+                    $('#conditions-container').html(data);
+                    $('#conditions-container').fadeIn();
+                }
+            });
+        }
     </script>
 </body>
 
