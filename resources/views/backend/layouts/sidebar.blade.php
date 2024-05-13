@@ -134,66 +134,15 @@
                     </div>
                 </div>
             @else
-                {{-- @php
-                    $loggedinuser = auth()->id();
-                    // dd($userid);
-                    $application = App\Models\backend\Application::where('status', 1)
-                        // ->latest()
-                        ->get();
-
-                    $userapplication = [];
-                    $userid = [];
-                    logger($application[0]->rolestable()->get());
-                    // logger($application);
-                    logger($loggedinuser);
-
-                    for ($i = 0; $i < count($application); $i++) {
-                        # code...
-                        if ($application[$i]->rolestable()->get() != 'null' && $application[$i]->rolestable()->get() != null) {
-                            $rolestablearray = $application[$i]->rolestable()->get();
-
-                            for ($k = 0; $k < count($rolestablearray); $k++) {
-                                if ($rolestablearray[$k]->group_list != 'null') {
-                                    # code...
-                                    array_push($userid, Helper::findusers($rolestablearray[$k]->group_list));
-                                }
-                                // dd(json_decode($rolestablearray[0]->user_list));
-                                if ($rolestablearray[$k]->user_list != 'null') {
-                                    # code...
-                                    array_push($userid, json_decode($rolestablearray[$k]->user_list));
-                                }
-                            }
-
-                            $useridfound = 'false';
-                            // dd(in_array(auth()->id(), $userid[2]));
-                            for ($j = 0; $j < count($userid); $j++) {
-                                if (in_array(auth()->id(), $userid[$j])) {
-                                    $useridfound = 'true';
-                                }
-                            }
-                            // dd($useridfound);
-
-                            if ($useridfound == 'true') {
-                                array_push($userapplication, $application[$i]);
-                            }
-                        }
-                    }
-
-
-                @endphp --}}
                 @php
                     $roles = App\Models\backend\Role::all();
                     $allApplicationsIds = [];
                     foreach ($roles as $role) {
                         $userIdsJson = $role->user_list;
                         $userIdsArray = json_decode($userIdsJson, true);
-                        // logger('userIdsArray');
-                        // logger($userIdsArray);
 
                         $groupsIdsJson = $role->group_list;
                         $groupsIdsArray = Helper::findusers($role->group_list);
-                        // logger('groupsIds');
-                        // logger($groupsIdsArray);
                         $mergedIdsArray = [];
 
                         if ($userIdsArray !== null) {
@@ -203,39 +152,50 @@
                         if ($groupsIdsArray !== null) {
                             $mergedIdsArray = array_merge($mergedIdsArray, $groupsIdsArray);
                         }
+                        if ($role->application_id) {
+                            $applicationsIdsJson = $role->application_id;
+                            $applicationsIdsArray = json_decode($applicationsIdsJson, true);
+                            $useridfound = false;
+                            if (in_array(auth()->id(), $mergedIdsArray)) {
+                                $useridfound = true;
+                            }
 
-                        // logger('mergedIdsArray');
-                        // logger($mergedIdsArray);
-                        $applicationsIdsJson = $role->application_id;
-                        $applicationsIdsArray = json_decode($applicationsIdsJson, true);
-                        $useridfound = false;
-                        if (in_array(auth()->id(), $mergedIdsArray)) {
-                            $useridfound = true;
-                        }
-
-                        if ($useridfound) {
-                            $allApplicationsIds = array_merge($allApplicationsIds, $applicationsIdsArray);
+                            if ($useridfound) {
+                                $allApplicationsIds = array_merge($allApplicationsIds, $applicationsIdsArray);
+                            }
+                        } else {
+                            $applications = [];
                         }
                     }
-                    // logger($allApplicationsIds);
                     $uniqueApplicationsIds = array_unique($allApplicationsIds);
-                    $applications = App\Models\backend\Application::whereIn('id', $uniqueApplicationsIds)->get();
+                    if (!empty($uniqueApplicationsIds)) {
+                        $applications = App\Models\backend\Application::whereIn('id', $uniqueApplicationsIds)->get();
+                    } else {
+                        $applications = [];
+                    }
                     $loggedinuser = auth()->id();
                     $userapplication = [];
                     $userId = [];
-                    // logger($applications);
                 @endphp
 
                 <div class="nav-item dropdown">
-                    <a href="#" class="nav-item nav-link dropdown-toggle" data-bs-toggle="dropdown"><i
-                            class="fa fa-tasks me-2"></i>Applications</a>
+                    <a href="#" class="nav-item nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa fa-tasks me-2"></i>Applications</a>
                     <div class="dropdown-menu bg-transparent border-0">
-                        {{-- <a href="{{ route('user-application.index') }}" class="dropdown-item">View All</a> --}}
-                        {{-- <a href="{{ route('application.create') }}" class="dropdown-item">New</a> --}}
-                        @foreach ($applications as $item)
+                        {{-- @foreach ($applications as $item)
                             <a class="dropdown-item" href="{{ route('userapplication.list', $item->id) }}">
-                                {{ $item->name }}</a>
-                        @endforeach
+                                {{ $item->name }}
+                            </a>
+                        @endforeach --}}
+                        @if (count($applications) === 0)
+                            <a class="dropdown-item disabled" href="#">No applications</a>
+                        @else
+                            @foreach ($applications as $item)
+                                <a class="dropdown-item" href="{{ route('userapplication.list', $item->id) }}">
+                                    {{ $item->name }}
+                                </a>
+                            @endforeach
+                        @endif
                         {{-- @foreach ($userapplication as $item)
                             <a class="dropdown-item" href="{{ route('userapplication.list', $item->id) }}">
                                 {{ $item->name }}</a>
