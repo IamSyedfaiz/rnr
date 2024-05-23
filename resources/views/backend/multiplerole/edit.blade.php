@@ -266,11 +266,8 @@
 
                                         @foreach ($permissions as $permission)
                                             <td>
-                                                {{-- <input type="checkbox" id="" name="{{ $permission->name }}"
-                                                    value="1"> --}}
-                                                <input type="checkbox" id="{{ $application->id }}_{{ $permission->id }}"
-                                                    name="permissions[{{ $application->id }}][{{ $permission->id }}][value]"
-                                                    value="permissions[{{ $application->id }}][{{ $permission->id }}][value]">
+                                                <input type="checkbox" name="permission[{{ $application->id }}][]"
+                                                    value="{{ $permission->id }}" id="{{ $permission->id }}">
                                             </td>
                                         @endforeach
                                     </tr>
