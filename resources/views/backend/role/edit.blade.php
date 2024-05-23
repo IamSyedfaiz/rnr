@@ -430,9 +430,8 @@
                                                     @endphp
                                                     <input type="checkbox"
                                                         id="{{ $application->id }}_{{ $permission->id }}"
-                                                        name="permissions[{{ $application->id }}][{{ $permission->id }}][value]"
-                                                        value="permissions[{{ $application->id }}][{{ $permission->id }}][value]"
-                                                        {{ $isChecked ? 'checked' : '' }}>
+                                                        name="permissions[{{ $application->id }}][]"
+                                                        value="{{ $permission->id }}" {{ $isChecked ? 'checked' : '' }}>
 
                                                 </td>
                                             @endforeach

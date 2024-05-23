@@ -57,24 +57,18 @@ class RoleController extends Controller
             $data['user_list'] = json_encode($request->user_list);
             $data['group_list'] = json_encode($request->group_list);
             $data['user_id'] = $request->input('user_id');
-            // dd($data);
-            $permissions = $request->input('permissions');
+            $permissions = $request->input('permission');
+
             $role1 = Role::create($data);
-            // dd($role1);
             if ($permissions) {
 
                 $permissionsToInsert = [];
                 if ($role1) {
+                    foreach ($permissions as $key => $permission) {
+                        // dd($permission, $key);
 
-                    foreach ($permissions as $applicationId => $applicationPermissions) {
-                        foreach ($applicationPermissions as $permissionId => $permissionData) {
-                            $value = $permissionData['value'];
-                            preg_match('/\[(\d+)\]\[(\d+)\]/', $value, $matches);
-                            if (isset($matches[1]) && isset($matches[2])) {
-                                $extractedPermissionId = $matches[2];
-                                $role1->permissions()->attach($extractedPermissionId, ['application_id' => $applicationId]);
-                            }
-                        }
+                        $permissionIds = array_map('intval', $permission);
+                        $role1->permissions()->attach($permissionIds, ['application_id' => $key]);
                     }
                 } else {
                     return redirect()->back()->with('error', 'Role creation failed');
@@ -233,57 +227,13 @@ class RoleController extends Controller
                 }
                 $role->update($data);
 
-                $syncData = [];
-
-                // Get the permissions input from the request
                 $permissions = $request->input('permissions', []);
                 if ($permissions) {
-
-                    // Log the entire permissions array for debugging
-                    logger('Permissions Input:', ['permissions' => $permissions]);
-
-                    // Iterate over each application in the permissions input
-                    foreach ($permissions as $applicationId => $applicationPermissions) {
-                        // Log each application ID for debugging
-                        logger('Processing Application ID:', ['applicationId' => $applicationId]);
-
-                        // Iterate over permissions for the current application
-                        foreach ($applicationPermissions as $permissionId => $permissionData) {
-                            $value = $permissionData['value'];
-                            preg_match('/\[(\d+)\]\[(\d+)\]/', $value, $matches);
-
-                            if (isset($matches[1]) && isset($matches[2])) {
-                                $extractedPermissionId = $matches[2];
-                                // Append the permission data to the sync array
-                                $syncData[$applicationId][$extractedPermissionId] = ['application_id' => $applicationId];
-
-                                // Log each permission being processed for debugging
-                                logger('Processed Permission:', [
-                                    'extractedPermissionId' => $extractedPermissionId,
-                                    'applicationId' => $applicationId,
-                                ]);
-                            }
-                        }
+                    $role->permissions()->detach();
+                    foreach ($permissions as $key => $permission) {
+                        $role->permissions()->attach($permission, ['application_id' => $key]);
                     }
-
-                    // Flatten the sync data array
-                    $formattedSyncData = [];
-                    foreach ($syncData as $applicationId => $permissions) {
-                        foreach ($permissions as $permissionId => $data) {
-                            $formattedSyncData[$permissionId] = $data;
-                        }
-                    }
-
-                    // Log the formatted sync data for debugging
-                    logger('Formatted Sync Data:', ['formattedSyncData' => $formattedSyncData]);
-
-                    // Sync the permissions with the role
-                    $role->permissions()->sync($formattedSyncData);
-
-                    // Retrieve the permissions from the request
                 }
-
-
 
                 Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Role Edited by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Current Data -> ' . 'o' . ' Changed Data -> ' . 'o');
 
