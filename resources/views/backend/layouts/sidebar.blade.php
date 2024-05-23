@@ -179,13 +179,41 @@
                 @php
                     $user = Auth::user();
                     $userId = $user->id;
-                    $userRoles = App\Models\backend\Role::whereJsonContains('user_list', (string) $userId)
-                        ->with('permissions')
+                    // $userRoles = App\Models\backend\Role::whereJsonContains('user_list', (string) $userId)
+                    //     ->with('permissions')
+                    //     ->get();
+                    // $groupRoles = App\Models\backend\Group::whereJsonContains('userids', (string) $userId)->first();
+
+                    // $userRoles = App\Models\backend\Role::whereJsonContains('group_list', (string) $groupRoles->id)
+                    //     ->with('permissions')
+                    //     ->get();
+                    // Fetch roles directly assigned to the user
+                    $directRoles = App\Models\backend\Role::whereJsonContains('user_list', (string) $userId)
+                        ->with('permissions.applications')
                         ->get();
-                    // logger($userRoles);
+
+                    // Fetch groups the user belongs to
+                    $groupIds = App\Models\backend\Group::whereJsonContains('userids', (string) $userId)
+                        ->pluck('id')
+                        ->toArray();
+
+                    // Fetch roles associated with these groups
+                    $groupRoles = App\Models\backend\Role::where(function ($query) use ($groupIds) {
+                        foreach ($groupIds as $groupId) {
+                            $query->orWhereJsonContains('group_list', (string) $groupId);
+                        }
+                    })
+                        ->with('permissions.applications')
+                        ->get();
+
+                    // Combine both direct roles and group roles
+                    $allRoles = $directRoles->merge($groupRoles);
+
+                    logger($allRoles);
+                    // logger($groupRoles);
+                    // logger($userId);
                     $applications = [];
-                    foreach ($userRoles as $permission) {
-                        logger($permission);
+                    foreach ($allRoles as $permission) {
                         foreach ($permission->applications as $application) {
                             if (!isset($applications[$application->id])) {
                                 $applications[$application->id] = $application;

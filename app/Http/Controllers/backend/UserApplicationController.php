@@ -1496,12 +1496,6 @@ class UserApplicationController extends Controller
             $roles->each(function ($role) {
                 $role->permissions_list = $role->permissions->pluck('name')->implode(', ');
             });
-
-
-
-
-
-
             $dbfields = Field::where(['application_id' => $application->id, 'status' => 1])
                 ->orderBy('forder', 'ASC')
                 ->get();

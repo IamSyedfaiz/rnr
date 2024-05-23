@@ -232,66 +232,57 @@ class RoleController extends Controller
                     // dd($changearray);
                 }
                 $role->update($data);
-                // $permissions = $request->input('permissions');
-                // dd($permissions);
-
-                // $syncData = [];
-
-                // foreach ($permissions as $applicationId => $applicationPermissions) {
-                //     foreach ($applicationPermissions as $permissionId => $permissionData) {
-                //         $value = $permissionData['value'];
-                //         preg_match('/\[(\d+)\]\[(\d+)\]/', $value, $matches);
-
-                //         if (isset($matches[1]) && isset($matches[2])) {
-                //             $extractedPermissionId = $matches[2];
-                //             $syncData[$extractedPermissionId] = ['application_id' => $applicationId];
-                //         }
-                //     }
-                // }
-
-                // // Log the sync data for debugging
-                // logger('Sync Data:', $syncData);
-
-                // // Use sync to update the pivot table
-                // $role->permissions()->sync($syncData);
 
                 $syncData = [];
 
                 // Get the permissions input from the request
                 $permissions = $request->input('permissions', []);
+                if ($permissions) {
 
-                // Log the entire permissions array for debugging
-                logger('Permissions Input:', ['permissions' => $permissions]);
+                    // Log the entire permissions array for debugging
+                    logger('Permissions Input:', ['permissions' => $permissions]);
 
-                // Iterate over each application in the permissions input
-                foreach ($permissions as $applicationId => $applicationPermissions) {
-                    // Log each application ID for debugging
-                    logger('Processing Application ID:', ['applicationId' => $applicationId]);
+                    // Iterate over each application in the permissions input
+                    foreach ($permissions as $applicationId => $applicationPermissions) {
+                        // Log each application ID for debugging
+                        logger('Processing Application ID:', ['applicationId' => $applicationId]);
 
-                    // Iterate over permissions for the current application
-                    foreach ($applicationPermissions as $permissionId => $permissionData) {
-                        $value = $permissionData['value'];
-                        preg_match('/\[(\d+)\]\[(\d+)\]/', $value, $matches);
+                        // Iterate over permissions for the current application
+                        foreach ($applicationPermissions as $permissionId => $permissionData) {
+                            $value = $permissionData['value'];
+                            preg_match('/\[(\d+)\]\[(\d+)\]/', $value, $matches);
 
-                        if (isset($matches[1]) && isset($matches[2])) {
-                            $extractedPermissionId = $matches[2];
-                            // Store both the permission ID and the application ID
-                            $syncData[$extractedPermissionId] = ['application_id' => $applicationId];
+                            if (isset($matches[1]) && isset($matches[2])) {
+                                $extractedPermissionId = $matches[2];
+                                // Append the permission data to the sync array
+                                $syncData[$applicationId][$extractedPermissionId] = ['application_id' => $applicationId];
 
-                            // Log each permission being processed for debugging
-                            logger('Processed Permission:', [
-                                'extractedPermissionId' => $extractedPermissionId,
-                                'applicationId' => $applicationId,
-                            ]);
+                                // Log each permission being processed for debugging
+                                logger('Processed Permission:', [
+                                    'extractedPermissionId' => $extractedPermissionId,
+                                    'applicationId' => $applicationId,
+                                ]);
+                            }
                         }
                     }
+
+                    // Flatten the sync data array
+                    $formattedSyncData = [];
+                    foreach ($syncData as $applicationId => $permissions) {
+                        foreach ($permissions as $permissionId => $data) {
+                            $formattedSyncData[$permissionId] = $data;
+                        }
+                    }
+
+                    // Log the formatted sync data for debugging
+                    logger('Formatted Sync Data:', ['formattedSyncData' => $formattedSyncData]);
+
+                    // Sync the permissions with the role
+                    $role->permissions()->sync($formattedSyncData);
+
+                    // Retrieve the permissions from the request
                 }
 
-                // Log the sync data for debugging
-                logger('Sync Data:', ['syncData' => $syncData]);
-
-                // Sync the permissions with the role
-                $role->permissions()->sync($syncData);
 
 
                 Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Role Edited by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Current Data -> ' . 'o' . ' Changed Data -> ' . 'o');

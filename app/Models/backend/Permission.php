@@ -14,6 +14,7 @@ class Permission extends Model
     {
         return $this->belongsToMany(Role::class, 'role_permission')->withPivot('application_id');
     }
+
     public function applications()
     {
         return $this->belongsToMany(Application::class, 'role_permission', 'permission_id', 'application_id')->withPivot('role_id'); // Assuming role_id is a pivot column
