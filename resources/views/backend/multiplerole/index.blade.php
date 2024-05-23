@@ -16,11 +16,11 @@
                         <tr class="text-dark">
                             {{-- <th scope="col">Application Name</th> --}}
                             <th scope="col"> Name</th>
-                            <th scope="col">Import</th>
+                            {{-- <th scope="col">Import</th>
                             <th scope="col">Create</th>
                             <th scope="col">Read</th>
                             <th scope="col">Update</th>
-                            <th scope="col">Delete</th>
+                            <th scope="col">Delete</th> --}}
                             <th scope="col">Created By</th>
                             <th scope="col">Created At</th>
                             <th scope="col">Action</th>
@@ -33,7 +33,7 @@
                                     <a href="{{ route('role.edit', $item->id) }}">
                                         {{ $item->name }}</a>
                                 </td>
-                                <td>
+                                {{-- <td>
                                     @if ($item->import == 1)
                                         Active
                                     @else
@@ -70,7 +70,7 @@
                                     @else
                                         In-Active
                                     @endif
-                                </td>
+                                </td> --}}
                                 @php
                                     if ($item->updated_by) {
                                         $user = App\Models\User::find($item->updated_by);

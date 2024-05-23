@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\backend\Group;
+use App\Models\backend\Role;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -37,4 +39,19 @@ class User extends Authenticatable
     ];
 
     protected $guarded = [];
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class);
+    }
+
+    public function applications()
+    {
+        return $this->roles()->join('role_permission', 'roles.id', '=', 'role_permission.role_id')->join('applications', 'role_permission.application_id', '=', 'applications.id')->select('applications.*')->distinct();
+    }
 }

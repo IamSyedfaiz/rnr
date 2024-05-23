@@ -14,4 +14,17 @@ class Group extends Model
     // public function groupusers(){
     //     return $this->hasMany()
     // }
+    protected $casts = [
+        'userIds' => 'array',
+    ];
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
 }

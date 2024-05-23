@@ -14,15 +14,14 @@
         <div class="d-flex align-items-center ms-4 mb-4">
             {{-- <div class="position-relative">
                 <img class="rounded-circle" src="{{ asset('public/backend/dashmin/img/user.jpg') }}" alt=""
-                    style="width: 40px; height: 40px;">
-                <div
-                    class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1">
-                </div>
-            </div> --}}
+            style="width: 40px; height: 40px;">
+            <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1">
+            </div>
+        </div> --}}
             {{-- <div class="ms-3">
                 <h6 class="mb-0">{{ auth()->user()->name }}</h6>
-                <span>Admin</span>
-            </div> --}}
+        <span>Admin</span>
+</div> --}}
         </div>
         <div class="navbar-nav w-100">
             @if (auth()->user()->role == 'admin')
@@ -134,7 +133,7 @@
                     </div>
                 </div>
             @else
-                @php
+                {{-- @php
                     $roles = App\Models\backend\Role::all();
                     $allApplicationsIds = [];
                     foreach ($roles as $role) {
@@ -176,17 +175,29 @@
                     $loggedinuser = auth()->id();
                     $userapplication = [];
                     $userId = [];
+                @endphp --}}
+                @php
+                    $user = Auth::user();
+                    $userId = $user->id;
+                    $userRoles = App\Models\backend\Role::whereJsonContains('user_list', (string) $userId)
+                        ->with('permissions')
+                        ->get();
+                    // logger($userRoles);
+                    $applications = [];
+                    foreach ($userRoles as $permission) {
+                        logger($permission);
+                        foreach ($permission->applications as $application) {
+                            if (!isset($applications[$application->id])) {
+                                $applications[$application->id] = $application;
+                            }
+                        }
+                    }
                 @endphp
 
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-item nav-link dropdown-toggle" data-bs-toggle="dropdown">
                         <i class="fa fa-tasks me-2"></i>Applications</a>
                     <div class="dropdown-menu bg-transparent border-0">
-                        {{-- @foreach ($applications as $item)
-                            <a class="dropdown-item" href="{{ route('userapplication.list', $item->id) }}">
-                                {{ $item->name }}
-                            </a>
-                        @endforeach --}}
                         @if (count($applications) === 0)
                             <a class="dropdown-item disabled" href="#">No applications</a>
                         @else
@@ -196,10 +207,6 @@
                                 </a>
                             @endforeach
                         @endif
-                        {{-- @foreach ($userapplication as $item)
-                            <a class="dropdown-item" href="{{ route('userapplication.list', $item->id) }}">
-                                {{ $item->name }}</a>
-                        @endforeach --}}
 
                     </div>
                 </div>
@@ -209,8 +216,8 @@
                     <div class="dropdown-menu bg-transparent border-0">
                         <a href="{{ route('get.view') }}" class="dropdown-item">Reports Listing</a>
 
-                    </div>
-                </div> --}}
+</div>
+</div> --}}
             @endif
 
         </div>

@@ -31,4 +31,8 @@ class Application extends Model
     {
         return $this->hasOne(Workflow::class, 'application_id');
     }
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_permission')->withPivot('permission_id');
+    }
 }

@@ -70,11 +70,12 @@
                         <tr class="text-dark">
                             {{-- <th scope="col">Application Name</th> --}}
                             <th scope="col"> Name</th>
-                            <th scope="col">Import</th>
+                            {{-- <th scope="col">Import</th>
                             <th scope="col">Create</th>
                             <th scope="col">Read</th>
                             <th scope="col">Update</th>
-                            <th scope="col">Delete</th>
+                            <th scope="col">Delete</th> --}}
+                            <th scope="col">Groups</th>
                             <th scope="col">Created By</th>
                             <th scope="col">Created At</th>
                             <th scope="col">Action</th>
@@ -88,52 +89,22 @@
                                         {{ $item->name }}</a>
                                 </td>
                                 <td>
-                                    @if ($item->import == 1)
-                                        Active
-                                    @else
-                                        In-Active
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ($item->create == 1)
-                                        Active
-                                    @else
-                                        In-Active
-                                    @endif
-                                </td>
+                                    @php
+                                        // Decode the JSON group_list
+                                        $groupIds = json_decode($item->group_list);
+                                        // Fetch the group names
+                                        $groupNames = $groupIds
+                                            ? \App\Models\backend\Group::whereIn('id', $groupIds)->pluck('name')
+                                            : null;
+                                    @endphp
 
-                                <td>
-                                    @if ($item->read == 1)
-                                        Active
+                                    @if ($groupNames && $groupNames->isNotEmpty())
+                                        {{ $groupNames->implode(', ') }}
                                     @else
-                                        In-Active
+                                        No groups
                                     @endif
                                 </td>
-
-                                <td>
-                                    @if ($item->update == 1)
-                                        Active
-                                    @else
-                                        In-Active
-                                    @endif
-                                </td>
-
-                                <td>
-                                    @if ($item->delete == 1)
-                                        Active
-                                    @else
-                                        In-Active
-                                    @endif
-                                </td>
-                                @php
-                                    if ($item->updated_by) {
-                                        $user = App\Models\User::find($item->updated_by);
-                                        $username = $user->name;
-                                    } else {
-                                        $username = 'none';
-                                    }
-                                @endphp
-                                <td>{{ $username }}</td>
+                                <td>{{ $item->user->name }}</td>
                                 <td>{{ $item->updated_at->toDateString() }}</td>
                                 <td class="d-flex justify-content-betweenx">
                                     <a class="btn btn-sm btn-primary" href="{{ route('role.edit', $item->id) }}">Edit</a>
