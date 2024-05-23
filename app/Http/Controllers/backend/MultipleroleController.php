@@ -9,6 +9,7 @@ use App\Models\backend\Group;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use App\Models\backend\Application;
+use App\Models\backend\Permission;
 
 class MultipleroleController extends Controller
 {
@@ -36,7 +37,9 @@ class MultipleroleController extends Controller
         $users = User::where('status', 1)->latest()->get();
         $groups = Group::where('status', 1)->latest()->get();
         $applications = Application::where('status', 1)->latest()->get();
-        return view('backend.multiplerole.edit', compact('selectedgroups', 'selectedusers', 'selectedApplications', 'users', 'groups', 'applications'));
+        $permissions = Permission::all();
+
+        return view('backend.multiplerole.edit', compact('selectedgroups', 'selectedusers', 'selectedApplications', 'users', 'groups', 'applications', 'permissions'));
     }
 
     /**

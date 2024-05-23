@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\backend\Application;
 use App\Models\backend\Group;
+use App\Models\backend\Permission;
 use App\Models\backend\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
@@ -21,17 +22,13 @@ class RoleController extends Controller
     {
         try {
             //code...
-            $applications = Application::where('status', 1)
-                ->latest()
-                ->get();
+            $applications = Application::where('status', 1)->latest()->get();
             $roles = Role::all();
 
             return view('backend.role.index', compact('applications', 'roles'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -57,17 +54,43 @@ class RoleController extends Controller
             unset($data['_token']);
             unset($data['user_list']);
             unset($data['group_list']);
-
             $data['user_list'] = json_encode($request->user_list);
             $data['group_list'] = json_encode($request->group_list);
-            $data['application_id'] = json_encode($request->application_id);
-            // $application = Application::find($request->application_id);
-            // dd($application);
+            $data['user_id'] = $request->input('user_id');
+            // dd($data);
+            $permissions = $request->input('permissions');
             $role1 = Role::create($data);
+            // dd($role1);
+            if ($permissions) {
+
+                $permissionsToInsert = [];
+                if ($role1) {
+
+                    foreach ($permissions as $applicationId => $applicationPermissions) {
+                        foreach ($applicationPermissions as $permissionId => $permissionData) {
+                            $value = $permissionData['value'];
+                            preg_match('/\[(\d+)\]\[(\d+)\]/', $value, $matches);
+                            if (isset($matches[1]) && isset($matches[2])) {
+                                $extractedPermissionId = $matches[2];
+                                $role1->permissions()->attach($extractedPermissionId, ['application_id' => $applicationId]);
+                            }
+                        }
+                    }
+                } else {
+                    return redirect()->back()->with('error', 'Role creation failed');
+
+                }
+            } else {
+                return redirect()->back()->with('error', 'Please select permissions');
+
+            }
+
+
+
             Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Role Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname);
 
             return redirect()
-                ->route('role.edit', $role1->id)
+                ->route('role.index')
                 ->with('success', 'Successfully Roles Created.');
             if ($request->user_list == null && $request->group_list == null) {
                 # code...
@@ -75,9 +98,7 @@ class RoleController extends Controller
             }
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -103,20 +124,14 @@ class RoleController extends Controller
         try {
             //code...
             $role = Role::find($id);
+
             // dd($role);
             $application = Application::find($role->application_id);
-            if ($role != null) {
-                # code...
-                $applicationrole = $role;
-            } else {
-                # code...
-                $applicationrole = null;
-            }
 
             $selectedgroups = [];
 
             // dd($role->group_list);
-            if ($role != null && $role->group_list != 'null') {
+            if ($role != null && $role->group_list !== null && $role->group_list !== 'null') {
                 $groupids = json_decode($role->group_list);
                 # code...
                 // dd($groupids);
@@ -127,7 +142,6 @@ class RoleController extends Controller
                         array_push($selectedgroups, $group);
                     }
                 }
-
             }
 
             $selectedusers = [];
@@ -141,39 +155,28 @@ class RoleController extends Controller
                         array_push($selectedusers, $user);
                     }
                 }
-
             }
-            $selectedApplications = [];
-            if ($role != null && $role->user_list != null) {
-                $applicationIds = json_decode($role->application_id);
-                # code...
-                if ($applicationIds !== null) {
-                    for ($i = 0; $i < count($applicationIds); $i++) {
-                        # code...
-                        $user = Application::find($applicationIds[$i]);
-                        array_push($selectedApplications, $user);
-                    }
-                }
 
-            }
-            // dd($selectedusers);
+            $users = User::where('status', 1)->latest()->get();
+            $groups = Group::where('status', 1)->latest()->get();
+            $applications = Application::where('status', 1)->latest()->get();
+            $permissions = Permission::all();
+            // $existingPermissions = $role->permissions->pluck('id')->toArray();   
 
-            $users = User::where('status', 1)
-                ->latest()
-                ->get();
-            $groups = Group::where('status', 1)
-                ->latest()
-                ->get();
-            $applications = Application::where('status', 1)
-                ->latest()
-                ->get();
-
-            return view('backend.role.edit', compact('selectedgroups', 'selectedusers', 'applications', 'applicationrole', 'users', 'groups', 'selectedApplications'));
+            // Fetch existing permissions for the role with application_id and permission_id
+            $existingPermissions = \DB::table('role_permission')
+                ->where('role_id', $id)
+                ->select('application_id', 'permission_id')
+                ->get()
+                ->map(function ($item) {
+                    return (array) $item;
+                })
+                ->toArray();
+            // dd($permissions);
+            return view('backend.role.edit', compact('selectedgroups', 'selectedusers', 'applications', 'users', 'groups', 'permissions', 'role', 'existingPermissions'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -187,160 +190,21 @@ class RoleController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            //code...
-            // dd($request->all());
             $role = Role::find($id);
-            // $application = Application::find($request->application_id);
-
-            // dd($role);
             if ($role) {
-                # code...
                 $data = $request->all();
                 unset($data['_token']);
                 unset($data['_method']);
                 unset($data['user_list']);
                 unset($data['group_list']);
-
-                if (!$request->import) {
-                    # code...
-                    $data['import'] = 0;
-                }
-
-                if (!$request->create) {
-                    # code...
-                    $data['create'] = 0;
-                }
-
-                if (!$request->read) {
-                    # code...
-                    $data['read'] = 0;
-                }
-
-                if (!$request->update) {
-                    # code...
-                    $data['update'] = 0;
-                }
-
-                if (!$request->delete) {
-                    # code...
-                    $data['delete'] = 0;
-                }
-
                 if ($request->user_list) {
                     # code...
                     $data['user_list'] = json_encode($request->user_list);
                 }
-
                 if ($request->group_list) {
                     # code...
                     $data['group_list'] = json_encode($request->group_list);
                 }
-                // dd($data);
-                $changearray = [];
-                if ($role->import == 1) {
-                    # code...
-                    $currentimport = 'Active';
-                } else {
-                    # code...
-                    $currentimport = 'InActive';
-                }
-
-                if ($role->create == 1) {
-                    # code...
-                    $currentcreate = 'Active';
-                } else {
-                    # code...
-                    $currentcreate = 'InActive';
-                }
-
-                if ($role->read == 1) {
-                    # code...
-                    $currentread = 'Active';
-                } else {
-                    # code...
-                    $currentread = 'InActive';
-                }
-
-                if ($role->update == 1) {
-                    # code...
-                    $currentupdate = 'Active';
-                } else {
-                    # code...
-                    $currentupdate = 'InActive';
-                }
-
-                if ($role->delete == 1) {
-                    # code...
-                    $currentdelete = 'Active';
-                } else {
-                    # code...
-                    $currentdelete = 'InActive';
-                }
-
-                $currentarray = [
-                    'import' => $currentimport,
-                    'create' => $currentcreate,
-                    'read' => $currentread,
-                    'update' => $currentupdate,
-                    'delete' => $currentdelete,
-
-                ];
-
-                if ($role->import != $data['import']) {
-                    # code...
-                    if ($data['import'] == 1) {
-                        # code...
-                        $changearray['import'] = 'Active';
-                    } else {
-                        # code...
-                        $changearray['import'] = 'InActive';
-                    }
-                }
-
-                if ($role->create != $data['create']) {
-                    # code...
-                    if ($data['create'] == 1) {
-                        # code...
-                        $changearray['create'] = 'Active';
-                    } else {
-                        # code...
-                        $changearray['create'] = 'InActive';
-                    }
-                }
-
-                if ($role->read != $data['read']) {
-                    # code...
-                    if ($data['read'] == 1) {
-                        # code...
-                        $changearray['read'] = 'Active';
-                    } else {
-                        # code...
-                        $changearray['read'] = 'InActive';
-                    }
-                }
-
-                if ($role->update != $data['update']) {
-                    # code...
-                    if ($data['update'] == 1) {
-                        # code...
-                        $changearray['update'] = 'Active';
-                    } else {
-                        # code...
-                        $changearray['update'] = 'InActive';
-                    }
-                }
-
-                if ($role->delete != $data['delete']) {
-                    # code...
-                    if ($data['delete'] == 1) {
-                        # code...
-                        $changearray['delete'] = 'Active';
-                    } else {
-                        # code...
-                        $changearray['delete'] = 'InActive';
-                    }
-                }
-
                 if (isset($data['user_list']) && $role->user_list != $data['user_list']) {
                     # code...
                     // dd($data);
@@ -354,7 +218,6 @@ class RoleController extends Controller
                     $changearray['UsersChange'] = 'True';
                     // dd($changearray);
                 }
-
                 if (isset($data['group_list']) && $role->group_list != $data['group_list']) {
                     # code...
                     // dd($data);
@@ -368,57 +231,70 @@ class RoleController extends Controller
                     $changearray['GroupChange'] = 'True';
                     // dd($changearray);
                 }
-                if (isset($data['application_id']) && $role->application_id != $data['application_id']) {
-                    # code...
-                    // dd($data);
-                    $changearray['Applicationnames'] = [];
-                    for ($i = 0; $i < count($request->application_id); $i++) {
-                        # code...
-                        $u = Application::find($request->application_id[$i]);
-                        // dd($request->userids, $u);
-                        array_push($changearray['Applicationnames'], $u->name);
-                    }
-                    $changearray['ApplicationChange'] = 'True';
-                    // dd($changearray);
-                }
-                // dd($changearray);
-
                 $role->update($data);
-                Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Role Edited by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Current Data -> ' . json_encode($currentarray) . ' Changed Data -> ' . json_encode($changearray));
 
-                return redirect()
-                    ->back()
-                    ->with('success', 'Successfully Roles Updated.');
-            } else {
-                # code...
-                if ($request->user_list == null && $request->group_list == null) {
-                    # code...
-                    throw new \Exception('Select Atleast User or Group.');
-                } else {
-                    # code...
-                    $data = $request->all();
-                    unset($data['_token']);
-                    unset($data['_method']);
-                    unset($data['user_list']);
-                    unset($data['group_list']);
-                    unset($data['application_id']);
+                $syncData = [];
 
-                    $data['user_list'] = json_encode($request->user_list);
-                    $data['group_list'] = json_encode($request->group_list);
-                    $data['application_id'] = json_encode($request->application_id);
-                    Role::create($data);
-                    Log::channel('custom')->info('Userid ' . auth()->user()->custom_userid . ' , Role Edited by ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Application Name -> ' . $application->name);
+                // Get the permissions input from the request
+                $permissions = $request->input('permissions', []);
+                if ($permissions) {
 
-                    return redirect()
-                        ->route('role.index')
-                        ->with('success', 'Successfully Roles Created.');
+                    // Log the entire permissions array for debugging
+                    logger('Permissions Input:', ['permissions' => $permissions]);
+
+                    // Iterate over each application in the permissions input
+                    foreach ($permissions as $applicationId => $applicationPermissions) {
+                        // Log each application ID for debugging
+                        logger('Processing Application ID:', ['applicationId' => $applicationId]);
+
+                        // Iterate over permissions for the current application
+                        foreach ($applicationPermissions as $permissionId => $permissionData) {
+                            $value = $permissionData['value'];
+                            preg_match('/\[(\d+)\]\[(\d+)\]/', $value, $matches);
+
+                            if (isset($matches[1]) && isset($matches[2])) {
+                                $extractedPermissionId = $matches[2];
+                                // Append the permission data to the sync array
+                                $syncData[$applicationId][$extractedPermissionId] = ['application_id' => $applicationId];
+
+                                // Log each permission being processed for debugging
+                                logger('Processed Permission:', [
+                                    'extractedPermissionId' => $extractedPermissionId,
+                                    'applicationId' => $applicationId,
+                                ]);
+                            }
+                        }
+                    }
+
+                    // Flatten the sync data array
+                    $formattedSyncData = [];
+                    foreach ($syncData as $applicationId => $permissions) {
+                        foreach ($permissions as $permissionId => $data) {
+                            $formattedSyncData[$permissionId] = $data;
+                        }
+                    }
+
+                    // Log the formatted sync data for debugging
+                    logger('Formatted Sync Data:', ['formattedSyncData' => $formattedSyncData]);
+
+                    // Sync the permissions with the role
+                    $role->permissions()->sync($formattedSyncData);
+
+                    // Retrieve the permissions from the request
                 }
+
+
+
+                Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Role Edited by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Current Data -> ' . 'o' . ' Changed Data -> ' . 'o');
+
+                return redirect()->back()->with('success', 'Successfully Roles Updated.');
+            } else {
+                return redirect()->route('role.index')->with('error', 'not found');
+
             }
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -431,20 +307,19 @@ class RoleController extends Controller
     public function destroy($id)
     {
         try {
-            //code...
-            // dd($id);
             $role = Role::find($id);
+            if (!$role) {
+                return redirect()->back()->with('success', 'Role not found');
+            }
+            $role->permissions()->detach();
+            $role->delete();
             Log::channel('user')->info('Userid ' . auth()->user()->custom_userid . ' , Role Deleted by ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Role Name -> ' . $role->name);
-            Role::destroy($id);
-            return redirect()
-                ->back()
-                ->with('success', 'Successfully Deleted.');
+            // Role::destroy($id);
+            return redirect()->back()->with('success', 'Successfully Deleted.');
             // dd($audit);
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 }

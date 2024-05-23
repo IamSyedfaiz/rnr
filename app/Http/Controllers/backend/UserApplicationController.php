@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Traits\WorkflowTraits;
 use App\Models\backend\FilterCriteria;
 use App\Models\backend\Notification;
+use App\Models\backend\Permission;
 use App\Models\backend\Role;
 use App\Models\backend\UpdateContent;
 use Illuminate\Support\Facades\Cache;
@@ -120,7 +121,6 @@ class UserApplicationController extends Controller
     public function edit($id)
     {
         try {
-            //code...
             $application = Application::find($id);
             $users = User::latest()->get();
             $groups = Group::latest()->get();
@@ -1482,10 +1482,20 @@ class UserApplicationController extends Controller
         try {
             $forms = Formdata::where(['userid' => auth()->id(), 'application_id' => $id])->get();
             $application = Application::find($id);
-            $roles = Role::whereJsonContains('application_id', $id)->first();
-
-            // dd($roles);
+            // $application = Application::with(['roles.permissions'])->findOrFail($id);
             // $roles = $application->rolestable()->first();
+            $roles = Role::whereHas('permissions', function ($query) use ($id) {
+                $query->where('application_id', $id);
+            })->with([
+                        'permissions' => function ($query) use ($id) {
+                            $query->where('application_id', $id);
+                        }
+                    ])->get();
+
+            // Format the permissions into a string for each role
+            $roles->each(function ($role) {
+                $role->permissions_list = $role->permissions->pluck('name')->implode(', ');
+            });
             $dbfields = Field::where(['application_id' => $application->id, 'status' => 1])
                 ->orderBy('forder', 'ASC')
                 ->get();
@@ -1540,7 +1550,7 @@ class UserApplicationController extends Controller
             // dd($fields);
             // dd($application->rolestable()->get());
             // dd($forms, $fields, $index);
-            return view('backend.userapplication.applicationlist', compact('forms', 'index', 'id', 'application', 'roles', 'fields'));
+            return view('backend.userapplication.applicationlist', compact('forms', 'index', 'id', 'application', 'fields', 'roles'));
         } catch (\Exception $th) {
             //throw $th;
             //throw $th;
