@@ -344,18 +344,15 @@ class UserApplicationController extends Controller
                 logger('Application not found with ID: ' . $id);
                 return;
             }
+
             if ($application->workFlow && $application->workFlow->id) {
                 logger('Workflow ID found: ' . $application->workFlow->id);
                 $requestData = request()->all();
                 $requestData['application_id'] = $id;
                 // logger($requestData);
-
                 $this->triggerButtonShow($requestData, $application->workFlow->id);
 
                 $logData = Cache::get('data');
-                logger('tasks');
-                logger('tasksArray');
-                logger('yah hai');
                 logger($logData);
                 Cache::forget('data');
                 if (!in_array('UpdateContent', $logData)) {
@@ -943,7 +940,7 @@ class UserApplicationController extends Controller
         Cache::put('data', $existingTasks);
 
         $childrenTasksIds = [];
-        if ($parentTask->childrenName) {
+        if ($parentTask && !is_null($parentTask->childrenName)) {
             foreach ($parentTask->childrenName as $childTask) {
                 $childrenTasksIds[] = $childTask->id;
             }
