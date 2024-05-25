@@ -91,11 +91,23 @@
                                                 $data = json_decode($item->data, true);
                                             @endphp
 
-                                            @if (array_key_exists($fields[$k]->name, $data) && isset($data[$fields[$k]->name]))
+                                            {{-- @if (array_key_exists($fields[$k]->name, $data) && isset($data[$fields[$k]->name]))
                                                 @if (is_array($data[$fields[$k]->name]))
                                                     <td>Value List/ User Group List</td>
                                                 @else
                                                     <td>{{ $data[$fields[$k]->name] }}</td>
+                                                @endif
+                                            @else
+                                                <td>No Data</td>
+                                            @endif --}}
+                                            @php
+                                                $sanitizedFieldName = str_replace(' ', '_', $fields[$k]->name);
+                                            @endphp
+                                            @if (array_key_exists($sanitizedFieldName, $data) && isset($data[$sanitizedFieldName]))
+                                                @if (is_array($data[$sanitizedFieldName]))
+                                                    <td>Value List/ User Group List</td>
+                                                @else
+                                                    <td>{{ $data[$sanitizedFieldName] }}</td>
                                                 @endif
                                             @else
                                                 <td>No Data</td>
