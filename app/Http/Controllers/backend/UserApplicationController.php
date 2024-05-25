@@ -385,6 +385,7 @@ class UserApplicationController extends Controller
 
                         $validationRules[$field->name] = $rules;
                     }
+
                     $request->validate($validationRules);
 
                     foreach ($notifications as $notification) {
@@ -595,6 +596,7 @@ class UserApplicationController extends Controller
                     ->get();
                 $notifications = Notification::where('active', 'Y')->where('recurring', 'instantly')->where('application_id', $id)->get();
                 $validationRules = [];
+
                 foreach ($fieldDatas as $field) {
                     $rules = [];
 
@@ -615,9 +617,10 @@ class UserApplicationController extends Controller
                             }
                         }
                     }
-
-                    $validationRules[$field->name] = $rules;
+                    $sanitizedFieldName = str_replace(' ', '_', $field->name);
+                    $validationRules[$sanitizedFieldName] = $rules;
                 }
+
                 $request->validate($validationRules);
 
                 foreach ($notifications as $notification) {
