@@ -121,9 +121,9 @@
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
                                             class="form-label">{{ strtoupper($item->name) }}</label>
-                                        @if ($filledformdata[$item->name])
+                                        @if ($filledformdata[str_replace(' ', '_', $item->name)])
                                             <input type="number" class="form-control" name="{{ $item->name }}"
-                                                value="{{ $filledformdata[$item->name] }}"
+                                                value="{{ $filledformdata[str_replace(' ', '_', $item->name)] }}"
                                                 @if ($item->requiredfield == 1) required @endif>
                                         @else
                                             <input type="number" class="form-control" name="{{ $item->name }}"
@@ -137,9 +137,9 @@
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
                                             class="form-label">{{ strtoupper($item->name) }}</label>
-                                        @if (isset($filledformdata[$item->name]))
+                                        @if (isset($filledformdata[str_replace(' ', '_', $item->name)]))
                                             <input type="text" class="form-control" name="{{ $item->name }}"
-                                                value="{{ $filledformdata[$item->name] }}"
+                                                value="{{ $filledformdata[str_replace(' ', '_', $item->name)] }}"
                                                 @if ($item->requiredfield == 1) required @endif>
                                         @else
                                             <input type="text" class="form-control" name="{{ $item->name }}"
