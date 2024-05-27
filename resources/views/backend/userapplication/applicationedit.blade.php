@@ -41,9 +41,10 @@
                                         <label for="exampleInputEmail1"
                                             class="form-label">{{ strtoupper($item->name) }}</label>
                                         {{-- {{ dd($filledformdata, $item->name) }} --}}
-                                        @if (isset($filledformdata[$item->name]))
+                                        @if (isset($filledformdata[str_replace(' ', '_', $item->name)]))
                                             <input type="{{ $item->datetype }}" class="form-control"
-                                                name="{{ $item->name }}" value="{{ $filledformdata[$item->name] }}"
+                                                name="{{ $item->name }}"
+                                                value="{{ $filledformdata[str_replace(' ', '_', $item->name)] }}"
                                                 @if ($item->requiredfield == 1) required @endif>
                                         @else
                                             <input type="{{ $item->datetype }}" class="form-control"
@@ -59,8 +60,8 @@
                                         <label for="exampleInputEmail1"
                                             class="form-label">{{ strtoupper($item->name) }}</label>
 
-                                        @if (isset($filledformdata[$item->name]))
-                                            <a href="{{ asset('public/files/' . $filledformdata[$item->name]) }}"
+                                        @if (isset($filledformdata[str_replace(' ', '_', $item->name)]))
+                                            <a href="{{ asset('public/files/' . $filledformdata[str_replace(' ', '_', $item->name)]) }}"
                                                 target="_blank">(uploaded file)</a>
                                         @endif
                                         {{-- {{ dd($filledformdata, $item->name) }} --}}
@@ -80,8 +81,8 @@
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
                                             class="form-label">{{ strtoupper($item->name) }}</label>
-                                        @if (isset($filledformdata[$item->name]))
-                                            <a href="{{ asset('public/files/' . $filledformdata[$item->name]) }}"
+                                        @if (isset($filledformdata[str_replace(' ', '_', $item->name)]))
+                                            <a href="{{ asset('public/files/' . $filledformdata[str_replace(' ', '_', $item->name)]) }}"
                                                 target="_blank">(uploaded file)</a>
                                         @endif
 
@@ -101,11 +102,11 @@
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
                                             class="form-label">{{ strtoupper($item->name) }}</label>
-                                        @if (isset($filledformdata[$item->name]))
+                                        @if (isset($filledformdata[str_replace(' ', '_', $item->name)]))
                                             <input type="text" class="form-control" name="{{ $item->name }}"
                                                 minlength="7" maxlength="15" size="15"
                                                 pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"
-                                                value="{{ $filledformdata[$item->name] }}"
+                                                value="{{ $filledformdata[str_replace(' ', '_', $item->name)] }}"
                                                 @if ($item->requiredfield == 1) required @endif>
                                         @else
                                             <input type="text" class="form-control" name="{{ $item->name }}"
