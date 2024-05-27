@@ -15,7 +15,7 @@
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <h6 class="mb-4">Update Content</h6>
                             <button type="button" class="btn btn-danger">
-                                <a href="{{route('workflow.show', $application->id)}}" style="color:aliceblue">
+                                <a href="{{ route('workflow.show', $application->id) }}" style="color:aliceblue">
                                     <- back</a>
                             </button>
                         </div>
@@ -26,7 +26,7 @@
 
                             <div class="mb-3">
                                 <label for="exampleInputEmail1" class="form-label">Name</label>
-                                <input type="text" class="form-control" name="name" value="{{$content['name']}}">
+                                <input type="text" class="form-control" name="name" value="{{ $content['name'] }}">
 
                             </div>
 
@@ -35,7 +35,8 @@
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1" class="form-label">
                                             {{ strtoupper($item->name) }}</label>
-                                        <input type="date" class="form-control" name="{{ $item->name }}" value="{{$content[$item->name]}}">
+                                        <input type="date" class="form-control" name="{{ $item->name }}"
+                                            value="{{ $content[$item->name] }}">
 
                                     </div>
                                 @endif
@@ -43,7 +44,7 @@
                                 @if ($item->type == 'attachment')
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1" class="form-label">
-                                            {{$content->item->name}}
+                                            {{ $content->item->name }}
                                             {{ strtoupper($item->name) }}</label>
                                         <input type="file" class="form-control" name="{{ $item->name }}">
 
@@ -54,7 +55,7 @@
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1" class="form-label">
                                             {{ strtoupper($item->name) }}</label>
-                                        <input type="file" class="form-control" name="{{ $item->name }}" >
+                                        <input type="file" class="form-control" name="{{ $item->name }}">
 
                                     </div>
                                 @endif
@@ -63,11 +64,10 @@
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1" class="form-label">
                                             {{ strtoupper($item->name) }}</label>
-                                        <input type="text" class="form-control" name="{{ $item->name }}" minlength="7"
-                                            maxlength="15" size="15"
+                                        <input type="text" class="form-control" name="{{ $item->name }}"
+                                            minlength="7" maxlength="15" size="15"
                                             pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"
-                                            value="{{$content[$item->name]}}"
-                                         >
+                                            value="{{ $content[$item->name] }}">
 
                                     </div>
                                 @endif
@@ -76,17 +76,18 @@
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1" class="form-label">
                                             {{ strtoupper($item->name) }}</label>
-                                        <input type="number" class="form-control" name="{{ $item->name }}" value="{{$content[$item->name]}}">
+                                        <input type="number" class="form-control" name="{{ $item->name }}"
+                                            value="{{ $content[$item->name] }}">
 
                                     </div>
                                 @endif
 
                                 @if ($item->type == 'text')
-                             
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1" class="form-label">
                                             {{ strtoupper($item->name) }}</label>
-                                        <input type="text" class="form-control" name="{{ $item->name }}" value="{{$content[$item->name]}}">
+                                        <input type="text" class="form-control" name="{{ $item->name }}"
+                                            value="{{ $content[$item->name] }}">
 
                                     </div>
                                 @endif

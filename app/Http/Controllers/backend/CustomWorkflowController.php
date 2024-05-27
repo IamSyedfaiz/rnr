@@ -431,7 +431,6 @@ class CustomWorkflowController extends Controller
         $task = Task::where('workflow_id', $triggerId)->first();
         $parentTaskId = $task->parentableName->id ?? '';
 
-
         if ($parentTaskId) {
             $taskParent = Task::find($parentTaskId);
             if ($taskParent !== null && $taskParent->name == 'EvaluateContent') {
@@ -466,7 +465,6 @@ class CustomWorkflowController extends Controller
                 logger('=======');
                 logger('UpdateContent');
                 $this->triggerButtonChildren($taskParent->id);
-
             } elseif ($taskParent !== null && $taskParent->name == 'UserAction') {
                 logger('UpdateContent');
                 $this->triggerButtonChildren($taskParent->id);
@@ -474,7 +472,6 @@ class CustomWorkflowController extends Controller
                 return redirect()->back()->with('error', 'not found');
             }
         } else {
-
             if ($task !== null && $task->name == 'EvaluateContent') {
                 logger('=======');
                 logger('EvaluateContent');
@@ -492,7 +489,6 @@ class CustomWorkflowController extends Controller
                 logger($childrenTasksIds);
                 logger('childrenTasksNames');
                 logger($childrenTasksNames);
-
 
                 logger('getValue');
                 logger($getValue);
@@ -512,7 +508,6 @@ class CustomWorkflowController extends Controller
                 $this->TriggerUpdateContent($task->id);
 
                 $this->triggerButtonChildren($task->id);
-
             } elseif ($task !== null && $task->name == 'UserAction') {
                 logger('=======');
                 logger('UpdateContent');
@@ -556,7 +551,6 @@ class CustomWorkflowController extends Controller
         }
         // if (in_array('EvaluateContent', $childrenTasksNames)) {
         if ($tasks->name == 'EvaluateContent') {
-
             logger('=======');
             logger('EvaluateContent');
             // $getValue = $this->TriggerEvaluateContent($childrenTasksIds[0]);
@@ -571,20 +565,16 @@ class CustomWorkflowController extends Controller
             //     $this->triggerButtonChildren($childrenTasksIds[1]);
 
             // }
-
-
         }
         if (in_array('UpdateContent', $childrenTasksNames)) {
             logger('=======');
             logger('UpdateContent');
             $this->triggerButtonChildren($childrenTasksIds[0]);
-
         }
         if (in_array('UserAction', $childrenTasksNames)) {
             logger('=======');
             logger('UserAction');
             $this->triggerButtonChildren($childrenTasksIds[0]);
-
         }
         // logger('taskParent triggerButtonChildren');
         return redirect()->back()->with('success', 'Button Triggered a Workflow');
@@ -607,7 +597,6 @@ class CustomWorkflowController extends Controller
     public function evaluateContent(Request $request)
     {
         try {
-            // dd($request->all());
             $id = $request->input('id');
             $rules = [
                 'name' => 'nullable',
@@ -681,7 +670,6 @@ class CustomWorkflowController extends Controller
             //throw $th;
             return redirect()->back()->with('error', $th->getMessage());
         }
-
     }
     public function UpdateContentStore(Request $request)
     {
@@ -695,7 +683,29 @@ class CustomWorkflowController extends Controller
                 'name' => $request->name,
             ];
             $dataForJson = $request->except(['_token', 'application_id', 'workflow_id', 'task_id', 'name']);
-            $values['data'] = json_encode($dataForJson);
+
+            $newData = [$dataForJson['key'] => $dataForJson['value']];
+            $values['data'] = json_encode($newData);
+            $updateContent = UpdateContent::where('task_id', $request->task_id)->first();
+
+            if ($updateContent) {
+                // Decode existing JSON data
+                $existingData = json_decode($updateContent->data, true);
+
+                // Merge new data with existing data
+                $mergedData = array_merge($existingData, $newData);
+
+                // Encode merged data back to JSON
+                $values['data'] = json_encode($mergedData);
+
+                // Update the record with the new values
+                $updateContent->update($values);
+            } else {
+                // If no existing record, just create a new one with the new data
+                $values['data'] = json_encode($newData);
+                $updateContent = UpdateContent::create(array_merge($attributes, $values));
+            }
+            // dd($values);
             $updateContent = UpdateContent::updateOrCreate($attributes, $values);
 
             Log::channel('custom')->info('UpdateContent Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname);
@@ -704,7 +714,6 @@ class CustomWorkflowController extends Controller
             //throw $th;
             return redirect()->back()->with('error', $th->getMessage());
         }
-
     }
     public function TriggerSendMail($id)
     {
@@ -715,11 +724,14 @@ class CustomWorkflowController extends Controller
             $tasksGet = Task::find($id);
             logger($tasksGet);
 
-            if ($tasksGet->name == "SendNotification") {
+            if ($tasksGet->name == 'SendNotification') {
                 $triggerMail = TriggerMail::find($tasksGet->workflow_id);
                 logger('triggerMail mil gayi');
                 logger($triggerMail);
-                $notification = Notification::where('active', 'Y')->where('recurring', 'instantly')->where('id', $triggerMail->notification_id)->first();
+                $notification = Notification::where('active', 'Y')
+                    ->where('recurring', 'instantly')
+                    ->where('id', $triggerMail->notification_id)
+                    ->first();
                 logger('notification mil gayi');
                 logger($notification);
                 $selectedGroups = [];
@@ -804,7 +816,6 @@ class CustomWorkflowController extends Controller
             } else {
                 logger('go');
             }
-
 
             // $childrenTasksIds = [];
             // $childrenTasksNames = [];
@@ -946,7 +957,6 @@ class CustomWorkflowController extends Controller
             //         }
             //         logger('send mail');
 
-
             //         logger($triggerMail);
             //         logger($userGroups);
             //         logger($parsedData);
@@ -964,7 +974,6 @@ class CustomWorkflowController extends Controller
             //throw $th;
             return redirect()->back()->with('error', $th->getMessage());
         }
-
     }
     public function extractVariablesAndOperators($inputString)
     {
@@ -1097,9 +1106,6 @@ class CustomWorkflowController extends Controller
                 return false;
             }
 
-
-
-
             // $evaluateContent = EvaluateContent::where('task_id', $id)->first();
             // $operatorLogic = $evaluateContent->advanced_operator_logic;
             // $inputString = $evaluateContent->evaluateRules;
@@ -1185,12 +1191,9 @@ class CustomWorkflowController extends Controller
 
             //     }
             // }
-
-
         } catch (\Exception $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
-
     }
     public function TriggerUpdateContent($id)
     {

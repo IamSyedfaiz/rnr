@@ -11,15 +11,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <h6 class="mb-4">Field </h6>
-
                     </div>
-
-                    {{-- <div class="col-md-6 text-end">
-                        <button class="btn btn-primary">
-                            <a href="">
-                                <-return back</a> </button>
-                    </div> --}}
-
                 </div>
 
                 <form action="{{ route('field.store') }}" method="POST" enctype="multipart/form-data">
@@ -45,7 +37,7 @@
                             <option value="number">Numeric</option>
                             <option value="text">Text</option>
                             <option value="value_list">Value List</option>
-                            <option value="user_group_list">User Group List</option>
+                            {{-- <option value="user_group_list">User Group List</option> --}}
                         </select>
                     </div>
                     <div class="class mb-3 row">
