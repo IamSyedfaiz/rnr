@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\backend\Application;
 use App\Models\backend\Group;
 use App\Helpers\Helper;
+use App\Models\backend\Dashboard;
+use App\Models\backend\Report;
 
 class HomeController extends Controller
 {
@@ -26,8 +28,29 @@ class HomeController extends Controller
      */
     public function home()
     {
-        // dd('prateek');
-        return view('backend.home');
+        $dashboards = Dashboard::where('active', 'Y')->latest()->get();
+
+        // foreach ($dashboards as $dashboard) {
+        //     $reportIds = explode(',', $dashboard->report_id);
+        //     $reports = Report::whereIn('id', $reportIds)->get();
+        //     $dashboard->reports = $reports;
+        // }
+
+        // return view('backend.home', compact('dashboards'));
+        // Filter dashboards to exclude those without valid reports
+        $filteredDashboards = $dashboards->filter(function ($dashboard) {
+            if (is_null($dashboard->report_id)) {
+                return false;
+            }
+
+            $reportIds = explode(',', $dashboard->report_id);
+            $reports = Report::whereIn('id', $reportIds)->get();
+            $dashboard->reports = $reports;
+
+            return !$reports->isEmpty();
+        });
+
+        return view('backend.home', ['dashboards' => $filteredDashboards]);
     }
 
     public function index()

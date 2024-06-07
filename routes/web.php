@@ -15,6 +15,7 @@ use App\Http\Controllers\backend\NotificationController;
 use App\Http\Controllers\backend\AjaxController;
 use App\Http\Controllers\backend\LogController;
 use App\Http\Controllers\backend\CustomWorkflowController;
+use App\Http\Controllers\backend\DashboardController;
 use App\Http\Controllers\backend\IntegrationController;
 use App\Http\Controllers\backend\ReportController;
 
@@ -40,8 +41,8 @@ Auth::routes();
 //after complete backend
 Route::group(['middleware' => 'auth'], function () {
     //All the routes that belongs to the group goes here
-    Route::get('dashboard', function () {
-    });
+    // Route::get('dashboard', function () {
+    // });
 
     //backend ROutes
     Route::get('/home', [HomeController::class, 'home'])->name('backend.home');
@@ -52,6 +53,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('group', GroupController::class);
     Route::resource('field', FieldController::class);
     Route::resource('notifications', NotificationController::class);
+    Route::resource('dashboard', DashboardController::class);
+    Route::post('/get-report', [DashboardController::class, 'getReport'])->name('get.report');
     Route::get('notification/add', [NotificationController::class, 'addNotification'])->name('add.notification');
     Route::get('customedit/notifications/{id}', [NotificationController::class, 'custom_edit'])->name('notification.custom.edit');
     Route::get('filters/destroy/{id}', [NotificationController::class, 'filtersDestroy'])->name('filters.destroy');

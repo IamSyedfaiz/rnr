@@ -16,6 +16,7 @@
                         type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
                         Content
                     </button>
+
                 </div>
             </nav>
             <form action="{{ route('role.store') }}" class="form-horizontal" method="post">

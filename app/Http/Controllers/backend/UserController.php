@@ -25,9 +25,7 @@ class UserController extends Controller
             return view('backend.users.index', compact('users'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -63,7 +61,7 @@ class UserController extends Controller
             ];
 
             $custommessages = [
-                'mobile_no.regex' => "Please Check Mobile Number"
+                'mobile_no.regex' => 'Please Check Mobile Number',
             ];
 
             $this->validate($request, $rules, $custommessages);
@@ -79,22 +77,56 @@ class UserController extends Controller
                 $currentarray = json_encode($data);
                 $data['group_id'] = json_encode($request->group_id);
                 $data['password'] = Hash::make($request->password);
-                // dd($data);
                 $user = User::create($data);
+
+                if (isset($data['group_id'])) {
+                    $userId = $user->id;
+                    $targetGroupIds = $request->group_id;
+                    // dd($targetGroupIds);
+
+                    // Get all groups the user is currently a member of
+                    $currentGroups = Group::whereJsonContains('userids', $userId)->get();
+
+                    // Process each current group to remove the user if not in target groups
+                    foreach ($currentGroups as $group) {
+                        if (!in_array($group->id, $targetGroupIds)) {
+                            $userIds = json_decode($group->userids, true);
+                            $userIds = array_filter($userIds, function ($id) use ($userId) {
+                                return $id != $userId;
+                            });
+                            $group->userids = json_encode(array_values($userIds));
+                            $group->save();
+                        }
+                    }
+
+                    // Process each target group to add the user if not already a member
+                    foreach ($targetGroupIds as $groupId) {
+                        $group = Group::find($groupId);
+                        if ($group) {
+                            $userIds = json_decode($group->userids, true);
+                            if (!is_array($userIds)) {
+                                $userIds = [];
+                            }
+                            if (!in_array((string) $userId, $userIds)) {
+                                $userIds[] = (string) $userId;
+                                $group->userids = $userIds;
+                                $group->save();
+                            }
+                        }
+                    }
+                }
+                // dd($data);
+                // $user = User::create($data);
                 Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , User Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' User Name -> ' . $user->name . ' Data -> ' . $currentarray);
 
-                return redirect()
-                    ->route('users.index')
-                    ->with('success', 'User Created');
+                return redirect()->route('users.index')->with('success', 'User Created');
             } else {
                 # code...
                 throw new \Exception('Password Does Not Matched');
             }
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -136,7 +168,6 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            //code...
             // dd($request->all());
             $rules = [
                 'email' => 'required',
@@ -149,7 +180,7 @@ class UserController extends Controller
 
             $custommessages = [
                 // 'custom_userid' => 'User Id Is Already Exists.',
-                'password.confirmed' => 'Password Does Not Match'
+                'password.confirmed' => 'Password Does Not Match',
             ];
 
             $this->validate($request, $rules, $custommessages);
@@ -158,7 +189,7 @@ class UserController extends Controller
             unset($data['_token']);
             unset($data['password']);
             unset($data['password_confirmation']);
-            // dd($data);
+            // dd($id);
             if ($request->password) {
                 # code...
                 $data['password'] = Hash::make($request->password);
@@ -226,36 +257,141 @@ class UserController extends Controller
                 }
             }
 
+            // if (isset($data['group_id']) && $user->group_id != $data['group_id']) {
+            //     # code...
+            //     // dd($data);
+            //     $changearray['Groupnames'] = [];
+            //     for ($i = 0; $i < count($request->group_id); $i++) {
+            //         # code...
+            //         $u = Group::find($request->group_id[$i]);
+            //         // dd($id, $u);
+
+            //         if ($u) {
+            //             // Decode the userids JSON to an array
+            //             $userIds = json_decode($u->userids, true);
+
+            //             // Ensure $userIds is an array
+            //             if (!is_array($userIds)) {
+            //                 $userIds = [];
+            //             }
+
+            //             // Add the new user ID if it isn't already in the array
+            //             if (!in_array($id, $userIds)) {
+            //                 $userIds[] = $id;
+            //             }
+
+            //             // Encode the array back to JSON and save
+            //             $u->userids = json_encode($userIds);
+            //             $u->save();
+
+            //             // Debugging output
+            //             // dd($u);
+            //         } else {
+            //             // Handle the case where the group is not found
+            //             dd("Group with ID $id not found");
+            //         }
+            //         // dd($ud);
+
+            //         if (!$u) {
+            //             # code...
+            //             $changearray['Groupnames'] = null;
+            //         } else {
+            //             array_push($changearray['Groupnames'], $u->name);
+            //         }
+            //     }
+            //     $changearray['GroupChange'] = 'True';
+            //     // dd($changearray);
+            // } else {
+            //     $user->group_id = null;
+            //     $user->save();
+            // }
             if (isset($data['group_id']) && $user->group_id != $data['group_id']) {
-                # code...
-                // dd($data);
                 $changearray['Groupnames'] = [];
-                for ($i = 0; $i < count($request->group_id); $i++) {
-                    # code...
-                    $u = Group::find($request->group_id[$i]);
-                    // dd($request->userids, $u);
-                    if (!$u) {
-                        # code...
-                        $changearray['Groupnames'] = null;
-                    } else {
-                        array_push($changearray['Groupnames'], $u->name);
+
+                // Get user ID and target groups from the request
+                $userId = $id;
+                $targetGroupIds = $request->group_id;
+
+                // Get all groups the user is currently a member of
+                $currentGroups = Group::whereJsonContains('userids', $userId)->get();
+
+                // Process each current group to remove the user if not in target groups
+                foreach ($currentGroups as $group) {
+                    if (!in_array($group->id, $targetGroupIds)) {
+                        $userIds = json_decode($group->userids, true);
+                        $userIds = array_filter($userIds, function ($id) use ($userId) {
+                            return $id != $userId;
+                        });
+                        $group->userids = json_encode(array_values($userIds));
+                        $group->save();
+
+                        $changearray['Groupnames'][] = $group->name;
                     }
                 }
-                $changearray['GroupChange'] = 'True';
-                // dd($changearray);
-            }
 
+                // Process each target group to add the user if not already a member
+                foreach ($targetGroupIds as $groupId) {
+                    $group = Group::find($groupId);
+                    if ($group) {
+                        $userIds = json_decode($group->userids, true);
+                        if (!is_array($userIds)) {
+                            $userIds = [];
+                        }
+                        if (!in_array($userId, $userIds)) {
+                            $userIds[] = $userId;
+                            $group->userids = json_encode($userIds);
+                            $group->save();
+
+                            $changearray['Groupnames'][] = $group->name;
+                        }
+                    }
+                }
+
+                // If targetGroupIds is empty, set user's group_id to null and remove user from all groups
+                if (empty($targetGroupIds)) {
+                    // Set user's group_id to null
+                    $user->group_id = null;
+                    $user->save();
+
+                    // Remove user from all current groups
+                    foreach ($currentGroups as $group) {
+                        $userIds = json_decode($group->userids, true);
+                        $userIds = array_filter($userIds, function ($id) use ($userId) {
+                            return $id != $userId;
+                        });
+                        $group->userids = json_encode(array_values($userIds));
+                        $group->save();
+
+                        $changearray['Groupnames'][] = $group->name;
+                    }
+                }
+
+                $changearray['GroupChange'] = 'True';
+                // Debugging output
+                // dd($changearray);
+            } else {
+                // If the group_id has not changed, output the current group_id
+                $currentGroups = Group::whereJsonContains('userids', $id)->get();
+                foreach ($currentGroups as $group) {
+                    $userIds = json_decode($group->userids, true);
+                    $userIds = array_filter($userIds, function ($userId) use ($id) {
+                        return $userId != $id;
+                    });
+                    $group->userids = json_encode(array_values($userIds));
+                    $group->save();
+
+                    $changearray['Groupnames'][] = $group->name;
+                }
+                $user->group_id = null;
+                $user->save();
+            }
             $user->update($data);
             Log::channel('custom')->info('Userid ' . auth()->user()->custom_userid . ' , User Edited by ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' User Name -> ' . $user->name . ' Current Data -> ' . json_encode($currentarray) . ' Changed Data -> ' . json_encode($changearray));
 
-            return redirect()
-                ->back()
-                ->with('success', 'User Updated.');
+            return redirect()->back()->with('success', 'User Updated.');
         } catch (\Throwable $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -273,15 +409,11 @@ class UserController extends Controller
             Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , User Deleted by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' User Name -> ' . $user->name);
             User::destroy($id);
 
-            return redirect()
-                ->back()
-                ->with('success', 'Successfully User Delete.');
+            return redirect()->back()->with('success', 'Successfully User Delete.');
             // dd($audit);
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 }

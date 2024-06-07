@@ -34,6 +34,14 @@
 
 
             @if (auth()->user()->role == 'admin')
+
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-item nav-link dropdown-toggle " data-bs-toggle="dropdown"><i
+                            class="fa fa-exclamation-triangle me-2"></i>Dashboard</a>
+                    <div class="dropdown-menu bg-transparent border-0">
+                        <a href="{{ route('dashboard.index') }}" class="dropdown-item">View All</a>
+                    </div>
+                </div>
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-item nav-link dropdown-toggle " data-bs-toggle="dropdown"><i
                             class="fa fa-user me-2"></i>Users</a>
@@ -81,7 +89,6 @@
                         <a href="#" class="dropdown-item">View All</a>
                         <a href="{{ route('data.feed') }}" class="dropdown-item">Data Feed</a>
                         <a href="{{ route('data.imports') }}" class="dropdown-item">Data Imports</a>
-
                     </div>
                 </div>
 
@@ -92,6 +99,13 @@
                         <a href="#" class="dropdown-item">View All</a>
                         {{-- <a href="{{ route('group.create') }}" class="dropdown-item">New</a> --}}
 
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-item nav-link dropdown-toggle " data-bs-toggle="dropdown"><i
+                            class="fa fa-exclamation-triangle me-2"></i>Dashboard</a>
+                    <div class="dropdown-menu bg-transparent border-0">
+                        <a href="{{ route('dashboard.index') }}" class="dropdown-item">View All</a>
                     </div>
                 </div>
 
