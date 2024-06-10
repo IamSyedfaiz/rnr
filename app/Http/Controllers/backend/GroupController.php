@@ -74,13 +74,27 @@ class GroupController extends Controller
             unset($data['userids']);
 
             $data['userids'] = json_encode($request->userids);
-            // dd($data);
+            $groupName = $request->name;
+            $userIds = $request->userids;
             $group = Group::create($data);
+            if ($group) {
+                foreach ($userIds as $userId) {
+                    $user = User::find($userId);
+                    if ($user) {
+                        $existingGroupIds = json_decode($user->group_id ?? '[]');
+                        $newGroupIdString = strval($group->id);
+                        if (!in_array($newGroupIdString, $existingGroupIds)) {
+                            $existingGroupIds[] = $newGroupIdString;
+                        }
+                        $updatedGroupIdsJson = json_encode($existingGroupIds);
+                        $user->group_id = $updatedGroupIdsJson;
+                        $user->save();
+                    }
+                }
+            }
             Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Group Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Group Name -> ' . $group->name);
-
             return redirect()->route('group.index')->with('success', 'Group Created.');
         } catch (\Exception $th) {
-            //throw $th;
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
@@ -195,17 +209,78 @@ class GroupController extends Controller
             }
 
             if (isset($data['userids']) && $group->userids != $data['userids']) {
-                # code...
-                // dd($data);
                 $changearray['Usernames'] = [];
-                for ($i = 0; $i < count($request->userids); $i++) {
-                    # code...
-                    $u = User::find($request->userids[$i]);
-                    // dd($request->userids, $u);
-                    array_push($changearray['Usernames'], $u->name . ' ' . $u->lastname);
+                // for ($i = 0; $i < count($request->userids); $i++) {
+                //     # code...
+                //     $u = User::find($request->userids[$i]);
+                //     // dd($request->userids, $u);
+
+                //     array_push($changearray['Usernames'], $u->name . ' ' . $u->lastname);
+                // }
+                $userIds = $request->userids;
+                // dd($data);
+
+                if ($group) {
+                    foreach ($userIds as $userId) {
+                        $user = User::find($userId);
+                        // dd($user);
+                        if ($user) {
+                            $existingGroupIds = json_decode($user->group_id ?? '[]');
+                            $newGroupIdString = strval($group->id);
+                            if (!in_array($newGroupIdString, $existingGroupIds)) {
+                                $existingGroupIds[] = $newGroupIdString;
+                            }
+                            $updatedGroupIdsJson = json_encode($existingGroupIds);
+                            $user->group_id = $updatedGroupIdsJson;
+                            $user->save();
+                        }
+                        array_push($changearray['Usernames'], $user->name . ' ' . $user->lastname);
+                    }
+                }
+                $allUsers = User::all();
+                foreach ($allUsers as $user) {
+                    if (!in_array(strval($user->id), $userIds)) {
+                        $existingGroupIds = json_decode($user->group_id, true) ?? [];
+                        $existingGroupIds = array_map('strval', $existingGroupIds);
+                        $newGroupIdString = strval($group->id);
+                        $updatedGroupIds = array_diff($existingGroupIds, [$newGroupIdString]);
+                        $user->group_id = json_encode(array_values($updatedGroupIds));
+                        $user->save();
+                    }
                 }
                 $changearray['UsersChange'] = 'True';
                 // dd($changearray);
+            } else {
+                $userIds = $request->userids;
+                if ($group) {
+                    if ($userIds) {
+                        foreach ($userIds as $userId) {
+                            $user = User::find($userId);
+                            // dd($user);
+                            if ($user) {
+                                $existingGroupIds = [];
+                                $newGroupIdString = strval($group->id);
+                                if ($newGroupIdString) {
+                                    $existingGroupIds[] = $newGroupIdString;
+                                }
+                                $updatedGroupIdsJson = json_encode($existingGroupIds);
+                                $user->group_id = $updatedGroupIdsJson;
+                                $user->save();
+                            }
+                        }
+                    }
+                    $allUsers = User::all();
+                    foreach ($allUsers as $user) {
+                        if (!in_array(strval($user->id), $userIds)) {
+                            $existingGroupIds = json_decode($user->group_id, true) ?? [];
+                            $existingGroupIds = array_map('strval', $existingGroupIds);
+                            $newGroupIdString = strval($group->id);
+                            $updatedGroupIds = array_diff($existingGroupIds, [$newGroupIdString]);
+                            $user->group_id = json_encode(array_values($updatedGroupIds));
+                            $user->save();
+                        }
+                    }
+                }
             }
 
             if ($group->status != $data['status']) {
