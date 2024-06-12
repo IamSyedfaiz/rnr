@@ -212,19 +212,31 @@
                                         </div>
                                     </div>
                                     <div class="usergrouplist" style="display: none;">
-                                        <div class="d-flex  mb-2">
-                                            <div class="col-md-2 addusers">
-                                                <button type="button" class="btn btn-primary text-end"
+                                        <div class="row  mb-2">
+                                            <div class="col-md-6 addusers">
+                                                <button type="button" class="btn btn-primary text-end mb-3 mt-3"
                                                     data-bs-toggle="modal" data-bs-target="#exampleModalusers"
                                                     data-bs-whatever="@mdo">Add
                                                     Users</button>
+                                                <div class="mb-3">
+                                                    <label for="users">Selected Users</label>
+                                                    <select name="user_list[]" id="" class="form-control"
+                                                        multiple>
+                                                    </select>
+                                                </div>
                                             </div>
 
-                                            <div class="col-md-2 addgroups">
-                                                <button type="button" class="btn btn-primary text-end"
+                                            <div class="col-md-6 addgroups">
+                                                <button type="button" class="btn btn-primary text-end mb-3 mt-3"
                                                     data-bs-toggle="modal" data-bs-target="#exampleModalgroups"
                                                     data-bs-whatever="@mdo">Add
                                                     Groups</button>
+                                                <div class="mb-3">
+                                                    <label for="users">Selected Groups</label>
+                                                    <select name="group_list[]" id="" class="form-control"
+                                                        multiple>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -259,14 +271,6 @@
                                                                     </div>
 
 
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="mb-3">
-                                                                    <label for="users">Selected Users</label>
-                                                                    <select name="user_list[]" id=""
-                                                                        class="form-control" multiple>
-                                                                    </select>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -313,14 +317,6 @@
                                                                     </div>
 
 
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="mb-3">
-                                                                    <label for="users">Selected Groups</label>
-                                                                    <select name="group_list[]" id=""
-                                                                        class="form-control" multiple>
-                                                                    </select>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -411,6 +407,26 @@
             return randomColors;
         }
 
+        function dynamicColors() {
+            return [
+                '#FF6347',
+                '#4682B4',
+                '#FFD700',
+                '#ADFF2F',
+                '#4B0082',
+                '#00CED1',
+                '#FF4500',
+                '#8A2BE2',
+                '#FF69B4',
+                '#00FF7F',
+                '#DC143C',
+                '#1E90FF',
+                '#FFDAB9',
+                '#9370DB',
+                '#7FFF00',
+            ];
+        }
+
         function applySelectedColors() {
             var labelColors = {};
             var colorInputs = document.querySelectorAll('.label-color');
@@ -462,24 +478,104 @@
             selectedReportsDiv.innerHTML = '';
             if (reports.length > 0) {
                 reports.forEach(function(report) {
-                    // let reportElement = document.createElement('div');
-                    // reportElement.innerHTML = `<strong>ID:</strong> ${report.id} <br>
-                //                    <strong>Name:</strong> ${report.name} <br>`;
-                    // selectedReportsDiv.appendChild(reportElement);
+                    if (report.statistics_mode == 'Y') {
 
-                    // Create a canvas element for the chart
-                    let canvasElement = document.createElement('canvas');
-                    canvasElement.id = 'chart-' + report.id;
-                    canvasElement.width = 400;
-                    canvasElement.height = 200;
-                    selectedReportsDiv.appendChild(canvasElement);
+                        if (report.data_type == 'dataOnly') {
+                            // Create a table element
+                            let tableElement = document.createElement('table');
+                            tableElement.className =
+                                'table table-striped text-start align-middle table-bordered table-hover mt-5';
+                            tableElement.id = 'dataOnly';
 
-                    // Render the chart
-                    renderChart(report, 'chart-' + report.id);
+                            // Create table headers
+                            let tableHeader = `
+                            <thead>
+                                <tr>
+                                    <th>Application Name</th>
+                                    <th>Count of Application Name</th>
+                                </tr>
+                            </thead>
+                        `;
+                            tableElement.innerHTML = tableHeader;
+
+                            // Create table body
+                            let tableBody = '<tbody>';
+                            let countData = JSON.parse(report
+                                .data); // Assuming countData is a JSON string in the report object
+
+                            if (countData && Object.keys(countData).length > 0) {
+                                for (let fieldName in countData) {
+                                    tableBody += `
+                                    <tr>
+                                        <td>${fieldName}</td>
+                                        <td>${countData[fieldName]}</td>
+                                    </tr>
+                                `;
+                                }
+                            } else {
+                                tableBody += `
+                                <tr>
+                                    <td colspan="2">No data in the cart</td>
+                                </tr>
+                            `;
+                            }
+                            tableBody += '</tbody>';
+                            tableElement.innerHTML += tableBody;
+
+                            selectedReportsDiv.appendChild(tableElement);
+                        } else {
+                            let canvasElement = document.createElement('canvas');
+                            canvasElement.id = 'chart-' + report.id;
+                            canvasElement.width = 400;
+                            canvasElement.height = 200;
+                            selectedReportsDiv.appendChild(canvasElement);
+
+                            // Render the chart
+                            renderChart(report, 'chart-' + report.id)
+                        }
+                        console.log('statistics_mode hai');;
+
+                    } else {
+                        let reportData = JSON.parse(report.data);
+                        let tableElement = createTableFromData(reportData, 'report-table-' + report.id);
+                        selectedReportsDiv.appendChild(tableElement);
+                    }
+
                 });
             } else {
                 selectedReportsDiv.textContent = 'No reports selected.';
             }
+        }
+
+        function createTableFromData(data, tableId) {
+            // Create a table element
+            let tableElement = document.createElement('table');
+            tableElement.id = tableId;
+            tableElement.className = 'table table-striped text-start align-middle table-bordered table-hover mt-5';
+            // Create table headers
+            let tableHeader = '<thead><tr>';
+            for (let key in data) {
+                tableHeader += `<th>${key}</th>`;
+            }
+            tableHeader += '</tr></thead>';
+
+            // Create table body
+            let tableBody = '<tbody>';
+            // Determine the number of rows by finding the longest array in the values
+            let numRows = Math.max(...Object.values(data).map(arr => arr.length));
+            for (let i = 0; i < numRows; i++) {
+                tableBody += '<tr>';
+                for (let key in data) {
+                    tableBody += `<td>${data[key][i] !== undefined ? data[key][i] : ''}</td>`;
+                }
+                tableBody += '</tr>';
+            }
+            tableBody += '</tbody>';
+
+            // Set the innerHTML of the table
+            tableElement.innerHTML = tableHeader + tableBody;
+
+            return tableElement;
         }
 
         function getCustomColors(reportData) {

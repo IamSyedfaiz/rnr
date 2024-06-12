@@ -38,10 +38,7 @@
                                                 <a href="{{ route('back.report.application', $applicationId) }}"
                                                     class="btn btn-outline-primary fw-bold">MODIFY</a>
                                             @endif
-                                            {{-- <button type="button" class="btn btn-outline-primary fw-bold">NEW
-                                                REPORT</button>
-                                            <button type="button" class="btn btn-outline-primary fw-bold">RELATED
-                                                REPORTS</button> --}}
+
                                             <div class="row mt-2">
                                                 <div class="col-12">
                                                     <div class="table-responsive">
@@ -49,7 +46,8 @@
                                                             <thead>
                                                                 <tr>
                                                                     @foreach ($fieldStatisticsNames as $fieldName)
-                                                                        <th>{{ ucfirst($fieldName) }}</th>
+                                                                        <th>{{ ucfirst(str_replace('_', ' ', $fieldName)) }}
+                                                                        </th>
                                                                     @endforeach
                                                                 </tr>
                                                             </thead>

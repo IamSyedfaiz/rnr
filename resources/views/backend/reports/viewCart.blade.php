@@ -300,13 +300,33 @@
         var ctxPie = document.getElementById('myChart').getContext('2d');
         var countData = @json($countData);
 
+        // function dynamicColors() {
+        //     var colors = [];
+        //     for (var i = 0; i < Object.keys(countData).length; i++) {
+        //         colors.push('rgba(' + Math.floor(Math.random() * 256) + ', ' + Math.floor(Math.random() * 256) + ', ' +
+        //             Math.floor(Math.random() * 256) + ', 0.7)');
+        //     }
+        //     return colors;
+        // }
+
         function dynamicColors() {
-            var colors = [];
-            for (var i = 0; i < Object.keys(countData).length; i++) {
-                colors.push('rgba(' + Math.floor(Math.random() * 256) + ', ' + Math.floor(Math.random() * 256) + ', ' +
-                    Math.floor(Math.random() * 256) + ', 0.7)');
-            }
-            return colors;
+            return [
+                '#FF6347', // Tomato
+                '#4682B4', // Steel Blue
+                '#FFD700', // Gold
+                '#ADFF2F', // Green Yellow
+                '#4B0082', // Indigo
+                '#00CED1', // Dark Turquoise
+                '#FF4500', // Orange Red
+                '#8A2BE2', // Blue Violet
+                '#FF69B4', // Hot Pink
+                '#00FF7F', // Spring Green
+                '#DC143C', // Crimson
+                '#1E90FF', // Dodger Blue
+                '#FFDAB9', // Peach Puff
+                '#9370DB', // Medium Purple
+                '#7FFF00', // Chartreuse
+            ];
         }
 
         function defaultPalette() {

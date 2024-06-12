@@ -138,11 +138,11 @@
                                         <h4 class="">Layout</h4>
                                         <div class="form-horizontal row ">
                                             <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                                data-bs-target="#exampleModalusers" data-bs-whatever="@mdo">
+                                                data-bs-target="#exampleModalReports" data-bs-whatever="@mdo">
                                                 Select report</button>
                                         </div>
 
-                                        <div class="modal fade" id="exampleModalusers" tabindex="-1"
+                                        <div class="modal fade" id="exampleModalReports" tabindex="-1"
                                             aria-labelledby="exampleModalLabel" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
@@ -228,15 +228,16 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="usergrouplist" style="display: none">
-                                        <div class="d-flex mb-2">
-                                            <div class="col-md-2 addusers">
+                                    <div class="usergrouplist"
+                                        style="display: {{ $dashboard->access == 'PR' ? 'block' : 'none' }}">
+                                        <div class="row mb-2">
+                                            <div class="col-md-6 addusers">
                                                 <button type="button" class="btn btn-primary text-end"
                                                     data-bs-toggle="modal" data-bs-target="#exampleModalusers"
                                                     data-bs-whatever="@mdo">Add Users</button>
                                             </div>
 
-                                            <div class="col-md-2 addgroups">
+                                            <div class="col-md-6 addgroups">
                                                 <button type="button" class="btn btn-primary text-end"
                                                     data-bs-toggle="modal" data-bs-target="#exampleModalgroups"
                                                     data-bs-whatever="@mdo">Add Groups</button>
@@ -244,9 +245,9 @@
 
                                         </div>
 
-                                        <div class="col-md-12 d-flex">
+                                        <div class="row">
                                             @if ($selectedusers != [])
-                                                <div class="col-md-5">
+                                                <div class="col-md-6">
                                                     <select id="" class="form-control " multiple disabled>
                                                         @foreach ($selectedusers as $item)
                                                             <option selected>
@@ -258,7 +259,7 @@
                                             @endif
 
                                             @if ($selectedgroups != [])
-                                                <div class="col-md-5">
+                                                <div class="col-md-6">
                                                     <select id="" class="form-control " multiple disabled>
                                                         @foreach ($selectedgroups as $item)
                                                             <option selected>
@@ -383,7 +384,7 @@
             }
 
             // Close the modal
-            let modal = bootstrap.Modal.getInstance(document.getElementById('exampleModalusers'));
+            let modal = bootstrap.Modal.getInstance(document.getElementById('exampleModalReports'));
             modal.hide();
         }
 
@@ -391,8 +392,8 @@
 
         // Split the string by comma to convert it into an array
         let reportIdsArray = reportIdsString.split(',');
-        console.log(dashboard.report_id);
-        console.log(reportIdsArray);
+        // console.log(dashboard.report_id);
+        // console.log(reportIdsArray);
         if (dashboard) {
             fetchReportsDetails(reportIdsArray);
         } else {
@@ -402,6 +403,46 @@
         function defaultPalette() {
             return ['#FF5733', '#36A2EB', '#FFC300', '#4BC0C0', '#5F9EA0', '#FFA07A', '#20B2AA', '#8A2BE2', '#FF6347',
                 '#4682B4'
+            ];
+        }
+
+        function brightPalette() {
+            return [
+                '#FFA07A',
+                '#9370DB',
+                '#6A5ACD',
+                '#FF1493',
+                '#7FFF00',
+                '#4BC0C0',
+                '#FF4500',
+                '#FFD700',
+                '#32CD32',
+                '#1E90FF',
+                '#8A2BE2',
+                '#00FF7F',
+                '#FF1493',
+                '#FF6347',
+                '#00CED1'
+            ];
+        }
+
+        function dynamicColors() {
+            return [
+                '#FF6347',
+                '#4682B4',
+                '#FFD700',
+                '#ADFF2F',
+                '#4B0082',
+                '#00CED1',
+                '#FF4500',
+                '#8A2BE2',
+                '#FF69B4',
+                '#00FF7F',
+                '#DC143C',
+                '#1E90FF',
+                '#FFDAB9',
+                '#9370DB',
+                '#7FFF00',
             ];
         }
 
@@ -429,24 +470,117 @@
             selectedReportsDiv.innerHTML = '';
             if (reports.length > 0) {
                 reports.forEach(function(report) {
+                    if (report.statistics_mode == 'Y') {
+
+                        if (report.data_type == 'dataOnly') {
+                            // Create a table element
+                            let tableElement = document.createElement('table');
+                            tableElement.className =
+                                'table table-striped text-start align-middle table-bordered table-hover mt-5';
+                            tableElement.id = 'dataOnly';
+
+                            // Create table headers
+                            let tableHeader = `
+    <thead>
+        <tr>
+            <th>Application Name</th>
+            <th>Count of Application Name</th>
+        </tr>
+    </thead>
+`;
+                            tableElement.innerHTML = tableHeader;
+
+                            // Create table body
+                            let tableBody = '<tbody>';
+                            let countData = JSON.parse(report
+                                .data); // Assuming countData is a JSON string in the report object
+
+                            if (countData && Object.keys(countData).length > 0) {
+                                for (let fieldName in countData) {
+                                    tableBody += `
+            <tr>
+                <td>${fieldName}</td>
+                <td>${countData[fieldName]}</td>
+            </tr>
+        `;
+                                }
+                            } else {
+                                tableBody += `
+        <tr>
+            <td colspan="2">No data in the cart</td>
+        </tr>
+    `;
+                            }
+                            tableBody += '</tbody>';
+                            tableElement.innerHTML += tableBody;
+
+                            selectedReportsDiv.appendChild(tableElement);
+                        } else {
+                            let canvasElement = document.createElement('canvas');
+                            canvasElement.id = 'chart-' + report.id;
+                            canvasElement.width = 400;
+                            canvasElement.height = 200;
+                            selectedReportsDiv.appendChild(canvasElement);
+
+                            // Render the chart
+                            renderChart(report, 'chart-' + report.id)
+                        }
+                        console.log('statistics_mode hai');;
+
+                    } else {
+                        let reportData = JSON.parse(report.data);
+                        let tableElement = createTableFromData(reportData, 'report-table-' + report.id);
+                        selectedReportsDiv.appendChild(tableElement);
+                    }
                     // let reportElement = document.createElement('div');
                     // reportElement.innerHTML = `<strong>ID:</strong> ${report.id} <br>
                 //                    <strong>Name:</strong> ${report.name} <br>`;
                     // selectedReportsDiv.appendChild(reportElement);
 
                     // Create a canvas element for the chart
-                    let canvasElement = document.createElement('canvas');
-                    canvasElement.id = 'chart-' + report.id;
-                    canvasElement.width = 400;
-                    canvasElement.height = 200;
-                    selectedReportsDiv.appendChild(canvasElement);
+                    // let canvasElement = document.createElement('canvas');
+                    // canvasElement.id = 'chart-' + report.id;
+                    // canvasElement.width = 400;
+                    // canvasElement.height = 200;
+                    // selectedReportsDiv.appendChild(canvasElement);
 
-                    // Render the chart
-                    renderChart(report, 'chart-' + report.id);
+                    // // Render the chart
+                    // renderChart(report, 'chart-' + report.id);
                 });
             } else {
                 selectedReportsDiv.textContent = 'No reports selected.';
             }
+        }
+
+        function createTableFromData(data, tableId) {
+            // Create a table element
+            let tableElement = document.createElement('table');
+            tableElement.id = tableId;
+            tableElement.className = 'table table-striped text-start align-middle table-bordered table-hover mt-5';
+            // Create table headers
+            let tableHeader = '<thead><tr>';
+            for (let key in data) {
+                tableHeader += `<th>${key}</th>`;
+            }
+            tableHeader += '</tr></thead>';
+
+            // Create table body
+            let tableBody = '<tbody>';
+            // Determine the number of rows by finding the longest array in the values
+            let numRows = Math.max(...Object.values(data).map(arr => arr.length));
+            for (let i = 0; i < numRows; i++) {
+                tableBody += '<tr>';
+                for (let key in data) {
+                    tableBody += `<td>${data[key][i] !== undefined ? data[key][i] : ''}</td>`;
+                }
+                tableBody += '</tr>';
+            }
+            tableBody += '</tbody>';
+
+            // Set the innerHTML of the table
+            tableElement.innerHTML = tableHeader + tableBody;
+
+            return tableElement;
         }
 
         function renderChart(reportData, canvasId) {
@@ -456,7 +590,18 @@
             const labels = Object.keys(reportsKaData);
             const data = Object.values(reportsKaData);
             const selectChart = reportData.selectChart || 'bar';
-
+            var colors;
+            if (reportData.selectedPalette === 'random') {
+                colors = defaultPalette();
+            } else if (reportData.selectedPalette === 'default') {
+                colors = dynamicColors();
+            } else if (reportData.selectedPalette === 'custom') {
+                colors = getCustomColors(reportData);
+            } else if (reportData.selectedPalette === 'bright') {
+                colors = brightPalette();
+            } else {
+                colors = defaultPalette();
+            }
             // Create a new chart
             new Chart(ctx, {
                 type: selectChart,
@@ -465,7 +610,7 @@
                     datasets: [{
                         label: 'Report Data',
                         data: data,
-                        backgroundColor: defaultPalette()
+                        backgroundColor: colors,
                     }]
                 },
                 options: {

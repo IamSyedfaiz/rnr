@@ -294,7 +294,7 @@
                                                 <tr class="ui-state-default {{ $item->id }} sortablearray "
                                                     id="{{ $item->forder }}">
                                                     <td><a
-                                                            href="{{ route('field.edit', $item->id) }}">{{ $item->name }}</a>
+                                                            href="{{ route('field.edit', $item->id) }}">{{ str_replace('_', ' ', $item->name) }}</a>
                                                     </td>
                                                     <td>{{ strtoupper($item->type) }}</td>
                                                     <td>
