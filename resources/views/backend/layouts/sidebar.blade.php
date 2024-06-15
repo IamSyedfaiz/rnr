@@ -223,7 +223,7 @@
                     // Combine both direct roles and group roles
                     $allRoles = $directRoles->merge($groupRoles);
 
-                    logger($allRoles);
+                    // logger($allRoles);
                     // logger($groupRoles);
                     // logger($userId);
                     $applications = [];
@@ -258,6 +258,13 @@
                     <div class="dropdown-menu bg-transparent border-0">
                         <a href="{{ route('get.view') }}" class="dropdown-item">Reports Listing</a>
 
+                    </div>
+                </div>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-item nav-link dropdown-toggle " data-bs-toggle="dropdown"><i
+                            class="fa fa-exclamation-triangle me-2"></i>Dashboard</a>
+                    <div class="dropdown-menu bg-transparent border-0">
+                        <a href="{{ route('dashboard.index') }}" class="dropdown-item">View All</a>
                     </div>
                 </div>
             @endif

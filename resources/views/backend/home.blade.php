@@ -43,6 +43,7 @@
                                          data-report='{{ $report->data }}' data-type="{{ $report->selectChart }}"
                                          data-legend="{{ $report->legendPosition }}"
                                          data-palette="{{ $report->selectedPalette }}"
+                                         data-borderWidth="{{ $report->borderWidth }}"
                                          data-labelColors="{{ $report->labelColor }}" class="chart-canvas">
                                      </canvas>
                                  @endif
@@ -183,6 +184,7 @@
                  var type = chart.getAttribute('data-type') || 'bar';
                  var legendPosition = chart.getAttribute('data-legend') || 'top';
                  var selectedPalette = chart.getAttribute('data-palette') || 'default';
+                 var selectedBorderWidth = chart.getAttribute('data-borderWidth');
 
                  var labelColorsString = chart.getAttribute('data-labelColors');
                  //  console.log(labelColors);
@@ -214,8 +216,7 @@
                              label: 'Report Data',
                              data: data,
                              backgroundColor: colors,
-                             borderColor: colors,
-                             borderWidth: 1
+                             borderWidth: selectedBorderWidth,
                          }]
                      },
                      options: {

@@ -8,6 +8,7 @@ use App\Models\backend\Field;
 use App\Models\backend\Formdata;
 use App\Models\backend\Group;
 use App\Models\backend\Report;
+use App\Models\backend\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -25,7 +26,31 @@ class ReportController extends Controller
                 $reports = Report::where('user_id', auth()->user()->id)
                     ->orderBy('name')
                     ->get();
-                $applications = Application::where('status', 1)->orderBy('name')->get();
+                // $applications = Application::where('status', 1)->orderBy('name')->get()
+                $user = auth()->user();
+                $userId = $user->id;
+                $directRoles = Role::whereJsonContains('user_list', (string) $userId)->with('permissions.applications')->get();
+
+                $groupIds = Group::whereJsonContains('userids', (string) $userId)->pluck('id')->toArray();
+
+                $groupRoles = Role::where(function ($query) use ($groupIds) {
+                    foreach ($groupIds as $groupId) {
+                        $query->orWhereJsonContains('group_list', (string) $groupId);
+                    }
+                })
+                    ->with('permissions.applications')
+                    ->get();
+
+                $allRoles = $directRoles->merge($groupRoles);
+
+                $applications = [];
+                foreach ($allRoles as $permission) {
+                    foreach ($permission->applications as $application) {
+                        if (!isset($applications[$application->id])) {
+                            $applications[$application->id] = $application;
+                        }
+                    }
+                }
             }
 
             return view('backend.reports.index', compact('reports', 'applications'));
@@ -314,9 +339,9 @@ class ReportController extends Controller
                                 $reconstructedString = str_replace('AND', '&&', $reconstructedString);
                                 $reconstructedString = str_replace('OR', '||', $reconstructedString);
                                 logger($reconstructedString);
-                                logger(eval("return $reconstructedString;"));
+                                logger(eval ("return $reconstructedString;"));
 
-                                if (eval("return $reconstructedString;")) {
+                                if (eval ("return $reconstructedString;")) {
                                     $final_rows[] = $data;
                                 }
                             } else {
@@ -326,7 +351,7 @@ class ReportController extends Controller
                                         return $value ? 'true' : 'false';
                                     }, $filteredData),
                                 );
-                                if (eval("return $arrayAsString;")) {
+                                if (eval ("return $arrayAsString;")) {
                                     $final_rows[] = $data;
                                 }
                             }
@@ -519,9 +544,9 @@ class ReportController extends Controller
                                 $reconstructedString = str_replace('AND', '&&', $reconstructedString);
                                 $reconstructedString = str_replace('OR', '||', $reconstructedString);
                                 logger($reconstructedString);
-                                logger(eval("return $reconstructedString;"));
+                                logger(eval ("return $reconstructedString;"));
 
-                                if (eval("return $reconstructedString;")) {
+                                if (eval ("return $reconstructedString;")) {
                                     $final_rows[] = $data;
                                 }
                             } else {
@@ -531,7 +556,7 @@ class ReportController extends Controller
                                         return $value ? 'true' : 'false';
                                     }, $filteredData),
                                 );
-                                if (eval("return $arrayAsString;")) {
+                                if (eval ("return $arrayAsString;")) {
                                     $final_rows[] = $data;
                                 }
                             }

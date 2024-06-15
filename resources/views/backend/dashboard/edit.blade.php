@@ -292,9 +292,17 @@
                                                             </label>
                                                             <select name="user_list[]" id=""
                                                                 class="form-control" multiple>
-                                                                @foreach ($users as $item)
+                                                                {{-- @foreach ($users as $item)
                                                                     <option value="{{ $item->id }}">
                                                                         {{ $item->name }}
+                                                                    </option>
+                                                                @endforeach --}}
+                                                                @foreach ($users as $user)
+                                                                    <option value="{{ $user->id }}"
+                                                                        @if (is_array($selectedusers)
+                                                                                ? in_array($user->id, array_column($selectedusers, 'id'))
+                                                                                : $selectedusers->pluck('id')->contains($user->id)) selected @endif>
+                                                                        {{ $user->name }}
                                                                     </option>
                                                                 @endforeach
                                                             </select>

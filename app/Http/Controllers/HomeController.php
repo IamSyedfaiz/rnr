@@ -30,14 +30,6 @@ class HomeController extends Controller
     {
         $dashboards = Dashboard::where('active', 'Y')->latest()->get();
 
-        // foreach ($dashboards as $dashboard) {
-        //     $reportIds = explode(',', $dashboard->report_id);
-        //     $reports = Report::whereIn('id', $reportIds)->get();
-        //     $dashboard->reports = $reports;
-        // }
-
-        // return view('backend.home', compact('dashboards'));
-        // Filter dashboards to exclude those without valid reports
         $filteredDashboards = $dashboards->filter(function ($dashboard) {
             if (is_null($dashboard->report_id)) {
                 return false;
@@ -61,55 +53,42 @@ class HomeController extends Controller
     public function user_home()
     {
         try {
-            //code...
+            // $dashboards = Dashboard::where('active', 'Y')->latest()->get();
+            $userId = auth()->user()->id;
+            $userDashboards = Dashboard::whereJsonContains('user_list', (string) $userId)->orWhere('user_id', $userId)->where('active', 'Y')->get();
 
-            $loggedinuser = auth()->id();
-            // dd($userid);
-            $application = Application::where('status', 1)
-                // ->latest()
-                ->get();
+            // Retrieve group IDs where the authenticated user is listed
+            $groupIds = Group::whereJsonContains('userids', (string) $userId)->pluck('id');
 
-            $userapplication = [];
-            $userid = [];
-            // dd($application[1]->rolestable()->first());
+            // Initialize an empty collection for group dashboards
+            $groupDashboards = collect();
 
-            // for ($i = 0; $i < count($application); $i++) {
-            //     # code...
-            //     if ($application[$i]->rolestable()->get() != 'null' && $application[$i]->rolestable()->get() != null) {
+            // Check if groupIds is not empty
+            if ($groupIds->isNotEmpty()) {
+                // Retrieve dashboards where any of the user's group IDs are listed
+                $groupDashboards = Dashboard::where(function ($query) use ($groupIds) {
+                    foreach ($groupIds as $groupId) {
+                        $query->orWhereJsonContains('group_list', (string) $groupId);
+                    }
+                })->get();
+            }
 
-            //         $rolestablearray = $application[$i]->rolestable()->get();
+            // Combine the two collections and remove duplicates
+            $dashboards = $userDashboards->merge($groupDashboards)->unique('id');
+            // dd($dashboards);
 
-            //         for ($k=0; $k < count($rolestablearray) ; $k++) {
-            //             // dd($rolestablearray[$k]->group_list);
-            //             if ($rolestablearray[$k]->group_list != 'null') {
-            //                 # code...
-            //                 array_push($userid, Helper::findusers($rolestablearray[$k]->group_list));
-            //             }
-            //             // dd(json_decode($rolestablearray[0]->user_list));
-            //             if ($rolestablearray[$k]->user_list != 'null') {
-            //                 # code...
-            //                 array_push($userid, json_decode($rolestablearray[$k]->user_list));
-            //             }
-            //         }
+            $filteredDashboards = $dashboards->filter(function ($dashboard) {
+                if (is_null($dashboard->report_id)) {
+                    return false;
+                }
 
-            //         $useridfound = 'false';
-            //         // dd(in_array(auth()->id(), $userid[2]));
-            //         for ($j = 0; $j < count($userid); $j++) {
-            //             if (in_array(auth()->id(), $userid[$j])) {
-            //                 $useridfound = 'true';
-            //             }
-            //         }
-            //         // dd($useridfound);
+                $reportIds = explode(',', $dashboard->report_id);
+                $reports = Report::whereIn('id', $reportIds)->get();
+                $dashboard->reports = $reports;
 
-            //         if ($useridfound == 'true') {
-            //             array_push($userapplication, $application[$i]);
-            //         }
-            //     }
-            // }
-
-            // dd($userapplication);
-
-            return view('backend.backenduserhome');
+                return !$reports->isEmpty();
+            });
+            return view('backend.backenduserhome', ['dashboards' => $filteredDashboards]);
         } catch (\Exception $th) {
             //throw $th;
             return redirect()->back()->with('error', $th->getMessage());

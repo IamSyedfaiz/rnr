@@ -9,7 +9,7 @@
                         New</button></a>
             </div>
             <div class="table-responsive">
-                <table class="table  table-striped  text-start align-middle table-bordered table-hover mb-0  ">
+                <table id="example" class="table  table-striped  text-start align-middle table-bordered table-hover mb-0  ">
                     <thead>
                         <tr class="text-white " style="background-color: #009CFF;">
                             <th scope="col">Name</th>
@@ -20,7 +20,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (@$dashboardS as $item)
+                        @foreach (@$dashboards as $item)
                             <tr>
                                 <td>
                                     <a href="{{ route('dashboard.edit', $item->id) }}"> {{ $item->name ?? '-' }}</a>
