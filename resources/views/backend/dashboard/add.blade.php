@@ -140,6 +140,7 @@
                                                                 <tr>
                                                                     <th>Report ID</th>
                                                                     <th>Report Name</th>
+                                                                    <th>Application Name</th>
                                                                     <th>Select</th>
                                                                 </tr>
                                                             </thead>
@@ -148,6 +149,7 @@
                                                                     <tr>
                                                                         <td>{{ $index + 1 }}</td>
                                                                         <td>{{ $report->name }}</td>
+                                                                        <td>{{ $report->application->name }}</td>
                                                                         <td>
                                                                             <input type="checkbox" name="report_id[]"
                                                                                 class="reportCheckbox"
