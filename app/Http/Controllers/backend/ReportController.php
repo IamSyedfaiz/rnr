@@ -765,7 +765,7 @@ class ReportController extends Controller
             $application = Application::find($applicationId);
             $fields = Field::where('application_id', $applicationId)->where('status', 1)->orderBy('name')->get();
 
-            return view('backend.reports.applicationFields', compact('application', 'fields', 'id'));
+            return view('backend.reports.editApplicationFields', compact('application', 'fields', 'id'));
         } catch (\Exception $th) {
             //throw $th;
             return redirect()->back()->with('error', $th->getMessage());

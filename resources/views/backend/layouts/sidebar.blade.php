@@ -92,22 +92,22 @@
                     </div>
                 </div>
 
-                <div class="nav-item dropdown">
+                {{-- <div class="nav-item dropdown">
                     <a href="#" class="nav-item nav-link dropdown-toggle " data-bs-toggle="dropdown"><i
                             class="fa fa-exclamation-triangle me-2"></i>Customer Dashboard</a>
                     <div class="dropdown-menu bg-transparent border-0">
                         <a href="#" class="dropdown-item">View All</a>
-                        {{-- <a href="{{ route('group.create') }}" class="dropdown-item">New</a> --}}
+                        <a href="{{ route('group.create') }}" class="dropdown-item">New</a>
 
                     </div>
-                </div>
-                <div class="nav-item dropdown">
+                </div> --}}
+                {{-- <div class="nav-item dropdown">
                     <a href="#" class="nav-item nav-link dropdown-toggle " data-bs-toggle="dropdown"><i
                             class="fa fa-exclamation-triangle me-2"></i>Dashboard</a>
                     <div class="dropdown-menu bg-transparent border-0">
                         <a href="{{ route('dashboard.index') }}" class="dropdown-item">View All</a>
                     </div>
-                </div>
+                </div> --}}
 
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-item nav-link dropdown-toggle " data-bs-toggle="dropdown"><i
