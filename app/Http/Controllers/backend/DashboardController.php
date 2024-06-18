@@ -20,8 +20,36 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $dashboardS = Dashboard::all();
-        return view('backend.dashboard.index', compact('dashboardS'));
+        if (auth()->user()->id == 1) {
+            $dashboards = Dashboard::all();
+        } else {
+
+            $userId = auth()->user()->id;
+            $userDashboards = Dashboard::whereJsonContains('user_list', (string) $userId)
+                ->orWhere('user_id', $userId)
+                ->get();
+
+            // Retrieve group IDs where the authenticated user is listed
+            $groupIds = Group::whereJsonContains('userids', (string) $userId)->pluck('id');
+
+            // Initialize an empty collection for group dashboards
+            $groupDashboards = collect();
+
+            // Check if groupIds is not empty
+            if ($groupIds->isNotEmpty()) {
+                // Retrieve dashboards where any of the user's group IDs are listed
+                $groupDashboards = Dashboard::where(function ($query) use ($groupIds) {
+                    foreach ($groupIds as $groupId) {
+                        $query->orWhereJsonContains('group_list', (string) $groupId);
+                    }
+                })->get();
+            }
+
+            // Combine the two collections and remove duplicates
+            $dashboards = $userDashboards->merge($groupDashboards)->unique('id');
+            // dd($dashboards);
+        }
+        return view('backend.dashboard.index', compact('dashboards'));
     }
 
     /**
@@ -31,18 +59,22 @@ class DashboardController extends Controller
      */
     public function create()
     {
-        $applications = Application::where('status', 1)->orderBy('name')->get();
-        $reports = Report::all();
-        $users = User::where('status', 1)
-            ->latest()
-            ->get();
+        if (auth()->user()->id == 1) {
+            $reports = Report::all();
+        } else {
+            $reports = Report::where('user_id', auth()->user()->id)
+                ->orderBy('name')
+                ->get();
+        }
+
+        $users = User::where('status', 1)->latest()->get();
         $groups = Group::where(['status' => 1])
             ->latest()
             ->get();
         $selectedgroups = [];
 
         $selectedusers = [];
-        return view('backend.dashboard.add', compact('applications', 'reports', 'users', 'groups', 'selectedgroups', 'selectedusers'));
+        return view('backend.dashboard.add', compact('reports', 'users', 'groups', 'selectedgroups', 'selectedusers'));
     }
 
     /**
@@ -64,6 +96,8 @@ class DashboardController extends Controller
                 'user_id' => 'nullable|integer',
                 'access' => 'nullable|in:PR,PB',
                 'active' => 'nullable|in:Y,N',
+                'user_list' => 'nullable',
+                'group_list' => 'nullable',
             ]);
             if (array_key_exists('report_id', $validatedData)) {
                 // Check if 'report_id' is an array
@@ -77,7 +111,18 @@ class DashboardController extends Controller
                 // If 'report_id' key is not present, set it to null
                 $validatedData['report_id'] = null;
             }
+            if ($request->user_list) {
+                # code...
+                unset($validatedData['user_list']);
+                $validatedData['user_list'] = json_encode($request->user_list);
+            }
 
+            if ($request->group_list) {
+                # code...
+                unset($validatedData['group_list']);
+                $validatedData['group_list'] = json_encode($request->group_list);
+            }
+            // dd($validatedData);
             Dashboard::create($validatedData);
 
             Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Dashboard Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Dashboard Name -> ' . $request->name);
@@ -108,17 +153,38 @@ class DashboardController extends Controller
     {
         $applications = Application::where('status', 1)->orderBy('name')->get();
         $reports = Report::all();
-        $users = User::where('status', 1)
-            ->latest()
-            ->get();
+        $users = User::where('status', 1)->latest()->get();
         $groups = Group::where(['status' => 1])
             ->latest()
             ->get();
 
         $selectedgroups = [];
+        if ($dashboard->group_list != 'null') {
+            $groupids = json_decode($dashboard->group_list);
+            # code...
+            if ($groupids) {
+                for ($i = 0; $i < count($groupids); $i++) {
+                    # code...
+                    $group = Group::find($groupids[$i]);
+                    array_push($selectedgroups, $group);
+                }
+            }
+        }
 
         $selectedusers = [];
-        return view('backend.dashboard.edit', compact('dashboard', 'applications', 'reports', 'users', 'groups', 'selectedgroups', 'selectedusers'));
+        if ($dashboard->user_list != 'null') {
+            $userids = json_decode($dashboard->user_list);
+            # code...
+            if ($userids) {
+                for ($i = 0; $i < count($userids); $i++) {
+                    # code...
+                    $user = User::find($userids[$i]);
+                    array_push($selectedusers, $user);
+                }
+            }
+        }
+
+        return view('backend.dashboard.edit', compact('dashboard', 'applications', 'reports', 'selectedusers', 'selectedgroups', 'users', 'groups'));
     }
 
     /**
@@ -131,6 +197,7 @@ class DashboardController extends Controller
     public function update(Request $request, Dashboard $dashboard)
     {
         try {
+            // dd($request->all());
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
                 'alias' => 'nullable|string|max:255',
@@ -141,6 +208,8 @@ class DashboardController extends Controller
                 'user_id' => 'nullable|integer',
                 'access' => 'nullable|in:PR,PB',
                 'active' => 'nullable|in:Y,N',
+                'user_list' => 'nullable',
+                'group_list' => 'nullable',
             ]);
 
             if (array_key_exists('report_id', $validatedData)) {

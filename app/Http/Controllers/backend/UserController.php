@@ -72,22 +72,22 @@ class UserController extends Controller
                 unset($data['_token']);
                 unset($data['password']);
                 unset($data['repassword']);
-                // dd($data);
                 unset($data['group_id']);
                 $currentarray = json_encode($data);
-                $data['group_id'] = json_encode($request->group_id);
+                // $data['group_id'] = json_encode($request->group_id);
+                $groupId = $request->group_id;
+                if ($groupId !== null) {
+                    $data['group_id'] = json_encode($groupId);
+                } else {
+                    unset($data['group_id']);
+                }
                 $data['password'] = Hash::make($request->password);
                 $user = User::create($data);
 
-                if (isset($data['group_id'])) {
+                if (isset($groupId) && !empty($groupId)) {
                     $userId = $user->id;
                     $targetGroupIds = $request->group_id;
-                    // dd($targetGroupIds);
-
-                    // Get all groups the user is currently a member of
                     $currentGroups = Group::whereJsonContains('userids', $userId)->get();
-
-                    // Process each current group to remove the user if not in target groups
                     foreach ($currentGroups as $group) {
                         if (!in_array($group->id, $targetGroupIds)) {
                             $userIds = json_decode($group->userids, true);
@@ -98,8 +98,6 @@ class UserController extends Controller
                             $group->save();
                         }
                     }
-
-                    // Process each target group to add the user if not already a member
                     foreach ($targetGroupIds as $groupId) {
                         $group = Group::find($groupId);
                         if ($group) {
@@ -116,8 +114,7 @@ class UserController extends Controller
                     }
                 }
                 // dd($data);
-                // $user = User::create($data);
-                Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , User Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' User Name -> ' . $user->name . ' Data -> ' . $currentarray);
+                Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , User Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' User Name -> ' . $user->name . ' Data -> ' . @$currentarray);
 
                 return redirect()->route('users.index')->with('success', 'User Created');
             } else {

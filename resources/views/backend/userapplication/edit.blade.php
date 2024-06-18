@@ -29,7 +29,7 @@
                                 @if ($item->type == 'date')
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
-                                            class="form-label">{{ strtoupper($item->name) }}</label>
+                                            class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
                                         <input type="{{ $item->datetype }}" class="form-control" name="{{ $item->name }}"
                                             @if ($item->requiredfield == 1) required @endif>
 
@@ -39,7 +39,7 @@
                                 @if ($item->type == 'attachment')
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
-                                            class="form-label">{{ strtoupper($item->name) }}</label>
+                                            class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
                                         <input type="file" class="form-control" name="{{ $item->name }}"
                                             @if ($item->requiredfield == 1) required @endif>
 
@@ -49,7 +49,7 @@
                                 @if ($item->type == 'images')
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
-                                            class="form-label">{{ strtoupper($item->name) }}</label>
+                                            class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
                                         <input type="file" class="form-control" name="{{ $item->name }}"
                                             @if ($item->requiredfield == 1) required @endif>
 
@@ -59,7 +59,7 @@
                                 @if ($item->type == 'ip_address')
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
-                                            class="form-label">{{ strtoupper($item->name) }}</label>
+                                            class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
                                         <input type="text" class="form-control" name="{{ $item->name }}"
                                             minlength="7" maxlength="15" size="15"
                                             pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"
@@ -71,7 +71,7 @@
                                 @if ($item->type == 'number')
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
-                                            class="form-label">{{ strtoupper($item->name) }}</label>
+                                            class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
                                         <input type="number" class="form-control" name="{{ $item->name }}"
                                             @if ($item->requiredfield == 1) required @endif>
 
@@ -81,7 +81,7 @@
                                 @if ($item->type == 'text')
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
-                                            class="form-label">{{ strtoupper($item->name) }}</label>
+                                            class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
                                         <input type="text" class="form-control" name="{{ $item->name }}"
                                             @if ($item->requiredfield == 1) required @endif>
 
@@ -93,7 +93,7 @@
                                     {{-- {{ dd($item->valuelisttype) }} --}}
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
-                                            class="form-label">{{ strtoupper($item->name) }}</label><br>
+                                            class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label><br>
 
 
                                         @if ($item->valuelisttype == 'dropdown')

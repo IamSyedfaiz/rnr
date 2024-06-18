@@ -27,4 +27,9 @@ class Group extends Model
     {
         return $this->belongsToMany(Role::class);
     }
+
+    public function dashboards()
+    {
+        return $this->belongsToMany(Dashboard::class);
+    }
 }

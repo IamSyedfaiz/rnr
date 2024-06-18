@@ -72,7 +72,9 @@ class FieldController extends Controller
         try {
             $data = $validator->validate();
             // $this->validate($request, $rules, $custommessages);
-            // dd($data);
+            if (isset($data['name'])) {
+                $data['name'] = str_replace(' ', '_', $data['name']);
+            }
             //code...
             // $data = $request->all();
             // dd($data);
@@ -284,7 +286,9 @@ class FieldController extends Controller
         $this->validate($request, $rules, $custommessages);
 
         $data = $request->all();
-
+        if (isset($data['name'])) {
+            $data['name'] = str_replace(' ', '_', $data['name']);
+        }
         unset($data['_token']);
         unset($data['_method']);
         unset($data['groups']);

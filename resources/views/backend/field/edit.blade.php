@@ -29,7 +29,7 @@
                     <div class="mb-3">
                         <label for="exampleInputEmail1" class="form-label"> <strong>Name</strong> </label>
                         <input type="text" class="form-control @error('name') is-invalid @enderror" name="name"
-                            id="name" aria-describedby="namehelp" value="{{ $field->name }}">
+                            id="name" aria-describedby="namehelp" value="{{ str_replace('_', ' ', $field->name) }}">
                         @error('name')
                             <label id="name-error" class="error text-danger" for="name">{{ $message }}</label>
                         @enderror

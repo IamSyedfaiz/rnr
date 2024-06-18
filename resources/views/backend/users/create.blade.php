@@ -5,10 +5,10 @@
         <div class="bg-light text-start rounded p-4">
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <h6 class="mb-0">User Create</h6>
-                <a href="{{route('users.index')}}"><button class="btn btn-danger"><-back</button></a> 
+                <a href="{{ route('users.index') }}"><button class="btn btn-danger"><-back </button></a>
             </div>
             <div class="bg-light rounded h-100 p-4">
-                {{-- <h6 class="mb-4">Audit </h6> --}}
+
                 <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-3">
@@ -111,54 +111,58 @@
                                 @endforeach
                             </select> --}}
                             <div class="col-md-4 showaddbtn">
-                                <button type="button" class="btn btn-primary text-end"
-                                    data-bs-toggle="modal" data-bs-target="#exampleModal"
-                                    data-bs-whatever="@mdo">Add Group</button>
+                                <button type="button" class="btn btn-primary text-end" data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal" data-bs-whatever="@mdo">Add Group</button>
                             </div>
-                            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                                aria-hidden="true">
                                 <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="exampleModalLabel">New Group</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3 text-start">
-                                                            <label for="filter">Groups&nbsp;</label><input id="filter" type="text"
-                                                                class="filter form-control" placeholder="Search Groups">
-                                                            <br />
-                
-                                                            <div id="mdi" style="max-height: 10%; overflow:auto;">
-                                                                @foreach ($groups as $item)
-                                                                    <span><input class="talents_idmd-checkbox"
-                                                                            onchange="dragdrop(this.value, this.id);" type="checkbox"
-                                                                            id="{{ $item->name . ' ' . $item->lastname }}"
-                                                                            value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
-                                                                @endforeach
-                                                            </div>
-                
-                
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">New Group</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3 text-start">
+                                                        <label for="filter">Groups&nbsp;</label><input id="filter"
+                                                            type="text" class="filter form-control"
+                                                            placeholder="Search Groups">
+                                                        <br />
+
+                                                        <div id="mdi" style="max-height: 10%; overflow:auto;">
+                                                            @foreach ($groups as $item)
+                                                                <span><input class="talents_idmd-checkbox"
+                                                                        onchange="dragdrop(this.value, this.id);"
+                                                                        type="checkbox"
+                                                                        id="{{ $item->name . ' ' . $item->lastname }}"
+                                                                        value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
+                                                            @endforeach
                                                         </div>
+
+
                                                     </div>
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label for="users">Selected Groups</label>
-                                                            <select name="group_id[]" id="" class="form-control" multiple>
-                                                            </select>
-                                                        </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="users">Selected Groups</label>
+                                                        <select name="group_id[]" id="" class="form-control"
+                                                            multiple>
+                                                        </select>
                                                     </div>
                                                 </div>
                                             </div>
-                
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
-                                            </div>
                                         </div>
-                                 
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Close</button>
+                                            {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                             @error('group_id')
@@ -202,6 +206,60 @@
     <!-- Recent Sales End -->
 
     <script>
+        $(document).ready(function() {
+            // Sample data, replace this with an AJAX call to fetch data from your database
+            var users = [{
+                    id: 1,
+                    name: 'John Doe',
+                    username: 'john'
+                },
+                {
+                    id: 2,
+                    name: 'Jane Smith',
+                    username: 'jane'
+                },
+                {
+                    id: 3,
+                    name: 'Peter Parker',
+                    username: 'peter'
+                }
+            ];
+
+            $('.mention').mentionsInput({
+                onDataRequest: function(mode, query, callback) {
+                    var filteredUsers = users.filter(function(user) {
+                        return user.username.toLowerCase().indexOf(query.toLowerCase()) > -1;
+                    });
+                    callback.call(this, filteredUsers);
+                },
+                templates: {
+                    mentionItemSyntax: function(item) {
+                        return '@[' + item.name + '](user:' + item.id + ')';
+                    },
+                    mentionItemHighlight: function(item) {
+                        return '<strong>' + item.username + '</strong>';
+                    }
+                },
+                minChars: 1
+            });
+
+            $(document).on('click', '.mentions-autocomplete-list li', function() {
+                var userId = $(this).data('uid');
+                console.log("User ID:", userId); // Log the user ID when a suggestion is clicked
+            });
+
+            $('#yourForm').submit(function(e) {
+                e.preventDefault();
+                $('.mention').mentionsInput('val', function(text) {
+                    console.log(text); // You will get the formatted text here
+                    $('#hiddenMentionInput').val(
+                        text); // Set this value in a hidden input field for form submission
+                });
+            });
+        });
+
+
+
         const filterEl = document.querySelector('#filter');
         const els = Array.from(document.querySelectorAll('#mdi > span'));
         const labels = els.map(el => el.textContent);

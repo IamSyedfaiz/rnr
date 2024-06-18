@@ -39,7 +39,7 @@
                                 @if ($item->type == 'date')
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
-                                            class="form-label">{{ strtoupper($item->name) }}</label>
+                                            class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
                                         {{-- {{ dd($filledformdata, $item->name) }} --}}
                                         @if (isset($filledformdata[str_replace(' ', '_', $item->name)]))
                                             <input type="{{ $item->datetype }}" class="form-control"
@@ -58,7 +58,7 @@
                                 @if ($item->type == 'attachment')
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
-                                            class="form-label">{{ strtoupper($item->name) }}</label>
+                                            class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
 
                                         @if (isset($filledformdata[str_replace(' ', '_', $item->name)]))
                                             <a href="{{ asset('public/files/' . $filledformdata[str_replace(' ', '_', $item->name)]) }}"
@@ -80,7 +80,7 @@
                                     {{-- {{ dd($item->name) }} --}}
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
-                                            class="form-label">{{ strtoupper($item->name) }}</label>
+                                            class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
                                         @if (isset($filledformdata[str_replace(' ', '_', $item->name)]))
                                             <a href="{{ asset('public/files/' . $filledformdata[str_replace(' ', '_', $item->name)]) }}"
                                                 target="_blank">(uploaded file)</a>
@@ -101,7 +101,7 @@
                                 @if ($item->type == 'ip_address')
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
-                                            class="form-label">{{ strtoupper($item->name) }}</label>
+                                            class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
                                         @if (isset($filledformdata[str_replace(' ', '_', $item->name)]))
                                             <input type="text" class="form-control" name="{{ $item->name }}"
                                                 minlength="7" maxlength="15" size="15"
@@ -121,7 +121,7 @@
                                 @if ($item->type == 'number')
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
-                                            class="form-label">{{ strtoupper($item->name) }}</label>
+                                            class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
                                         @if ($filledformdata[str_replace(' ', '_', $item->name)])
                                             <input type="number" class="form-control" name="{{ $item->name }}"
                                                 value="{{ $filledformdata[str_replace(' ', '_', $item->name)] }}"
@@ -137,7 +137,7 @@
                                 @if ($item->type == 'text')
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
-                                            class="form-label">{{ strtoupper($item->name) }}</label>
+                                            class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
                                         @if (isset($filledformdata[str_replace(' ', '_', $item->name)]))
                                             <input type="text" class="form-control" name="{{ $item->name }}"
                                                 value="{{ $filledformdata[str_replace(' ', '_', $item->name)] }}"
@@ -156,7 +156,7 @@
                                     {{-- {{ dd($item->valuelisttype) }} --}}
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1"
-                                            class="form-label">{{ strtoupper($item->name) }}</label><br>
+                                            class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label><br>
 
 
                                         @if ($item->valuelisttype == 'dropdown')

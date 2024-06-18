@@ -8,6 +8,7 @@ use App\Models\backend\Field;
 use App\Models\backend\Formdata;
 use App\Models\backend\Group;
 use App\Models\backend\Report;
+use App\Models\backend\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,23 +19,49 @@ class ReportController extends Controller
     public function getView()
     {
         try {
-            $reports = Report::all();
-            $applications = Application::where('status', 1)
-                ->orderBy('name')
-                ->get();
+            if (auth()->user()->id == 1) {
+                $reports = Report::all();
+                $applications = Application::where('status', 1)->orderBy('name')->get();
+            } else {
+                $reports = Report::where('user_id', auth()->user()->id)
+                    ->orderBy('name')
+                    ->get();
+                // $applications = Application::where('status', 1)->orderBy('name')->get()
+                $user = auth()->user();
+                $userId = $user->id;
+                $directRoles = Role::whereJsonContains('user_list', (string) $userId)->with('permissions.applications')->get();
+
+                $groupIds = Group::whereJsonContains('userids', (string) $userId)->pluck('id')->toArray();
+
+                $groupRoles = Role::where(function ($query) use ($groupIds) {
+                    foreach ($groupIds as $groupId) {
+                        $query->orWhereJsonContains('group_list', (string) $groupId);
+                    }
+                })
+                    ->with('permissions.applications')
+                    ->get();
+
+                $allRoles = $directRoles->merge($groupRoles);
+
+                $applications = [];
+                foreach ($allRoles as $permission) {
+                    foreach ($permission->applications as $application) {
+                        if (!isset($applications[$application->id])) {
+                            $applications[$application->id] = $application;
+                        }
+                    }
+                }
+            }
 
             return view('backend.reports.index', compact('reports', 'applications'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
     public function sendReportApplication(Request $request)
     {
         try {
-
             $request->validate(
                 [
                     'selectedApplication' => 'required|exists:applications,id',
@@ -51,47 +78,25 @@ class ReportController extends Controller
             if ($id != $currentApplicationId) {
                 // Clear the entire session if a new application ID is received
                 // Session::flush();
-                Session::forget([
-                    'applicationId',
-                    'statisticsMode',
-                    'dropdowns',
-                    'fieldNames',
-                    'fieldStatisticsNames',
-                    'dropdownFieldIds',
-                    'filterOperators',
-                    'filterValues',
-                    'advancedOperatorLogic',
-                    'fieldIds'
-                ]);
+                Session::forget(['applicationId', 'statisticsMode', 'dropdowns', 'fieldNames', 'fieldStatisticsNames', 'dropdownFieldIds', 'filterOperators', 'filterValues', 'advancedOperatorLogic', 'fieldIds']);
             }
             $application = Application::find($id);
-            $fields = Field::where('application_id', $id)
-                ->where('status', 1)
-                ->orderBy('name')
-                ->get();
+            $fields = Field::where('application_id', $id)->where('status', 1)->orderBy('name')->get();
             return view('backend.reports.applicationFields', compact('application', 'fields'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
     public function backReportApplication($id)
     {
         try {
-
             $application = Application::find($id);
-            $fields = Field::where('application_id', $id)
-                ->where('status', 1)
-                ->orderBy('name')
-                ->get();
+            $fields = Field::where('application_id', $id)->where('status', 1)->orderBy('name')->get();
             return view('backend.reports.applicationFields', compact('application', 'fields'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
@@ -153,13 +158,7 @@ class ReportController extends Controller
             if ($applicationId != $currentApplicationId) {
                 // Clear the entire session if a new application ID is received
                 // Session::flush();
-                Session::forget([
-                    'dataType',
-                    'selectChart',
-                    'borderWidth',
-                    'legendPosition',
-                    'labelColor',
-                ]);
+                Session::forget(['dataType', 'selectChart', 'borderWidth', 'legendPosition', 'labelColor']);
             }
 
             $statisticsMode = $request->input('statistics_mode', false);
@@ -184,17 +183,12 @@ class ReportController extends Controller
             // dd($fieldIds);
 
             if (in_array(null, $fieldIds)) {
-
                 if ($statisticsMode) {
                     if (count($fieldNames) > 0) {
-
-                        $formData = Formdata::where('application_id', $applicationId)
-                            ->pluck('data')
-                            ->toArray();
+                        $formData = Formdata::where('application_id', $applicationId)->pluck('data')->toArray();
 
                         $countData = [];
                         $groupData = [];
-
 
                         foreach ($dropdowns as $key => $dropdown) {
                             $fieldName = $fieldNames[$key];
@@ -218,19 +212,13 @@ class ReportController extends Controller
                         // dd($countData);
 
                         return view('backend.reports.viewCart', compact('countData', 'groupData', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns', 'reportId'));
-
                     } else {
-                        return redirect()
-                            ->back()
-                            ->with('error', 'Field are empty.');
+                        return redirect()->back()->with('error', 'Field are empty.');
                     }
                 } else {
                     if (count($fieldStatisticsNames) > 0) {
-                        $formData = Formdata::where('application_id', $applicationId)
-                            ->pluck('data')
-                            ->toArray();
+                        $formData = Formdata::where('application_id', $applicationId)->pluck('data')->toArray();
                         $allData = [];
-
                         foreach ($fieldStatisticsNames as $fieldName) {
                             $fieldValues = [];
 
@@ -256,27 +244,18 @@ class ReportController extends Controller
                                 $groupData[$fieldName] = $items;
                             }
                         }
-
-
                         return view('backend.reports.viewTable', compact('countData', 'allData', 'fieldStatisticsNames', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns', 'reportId'));
-
                     } else {
-                        return redirect()
-                            ->back()
-                            ->with('error', 'Field are empty.');
+                        return redirect()->back()->with('error', 'Field are empty.');
                     }
                 }
             } else {
-
                 if ($statisticsMode) {
-
                     // dd('$fieldNames');
                     // dd($fieldNames);
 
                     if (count($fieldNames) > 0) {
-                        $formData = Formdata::where('application_id', $applicationId)
-                            ->pluck('data')
-                            ->toArray();
+                        $formData = Formdata::where('application_id', $applicationId)->pluck('data')->toArray();
                         $filterData = [];
                         $count = count($fieldIds);
                         for ($i = 0; $i < $count; $i++) {
@@ -288,7 +267,6 @@ class ReportController extends Controller
                         }
 
                         $final_rows = [];
-
 
                         foreach ($formData as $data) {
                             $data = json_decode($data, true);
@@ -349,40 +327,39 @@ class ReportController extends Controller
                                 $variables = $this->getVariables($extractedTokens);
                                 $reconstructedString = $this->rebuildString($extractedTokens);
                                 foreach ($extractedTokens as &$token) {
-                                    if ($token["type"] === "variable") {
-                                        $variableValue = intval($token["value"]);
+                                    if ($token['type'] === 'variable') {
+                                        $variableValue = intval($token['value']);
                                         if (isset($filteredData[$variableValue - 1])) {
-                                            $token["value"] = $filteredData[$variableValue - 1] ? '1' : '0';
+                                            $token['value'] = $filteredData[$variableValue - 1] ? '1' : '0';
                                         }
                                     }
                                 }
 
                                 $reconstructedString = $this->rebuildString($extractedTokens);
-                                $reconstructedString = str_replace("AND", "&&", $reconstructedString);
-                                $reconstructedString = str_replace("OR", "||", $reconstructedString);
+                                $reconstructedString = str_replace('AND', '&&', $reconstructedString);
+                                $reconstructedString = str_replace('OR', '||', $reconstructedString);
                                 logger($reconstructedString);
-                                logger(eval("return $reconstructedString;"));
+                                logger(eval ("return $reconstructedString;"));
 
-                                if (eval("return $reconstructedString;")) {
+                                if (eval ("return $reconstructedString;")) {
                                     $final_rows[] = $data;
                                 }
                             } else {
-
-                                $arrayAsString = implode(' && ', array_map(function ($value) {
-                                    return $value ? 'true' : 'false';
-                                }, $filteredData));
-                                if (eval("return $arrayAsString;")) {
+                                $arrayAsString = implode(
+                                    ' && ',
+                                    array_map(function ($value) {
+                                        return $value ? 'true' : 'false';
+                                    }, $filteredData),
+                                );
+                                if (eval ("return $arrayAsString;")) {
                                     $final_rows[] = $data;
-
                                 }
                             }
-
                         }
 
                         // dd($final_rows);
                         // dd('yahi hai');
                         if (count($final_rows) > 0) {
-
                             $allData = [];
                             foreach ($final_rows as $row) {
                                 foreach ($row as $key => $value) {
@@ -399,7 +376,7 @@ class ReportController extends Controller
                                 $transformedData[] = json_encode([
                                     'id' => $id,
                                     'name' => $allData['name'][$index],
-                                    'email' => $allData['email'][$index]
+                                    'email' => $allData['email'][$index],
                                 ]);
                             }
                             logger($transformedData);
@@ -459,14 +436,10 @@ class ReportController extends Controller
                             logger($countData);
                             // dd($countData);
 
-
                             // dd($allData);
                             return view('backend.reports.viewCart', compact('countData', 'groupData', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns', 'reportId'));
-
                         } else {
-                            return redirect()
-                                ->back()
-                                ->with('error', 'Advanced Logic Not Valid.');
+                            return redirect()->back()->with('error', 'Advanced Logic Not Valid.');
                         }
 
                         // logger('dropdowns');
@@ -477,12 +450,8 @@ class ReportController extends Controller
                         // logger($dropdownFieldIds);
                         // logger('formData');
                         // logger($formData);
-
-
                     } else {
-                        return redirect()
-                            ->back()
-                            ->with('error', 'Field are empty.');
+                        return redirect()->back()->with('error', 'Field are empty.');
                     }
                 } else {
                     if (count($fieldStatisticsNames) > 0) {
@@ -496,13 +465,9 @@ class ReportController extends Controller
                             ];
                         }
 
-                        $formData = Formdata::where('application_id', $applicationId)
-                            ->pluck('data')
-                            ->toArray();
-
+                        $formData = Formdata::where('application_id', $applicationId)->pluck('data')->toArray();
 
                         $final_rows = [];
-
 
                         foreach ($formData as $data) {
                             $data = json_decode($data, true);
@@ -563,39 +528,38 @@ class ReportController extends Controller
                                 }
                             }
                             if ($advancedOperatorLogic) {
-
                                 $extractedTokens = $this->extractVariablesAndOperators($advancedOperatorLogic);
                                 $variables = $this->getVariables($extractedTokens);
                                 $reconstructedString = $this->rebuildString($extractedTokens);
                                 foreach ($extractedTokens as &$token) {
-                                    if ($token["type"] === "variable") {
-                                        $variableValue = intval($token["value"]);
+                                    if ($token['type'] === 'variable') {
+                                        $variableValue = intval($token['value']);
                                         if (isset($filteredData[$variableValue - 1])) {
-                                            $token["value"] = $filteredData[$variableValue - 1] ? '1' : '0';
+                                            $token['value'] = $filteredData[$variableValue - 1] ? '1' : '0';
                                         }
                                     }
                                 }
 
                                 $reconstructedString = $this->rebuildString($extractedTokens);
-                                $reconstructedString = str_replace("AND", "&&", $reconstructedString);
-                                $reconstructedString = str_replace("OR", "||", $reconstructedString);
+                                $reconstructedString = str_replace('AND', '&&', $reconstructedString);
+                                $reconstructedString = str_replace('OR', '||', $reconstructedString);
                                 logger($reconstructedString);
-                                logger(eval("return $reconstructedString;"));
+                                logger(eval ("return $reconstructedString;"));
 
-                                if (eval("return $reconstructedString;")) {
+                                if (eval ("return $reconstructedString;")) {
                                     $final_rows[] = $data;
                                 }
                             } else {
-
-                                $arrayAsString = implode(' && ', array_map(function ($value) {
-                                    return $value ? 'true' : 'false';
-                                }, $filteredData));
-                                if (eval("return $arrayAsString;")) {
+                                $arrayAsString = implode(
+                                    ' && ',
+                                    array_map(function ($value) {
+                                        return $value ? 'true' : 'false';
+                                    }, $filteredData),
+                                );
+                                if (eval ("return $arrayAsString;")) {
                                     $final_rows[] = $data;
-
                                 }
                             }
-
                         }
                         if (count($final_rows) > 0) {
                             $allData = [];
@@ -607,33 +571,25 @@ class ReportController extends Controller
                                     $allData[$key][] = $value;
                                 }
                             }
+
                             return view('backend.reports.viewTable', compact('allData', 'fieldStatisticsNames', 'applicationId', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'fieldIds', 'dropdowns', 'reportId'));
                         } else {
-                            return redirect()
-                                ->back()
-                                ->with('error', 'Advanced Logic Not Valid.');
+                            return redirect()->back()->with('error', 'Advanced Logic Not Valid.');
                         }
                     } else {
-                        return redirect()
-                            ->back()
-                            ->with('error', 'Field are empty.');
+                        return redirect()->back()->with('error', 'Field are empty.');
                     }
                 }
             }
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
     public function viewSaveReport($id)
     {
         try {
-
-            $users = User::where('status', 1)
-                ->latest()
-                ->get();
+            $users = User::where('status', 1)->latest()->get();
             $groups = Group::where(['status' => 1])
                 ->latest()
                 ->get();
@@ -644,9 +600,7 @@ class ReportController extends Controller
             return view('backend.reports.saveReport', compact('users', 'groups', 'selectedgroups', 'selectedusers', 'id'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
     public function storeReport(Request $request)
@@ -669,7 +623,6 @@ class ReportController extends Controller
             if ($reportId) {
                 $report = Report::findOrFail($reportId);
                 $message = 'Report updated successfully';
-
             } else {
                 $report = new Report();
                 $message = 'Report Add successfully';
@@ -685,7 +638,7 @@ class ReportController extends Controller
             $report->user_list = json_encode($request->input('user_list'));
             $report->group_list = json_encode($request->input('group_list'));
             $report->description = $request->input('description');
-            $report->data_type = $request->input('data_type');
+            $report->data_type = $request->input('dataType');
             $report->chart_type = $request->input('chart_type');
             $report->selectChart = $request->input('selectChart');
             $report->borderWidth = $request->input('borderWidth');
@@ -696,12 +649,9 @@ class ReportController extends Controller
             $report->permissions = $request->input('flexRadioDefault', null);
             $report->save();
 
-
             return redirect()->route('get.view')->with('success', $message);
         } catch (\Exception $th) {
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
     public function storeCertReport(Request $request)
@@ -723,7 +673,6 @@ class ReportController extends Controller
             $selectedPalette = $request->input('selectedPalette');
             $labelColor = json_encode($request->input('labelColor'));
             if ($report_id) {
-
                 $report = Report::findOrFail($report_id);
                 $selectedgroups = [];
                 if ($report->group_list != 'null') {
@@ -754,11 +703,7 @@ class ReportController extends Controller
                 $report = null;
                 $selectedgroups = [];
                 $selectedusers = [];
-
-
             }
-
-
 
             Session::put('dataType', $dataType);
             Session::put('selectChart', $selectChart);
@@ -766,20 +711,15 @@ class ReportController extends Controller
             Session::put('legendPosition', $legendPosition);
             Session::put('labelColor', $labelColor);
             Session::put('selectedPalette', $selectedPalette);
-            $users = User::where('status', 1)
-                ->latest()
-                ->get();
+            $users = User::where('status', 1)->latest()->get();
             $groups = Group::where(['status' => 1])
                 ->latest()
                 ->get();
 
-
             return view('backend.reports.saveReport', compact('users', 'groups', 'selectedgroups', 'selectedusers', 'applicationId', 'data', 'statisticsMode', 'fieldStatisticsNames', 'fieldNames', 'dropdowns', 'dataType', 'selectChart', 'borderWidth', 'labelColor', 'legendPosition', 'report_id', 'report', 'selectedPalette'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
     public function deleteReport($id)
@@ -790,14 +730,10 @@ class ReportController extends Controller
             // Perform the deletion
             $report->delete();
 
-            return redirect()
-                ->back()
-                ->with('success', 'Report deleted successfully');
+            return redirect()->back()->with('success', 'Report deleted successfully');
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
     public function viewChart($id)
@@ -818,9 +754,7 @@ class ReportController extends Controller
             }
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
     public function editChart($id)
@@ -829,17 +763,12 @@ class ReportController extends Controller
             $report = Report::findOrFail($id);
             $applicationId = $report->application_id;
             $application = Application::find($applicationId);
-            $fields = Field::where('application_id', $applicationId)
-                ->where('status', 1)
-                ->orderBy('name')
-                ->get();
+            $fields = Field::where('application_id', $applicationId)->where('status', 1)->orderBy('name')->get();
 
-            return view('backend.reports.applicationFields', compact('application', 'fields', 'id'));
+            return view('backend.reports.editApplicationFields', compact('application', 'fields', 'id'));
         } catch (\Exception $th) {
             //throw $th;
-            return redirect()
-                ->back()
-                ->with('error', $th->getMessage());
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
     public function handleFilteredDataRequest(Request $request)
@@ -851,7 +780,6 @@ class ReportController extends Controller
     }
     public function removeFromSession($fieldNameToRemove)
     {
-
         $fieldNames = session('fieldNames');
         if (is_array($fieldNames)) {
             if (($key = array_search($fieldNameToRemove, $fieldNames)) !== false) {
