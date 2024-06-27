@@ -51,6 +51,8 @@ class UserController extends Controller
     {
         try {
             //code...
+            // dd($request->all());
+
             $rules = [
                 'email' => 'required',
                 'name' => 'required',

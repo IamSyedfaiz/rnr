@@ -3,112 +3,78 @@
 
 <head>
     <meta charset="utf-8">
-    <title>DASHMIN</title>
+    <title>Dashboard - RNR</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
+    <!-- Favicons -->
+    <link href="assets/img/favicon.png" rel="icon">
+    <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
-    <!-- Favicon -->
-    <link href="img/favicon.ico" rel="icon">
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
 
-    <!-- Google Web Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Icon Font Stylesheet -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-
-    <!-- Libraries Stylesheet -->
-    <link href="{{ asset('public/backend/dashmin/lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('public/backend/dashmin/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css') }}"
-        rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
-
-    <!-- Customized Bootstrap Stylesheet -->
-    <link href="{{ asset('public/backend/dashmin/css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Vendor CSS Files -->
+    <link href="{{ asset('public/backend/assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/backend/assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/backend/assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/backend/assets/vendor/quill/quill.snow.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/backend/assets/vendor/quill/quill.bubble.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/backend/assets/vendor/remixicon/remixicon.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/backend/assets/vendor/simple-datatables/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/backend/assets/css/style.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-    {{-- <link rel="stylesheet" href="/resources/demos/style.css"> --}}
-    <!-- Template Stylesheet -->
-    <link href="{{ asset('public/backend/dashmin/css/style.css') }}" rel="stylesheet">
-    {{-- <script type="text/javascript" src="https://code.jquery.com/jquery-1.9.1.js"></script> --}}
-    <link href="{{ asset('public/backend/dashmin/css/jquery.mentionsInput.css') }}" rel="stylesheet">
-    <!-- Template Main CSS File -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js" type="text/javascript">
-    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    @stack('style')
 </head>
 
 <body>
-    <div class="container-xxl position-relative bg-white d-flex p-0">
-        <!-- Spinner Start -->
-        <div id="spinner"
-            class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
-            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
-                <span class="sr-only">Loading...</span>
-            </div>
-        </div>
-        <!-- Spinner End -->
+    <!-- ======= Header ======= -->
+    @include('backend.layouts.navbar')
+
+    <!-- End Header -->
+
+    <!-- ======= Sidebar ======= -->
+
+    @include('backend.layouts.sidebar')
+
+    @yield('content')
 
 
-        <!-- Sidebar Start -->
-        @include('backend.layouts.sidebar')
-        <!-- Sidebar End -->
+    <!-- End Sidebar-->
 
 
-        <!-- Content Start -->
-        <div class="content">
-            @include('backend.layouts.navbar')
-            @if (Session::has('error'))
-                <div class="alert alert-danger alert-dismissible fade in show col-md-12">
-                    <strong>Error!</strong> {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
+    <!-- End #main -->
 
-            @if (Session::has('success'))
-                <div class="alert alert-success alert-dismissible fade in show col-md-12">
-                    <strong>Success!</strong> {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-            @yield('content')
-            @include('backend.layouts.footer')
+    <!-- ======= Footer ======= -->
+    @include('backend.layouts.footer')
+
+    <!-- End Footer -->
 
 
-        </div>
-        <!-- Content End -->
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+            class="bi bi-arrow-up-short"></i></a>
 
+    <!-- Vendor JS Files -->
+    <script src="{{ asset('public/backend/assets/vendor/apexcharts/apexcharts.min.js') }}"></script>
+    <script src="{{ asset('public/backend/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('public/backend/assets/vendor/chart.js/chart.umd.js') }}"></script>
+    <script src="{{ asset('public/backend/assets/vendor/echarts/echarts.min.js') }}"></script>
+    <script src="{{ asset('public/backend/assets/vendor/quill/quill.js') }}"></script>
+    <script src="{{ asset('public/backend/assets/vendor/simple-datatables/simple-datatables.js') }}"></script>
+    <script src="{{ asset('public/backend/assets/vendor/tinymce/tinymce.min.js') }}"></script>
+    <script src="{{ asset('public/backend/assets/vendor/php-email-form/validate.js') }}"></script>
+    <script src="{{ asset('public/backend/assets/js/main.js') }}"></script>
 
-        <!-- Back to Top -->
-        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
-    </div>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 
-    <!-- JavaScript Libraries -->
-    <!--<script src="https://code.jquery.com/jquery-3.6.0.js"></script>-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ asset('public/backend/dashmin/lib/chart/chart.min.js') }}"></script>
-    <script src="{{ asset('public/backend/dashmin/lib/easing/easing.min.js') }}"></script>
-    <script src="{{ asset('public/backend/dashmin/lib/waypoints/waypoints.min.js') }}"></script>
-    <script src="{{ asset('public/backend/dashmin/lib/owlcarousel/owl.carousel.min.js') }}"></script>
-    <script src="{{ asset('public/backend/dashmin/lib/tempusdominus/js/moment.min.js') }}"></script>
-    <script src="{{ asset('public/backend/dashmin/lib/tempusdominus/js/moment-timezone.min.js') }}"></script>
-    <script src="{{ asset('public/backend/dashmin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js') }}"></script>
-    <script src="https://cdn.ckeditor.com/4.20.1/standard/ckeditor.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.0.0/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.js"></script>
-    <script src="{{ asset('public/backend/dashmin/lib/jquery.events.input.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('public/backend/dashmin/lib/jquery.elastic.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('public/backend/dashmin/js/jquery.mentionsInput.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('public/backend/dashmin/js/examples.js') }}" type="text/javascript"></script>
-
-    <script>
+    @yield('script')
+    {{-- <script>
         // $(document).ready(function() {
         //     $('#example').DataTable();
         // });
@@ -143,7 +109,7 @@
     </script>
 
     @yield('script')
-    @stack('style')
+    @stack('style') --}}
 </body>
 
 </html>

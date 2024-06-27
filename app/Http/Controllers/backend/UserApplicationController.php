@@ -588,7 +588,6 @@ class UserApplicationController extends Controller
                 }
                 // dd(12);
                 return redirect()->back();
-
             } else {
                 logger('No Workflow ID found for Application ID: ' . $id);
                 $fieldDatas = Field::where('application_id', $application->id)
@@ -858,7 +857,6 @@ class UserApplicationController extends Controller
     //                 $this->triggerButtonChildren($requestData, $childrenTasksIds[1]);
     //             }
 
-
     //         } elseif ($taskParent !== null && $taskParent->name == 'SendNotification') {
     //             logger('=======');
     //             logger('SendNotification');
@@ -1021,11 +1019,9 @@ class UserApplicationController extends Controller
             // logger($childrenTasksIds);
             $this->TriggerUpdateContent($requestData, $tasks->id);
             $this->triggerButtonChildren($requestData, $childrenTasksIds[0]);
-
         } elseif ($tasks->name == 'UserAction') {
             logger('=======');
             logger('UserAction');
-
         } else {
             logger('No Workflow ID found for Application ID: ');
         }
@@ -1361,9 +1357,12 @@ class UserApplicationController extends Controller
                         return true;
                     }
                 } else {
-                    $arrayAsString = implode(' && ', array_map(function ($value) {
-                        return $value ? 'true' : 'false';
-                    }, $bolos));
+                    $arrayAsString = implode(
+                        ' && ',
+                        array_map(function ($value) {
+                            return $value ? 'true' : 'false';
+                        }, $bolos),
+                    );
                     if (eval ("return $arrayAsString;")) {
                         return true;
                     }
@@ -1428,7 +1427,7 @@ class UserApplicationController extends Controller
                 Formdata::create([
                     'application_id' => $filteredData['application_id'],
                     'data' => $updateContent->data,
-                    'userid' => $filteredData['userid']
+                    'userid' => $filteredData['userid'],
                 ]);
                 logger('Form data created successfully.');
                 return back()->with('success', 'Data saved successfully.');
@@ -1484,18 +1483,50 @@ class UserApplicationController extends Controller
             $application = Application::find($id);
             // $application = Application::with(['roles.permissions'])->findOrFail($id);
             // $roles = $application->rolestable()->first();
+
+
+
+            // $roles = Role::whereHas('permissions', function ($query) use ($id) {
+            //     $query->where('application_id', $id);
+            // })
+            //     ->with([
+            //         'permissions' => function ($query) use ($id) {
+            //             $query->where('application_id', $id);
+            //         },
+            //     ])
+            //     ->get();
+
+            // // Format the permissions into a string for each role
+            // $roles->each(function ($role) {
+            //     $role->permissions_list = $role->permissions->pluck('name')->implode(', ');
+            // });
+
+
             $roles = Role::whereHas('permissions', function ($query) use ($id) {
                 $query->where('application_id', $id);
-            })->with([
-                        'permissions' => function ($query) use ($id) {
-                            $query->where('application_id', $id);
-                        }
-                    ])->get();
+            })
+                ->with([
+                    'permissions' => function ($query) use ($id) {
+                        $query->where('application_id', $id);
+                    },
+                ])
+                ->get();
 
             // Format the permissions into a string for each role
             $roles->each(function ($role) {
-                $role->permissions_list = $role->permissions->pluck('name')->implode(', ');
+                // Use pluck('name')->unique()->implode(', ') to ensure unique permission names
+                $role->permissions_list = $role->permissions->pluck('name')->unique()->implode(', ');
             });
+
+            // Collecting unique permissions from all roles
+            $uniquePermissions = $roles->flatMap(function ($role) {
+                return $role->permissions->pluck('name');
+            })->unique()->sort()->toArray();
+
+            // dd($uniquePermissions);
+            // dd($roles);
+
+
             $dbfields = Field::where(['application_id' => $application->id, 'status' => 1])
                 ->orderBy('forder', 'ASC')
                 ->get();
@@ -1545,12 +1576,9 @@ class UserApplicationController extends Controller
                 # code...
                 $index = null;
             }
+            // dd($roles);
 
-            // dd($index, $fields);
-            // dd($fields);
-            // dd($application->rolestable()->get());
-            // dd($forms, $fields, $index);
-            return view('backend.userapplication.applicationlist', compact('forms', 'index', 'id', 'application', 'fields', 'roles'));
+            return view('backend.userapplication.applicationlist', compact('forms', 'index', 'id', 'application', 'fields', 'roles', 'uniquePermissions'));
         } catch (\Exception $th) {
             //throw $th;
             //throw $th;

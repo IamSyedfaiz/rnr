@@ -12,23 +12,20 @@
     <link href="img/favicon.ico" rel="icon">
 
     <!-- Google Web Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
 
-    <!-- Icon Font Stylesheet -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-
-    <!-- Libraries Stylesheet -->
-    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-    <link href="lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
-
-    <!-- Customized Bootstrap Stylesheet -->
-    <link href="{{ asset('public/backend/dashmin/css/bootstrap.min.css') }}" rel="stylesheet">
-
-    <!-- Template Stylesheet -->
-    <link href="{{ asset('public/backend/dashmin/css/style.css') }}" rel="stylesheet">
+    <!-- Vendor CSS Files -->
+    <link href="{{ asset('public/backend/assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/backend/assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/backend/assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/backend/assets/vendor/quill/quill.snow.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/backend/assets/vendor/quill/quill.bubble.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/backend/assets/vendor/remixicon/remixicon.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/backend/assets/vendor/simple-datatables/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/backend/assets/css/style.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -36,18 +33,14 @@
     @yield('content')
 </body>
 
-<!-- JavaScript Libraries -->
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="lib/chart/chart.min.js"></script>
-<script src="lib/easing/easing.min.js"></script>
-<script src="lib/waypoints/waypoints.min.js"></script>
-<script src="lib/owlcarousel/owl.carousel.min.js"></script>
-<script src="lib/tempusdominus/js/moment.min.js"></script>
-<script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
-<script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
-
-<!-- Template Javascript -->
-<script src="{{ asset('public/backend/dashmin/js/main.js') }}"></script>
+<script src="{{ asset('public/backend/assets/vendor/apexcharts/apexcharts.min.js') }}"></script>
+<script src="{{ asset('public/backend/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('public/backend/assets/vendor/chart.js/chart.umd.js') }}"></script>
+<script src="{{ asset('public/backend/assets/vendor/echarts/echarts.min.js') }}"></script>
+<script src="{{ asset('public/backend/assets/vendor/quill/quill.js') }}"></script>
+<script src="{{ asset('public/backend/assets/vendor/simple-datatables/simple-datatables.js') }}"></script>
+<script src="{{ asset('public/backend/assets/vendor/tinymce/tinymce.min.js') }}"></script>
+<script src="{{ asset('public/backend/assets/vendor/php-email-form/validate.js') }}"></script>
+<script src="{{ asset('public/backend/assets/js/main.js') }}"></script>
 
 </html>
