@@ -1,368 +1,386 @@
 @extends('backend.layouts.app')
 @section('content')
     <!-- Recent Sales Start -->
-    <div class="container-fluid pt-4 px-4">
-        <div class="bg-light text-start rounded p-4">
-            <div class="d-flex align-items-center justify-content-between mb-4">
-                <h6 class="mb-0">Field Edit</h6>
-                <a href="{{ route('application.edit', $field->application_id) }}"><button class="btn btn-danger">
-                        back </a>
-            </div>
-            <div class="bg-light rounded h-100 p-4">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6 class="mb-4">Field </h6>
-
-                    </div>
-
-                    {{-- <div class="col-md-6 text-end">
-                        <button class="btn btn-primary">
-                            <a href="">
-                                <-return back</a> </button>
-                    </div> --}}
-
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <div class="row">
+                <div class="col-md-6">
+                    <h1>Add Application Field</h1>
                 </div>
+                <div class="col-md-6 text-end">
+                    <a href="{{ route('application.edit', $field->application_id) }}" class="btn btn-secondary"><i
+                            class="bi bi-arrow-left-short"></i>Back</a>
+                </div>
+            </div>
+            @if (Session::has('error'))
+                <div class="alert alert-danger alert-dismissible fade in show col-md-12 mt-2">
+                    <strong>Error!</strong> {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
 
-                <form action="{{ route('field.update', $field->id) }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-                    <div class="mb-3">
-                        <label for="exampleInputEmail1" class="form-label"> <strong>Name</strong> </label>
-                        <input type="text" class="form-control @error('name') is-invalid @enderror" name="name"
-                            id="name" aria-describedby="namehelp" value="{{ str_replace('_', ' ', $field->name) }}">
-                        @error('name')
-                            <label id="name-error" class="error text-danger" for="name">{{ $message }}</label>
-                        @enderror
-                        <div id="namehelp" class="form-text">
-                        </div>
-                    </div>
-                    <div class="class mb-3">
-                        <label for="exampleInputEmail1" class="form-label"> <strong>Type</strong> </label>
-                        <select name="type" id="" onclick="fieldtype(this.value);"
-                            class="form-control @error('type') is-invalid @enderror" required>
-                            <option value="date">Date</option>
-                            <option value="attachment">Attachment</option>
-                            <option value="images">Images</option>
-                            <option value="ip_address">IP Address</option>
-                            <option value="number">Numeric</option>
-                            <option value="text">Text</option>
-                            <option value="value_list">Value List</option>
-                            <option value="user_group_list">User Group List</option>
-                        </select>
-                    </div>
-                    <div class="class mb-3 row">
-
-                        <div class="col-md-6">
-                            <label for="exampleInputEmail1" class="form-label"> <strong>Status</strong> </label>
-                            <select name="status" id=""
-                                class="form-control @error('status') is-invalid @enderror">
-                                <option value="1">Active</option>
-                                <option value="0">In-Active</option>
-                            </select>
-
-                        </div>
-
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="accordion" id="accordionExample">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="headingOne">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                        Options
-                                    </button>
-                                </h2>
-                                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
-                                    data-bs-parent="#accordionExample">
-                                    <div class="accordion-body">
-
-                                        @if ($field->requiredfield == 1)
-                                            <input type="checkbox" id="" name="requiredfield" value="1"
-                                                checked>
-                                            <label for=""> Make it required field</label><br>
-                                        @else
-                                            <input type="checkbox" id="" name="requiredfield" value="1">
-                                            <label for=""> Make it required field</label><br>
-                                        @endif
-
-                                        @if ($field->requireuniquevalue == 1)
-                                            <input type="checkbox" id="" name="requireuniquevalue" checked
-                                                value="1">
-                                            <label for=""> Make it unique field</label><br>
-                                        @else
-                                            <input type="checkbox" id="" name="requireuniquevalue" value="1">
-                                            <label for=""> Make it unique field</label><br>
-                                        @endif
-
-                                        @if ($field->keyfield == 1)
-                                            <input type="checkbox" id="" name="keyfield" checked value="1">
-                                            <label for=""> Make it key field</label><br>
-                                        @else
-                                            <input type="checkbox" id="" name="keyfield" value="1">
-                                            <label for=""> Make it key field</label><br>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="headingTwo">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                        Access
-                                    </button>
-                                </h2>
-                                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
-                                    data-bs-parent="#accordionExample">
-                                    <div class="accordion-body">
-
-
-                                        <input type="radio" name="access" value="public">
-                                        <label for="">Public</label><br>
-
-                                        <div class="row mb-2">
-                                            <div class="col-md-10">
-                                                <input type="radio" onclick="showgroupsname()" name="access"
-                                                    value="private">
-                                                <label for="">Private</label><br>
-                                            </div>
-
-                                        </div>
-                                        <div class="col-md-12 d-none showaddbtn" style="width: 100%">
-
-                                            <div class="d-flex justify-content-between">
-                                                <div class="col-md-6">
-                                                    <button type="button" class="btn btn-primary text-end"
-                                                        data-bs-toggle="modal" data-bs-target="#exampleModalusers"
-                                                        data-bs-whatever="@mdo">Add Users</button>
-
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <button type="button" class="btn btn-primary text-end"
-                                                        data-bs-toggle="modal" data-bs-target="#exampleModal"
-                                                        data-bs-whatever="@mdo">Add Groups</button>
-
-                                                </div>
-
+            @if (Session::has('success'))
+                <div class="alert alert-success alert-dismissible fade in show col-md-12 mt-2">
+                    <strong>Success!</strong> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item active">Add Application Field</li>
+                </ol>
+            </nav>
+        </div><!-- End Page Title -->
+        <section class="section dashboard">
+            <div class="row">
+                <!-- Left side columns -->
+                <div class="col-lg-12">
+                    <div class="row">
+                        <!-- Reports -->
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body pt-3">
+                                    <form action="{{ route('field.update', $field->id) }}" method="POST"
+                                        enctype="multipart/form-data">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="mb-3">
+                                            <label for="exampleInputEmail1" class="form-label"> <strong>Name</strong>
+                                            </label>
+                                            <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                                name="name" id="name" aria-describedby="namehelp"
+                                                value="{{ str_replace('_', ' ', $field->name) }}">
+                                            @error('name')
+                                                <label id="name-error" class="error text-danger"
+                                                    for="name">{{ $message }}</label>
+                                            @enderror
+                                            <div id="namehelp" class="form-text">
                                             </div>
                                         </div>
+                                        <div class="class mb-3">
+                                            <label for="exampleInputEmail1" class="form-label"> <strong>Type</strong>
+                                            </label>
+                                            <select name="type" id="" onclick="fieldtype(this.value);"
+                                                class="form-control @error('type') is-invalid @enderror" required>
+                                                <option value="date">Date</option>
+                                                <option value="attachment">Attachment</option>
+                                                <option value="images">Images</option>
+                                                <option value="ip_address">IP Address</option>
+                                                <option value="number">Numeric</option>
+                                                <option value="text">Text</option>
+                                                <option value="value_list">Value List</option>
+                                                <option value="user_group_list">User Group List</option>
+                                            </select>
+                                        </div>
+                                        <div class="class mb-3 row">
 
-                                        <div class="groupsname row">
                                             <div class="col-md-6">
-                                                <select id="" class="form-control " multiple disabled>
-                                                    @foreach ($selectedusers as $item)
-                                                        <option selected>
-                                                            {{ $item->name }}
-                                                        </option>
-                                                    @endforeach
+                                                <label for="exampleInputEmail1" class="form-label"> <strong>Status</strong>
+                                                </label>
+                                                <select name="status" id=""
+                                                    class="form-control @error('status') is-invalid @enderror">
+                                                    <option value="1">Active</option>
+                                                    <option value="0">In-Active</option>
                                                 </select>
+
                                             </div>
-                                            <div class="col-md-6">
-                                                <select id="" class="form-control " multiple disabled>
-                                                    @foreach ($selectedgroups as $item)
-                                                        <option selected>
-                                                            {{ $item->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <div class="accordion" id="accordionExample">
+                                                <div class="accordion-item">
+                                                    <h2 class="accordion-header" id="headingOne">
+                                                        <button class="accordion-button" type="button"
+                                                            data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                                                            aria-expanded="true" aria-controls="collapseOne">
+                                                            Options
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapseOne" class="accordion-collapse collapse show"
+                                                        aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                                        <div class="accordion-body">
+
+                                                            @if ($field->requiredfield == 1)
+                                                                <input type="checkbox" id="" name="requiredfield"
+                                                                    value="1" checked>
+                                                                <label for=""> Make it required field</label><br>
+                                                            @else
+                                                                <input type="checkbox" id="" name="requiredfield"
+                                                                    value="1">
+                                                                <label for=""> Make it required field</label><br>
+                                                            @endif
+
+                                                            @if ($field->requireuniquevalue == 1)
+                                                                <input type="checkbox" id=""
+                                                                    name="requireuniquevalue" checked value="1">
+                                                                <label for=""> Make it unique field</label><br>
+                                                            @else
+                                                                <input type="checkbox" id=""
+                                                                    name="requireuniquevalue" value="1">
+                                                                <label for=""> Make it unique field</label><br>
+                                                            @endif
+
+                                                            @if ($field->keyfield == 1)
+                                                                <input type="checkbox" id="" name="keyfield"
+                                                                    checked value="1">
+                                                                <label for=""> Make it key field</label><br>
+                                                            @else
+                                                                <input type="checkbox" id="" name="keyfield"
+                                                                    value="1">
+                                                                <label for=""> Make it key field</label><br>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="accordion-item">
+                                                    <h2 class="accordion-header" id="headingTwo">
+                                                        <button class="accordion-button collapsed" type="button"
+                                                            data-bs-toggle="collapse" data-bs-target="#collapseTwo"
+                                                            aria-expanded="false" aria-controls="collapseTwo">
+                                                            Access
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapseTwo" class="accordion-collapse collapse"
+                                                        aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                                        <div class="accordion-body">
+
+
+                                                            <input type="radio" name="access" value="public">
+                                                            <label for="">Public</label><br>
+
+                                                            <div class="row mb-2">
+                                                                <div class="col-md-10">
+                                                                    <input type="radio" onclick="showgroupsname()"
+                                                                        name="access" value="private">
+                                                                    <label for="">Private</label><br>
+                                                                </div>
+
+                                                            </div>
+                                                            <div class="col-md-12 d-none showaddbtn mb-2"
+                                                                style="width: 100%">
+
+                                                                <div class="d-flex justify-content-between">
+                                                                    <div class="col-md-6">
+                                                                        <button type="button"
+                                                                            class="btn btn-primary text-end"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#exampleModalusers"
+                                                                            data-bs-whatever="@mdo">Add Users</button>
+
+                                                                    </div>
+
+                                                                    <div class="col-md-6">
+                                                                        <button type="button"
+                                                                            class="btn btn-primary text-end"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#exampleModal"
+                                                                            data-bs-whatever="@mdo">Add Groups</button>
+
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="groupsname row">
+                                                                <div class="col-md-6">
+                                                                    <select id="" class="form-control " multiple
+                                                                        disabled>
+                                                                        @foreach ($selectedusers as $item)
+                                                                            <option selected>
+                                                                                {{ $item->name }}
+                                                                            </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <select id="" class="form-control " multiple
+                                                                        disabled>
+                                                                        @foreach ($selectedgroups as $item)
+                                                                            <option selected>
+                                                                                {{ $item->name }}
+                                                                            </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="accordion-item">
+                                                    <h2 class="accordion-header" id="headingThree">
+                                                        <button class="accordion-button collapsed" type="button"
+                                                            data-bs-toggle="collapse" data-bs-target="#collapseThree"
+                                                            aria-expanded="false" aria-controls="collapseThree">
+                                                            Type Configurations
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapseThree" class="accordion-collapse collapse"
+                                                        aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                                                        <div class="accordion-body changeconfigrations">
+
+                                                        </div>
+                                                        <div class="showvaluelist d-none">
+
+                                                            @if (json_decode($field->valuelistvalue) != null)
+                                                                @php
+                                                                    $valuelist = json_decode($field->valuelistvalue);
+                                                                    // dd($valuelist);
+                                                                @endphp
+                                                                @foreach ($valuelist as $item)
+                                                                    <div class="mb-3 valuelistvalue">
+                                                                        <input type="text" name="valuelistvalue[]"
+                                                                            class="form-control mb-2"
+                                                                            placeholder="Enter ValueList value"
+                                                                            value="{{ $item }}">
+                                                                    </div>
+                                                                @endforeach
+                                                            @else
+                                                                <div class="mb-3 valuelistvalue">
+                                                                    <input type="text" name="valuelistvalue[]"
+                                                                        class="form-control mb-2"
+                                                                        placeholder="Enter ValueList value">
+                                                                </div>
+                                                            @endif
+                                                            <input type="button" class="btn btn-primary mb-2"
+                                                                onclick="addvaluelist()" value="add more">
+                                                            <input type="button" class="btn btn-danger mb-2"
+                                                                onclick="removevaluelist()" value="remove">
+
+                                                        </div>
+
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
 
 
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="headingThree">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapseThree" aria-expanded="false"
-                                        aria-controls="collapseThree">
-                                        Type Configurations
-                                    </button>
-                                </h2>
-                                <div id="collapseThree" class="accordion-collapse collapse"
-                                    aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-                                    <div class="accordion-body changeconfigrations">
+                                        <div class="modal fade" id="exampleModalusers" tabindex="-1"
+                                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="exampleModalLabel">Add Users</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3 text-start">
+                                                                    <label for="filter">Users&nbsp;</label><input
+                                                                        id="filter" type="text"
+                                                                        class="filter form-control"
+                                                                        placeholder="Search Users">
+                                                                    <br />
 
-                                    </div>
-                                    <div class="showvaluelist d-none">
-
-                                        @if (json_decode($field->valuelistvalue) != null)
-                                            @php
-                                                $valuelist = json_decode($field->valuelistvalue);
-                                                // dd($valuelist);
-                                            @endphp
-                                            @foreach ($valuelist as $item)
-                                                <div class="mb-3 valuelistvalue">
-                                                    <input type="text" name="valuelistvalue[]"
-                                                        class="form-control mb-2" placeholder="Enter ValueList value"
-                                                        value="{{ $item }}">
-                                                </div>
-                                            @endforeach
-                                        @else
-                                            <div class="mb-3 valuelistvalue">
-                                                <input type="text" name="valuelistvalue[]" class="form-control mb-2"
-                                                    placeholder="Enter ValueList value">
-                                            </div>
-                                        @endif
-                                        <input type="button" class="btn btn-primary mb-2" onclick="addvaluelist()"
-                                            value="add more">
-                                        <input type="button" class="btn btn-danger mb-2" onclick="removevaluelist()"
-                                            value="remove">
-
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                                                    <div id="mdi"
+                                                                        style="max-height: 10%; overflow:auto;">
+                                                                        @foreach ($users as $item)
+                                                                            <span><input class="talents_idmd-checkbox"
+                                                                                    name="users[]"
+                                                                                    onchange="dragdrop1(this.value, this.id);"
+                                                                                    type="checkbox"
+                                                                                    id="{{ $item->name . ' ' . $item->lastname }}"
+                                                                                    @if (in_array($item->id, array_column($selectedusers, 'id'))) checked @endif
+                                                                                    value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
+                                                                        @endforeach
+                                                                    </div>
 
 
-
-                    {{-- <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Select Groups</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-
-                                <div class="modal-body">
-                                    <div class="mb-3 text-start">
-                                        <label for="message-text" class="col-form-label fw-bold text-left ">Groups
-                                            <small>(ctrl + click) multiple select</small> </label>
-                                        <select name="groups[]" id="" class="form-control" multiple>
-                                            @foreach ($groups as $item)
-                                                <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                            @endforeach
-
-
-                                        </select>
-                                    </div>
-
-                                </div>
-
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
-                                    
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
-
-                    <div class="modal fade" id="exampleModalusers" tabindex="-1" aria-labelledby="exampleModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Add Users</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3 text-start">
-                                                <label for="filter">Users&nbsp;</label><input id="filter"
-                                                    type="text" class="filter form-control"
-                                                    placeholder="Search Users">
-                                                <br />
-
-                                                <div id="mdi" style="max-height: 10%; overflow:auto;">
-                                                    @foreach ($users as $item)
-                                                        <span><input class="talents_idmd-checkbox" name="users[]"
-                                                                onchange="dragdrop1(this.value, this.id);" type="checkbox"
-                                                                id="{{ $item->name . ' ' . $item->lastname }}"
-                                                                @if (in_array($item->id, array_column($selectedusers, 'id'))) checked @endif
-                                                                value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
-                                                    @endforeach
-                                                </div>
-
-
-                                            </div>
-                                        </div>
-                                        {{-- <div class="col-md-6">
+                                                                </div>
+                                                            </div>
+                                                            {{-- <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label for="users">Selected Users</label>
                                                 <select name="users[]" id="" class="form-control" multiple>
                                                 </select>
                                             </div>
                                         </div> --}}
-                                    </div>
-                                </div>
+                                                        </div>
+                                                    </div>
 
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close</button>
-                                    {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Add Group</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3 text-start">
-                                                <label for="filter">Groups&nbsp;</label><input id="filter"
-                                                    type="text" class="filter form-control"
-                                                    placeholder="Search Groups">
-                                                <br />
-
-                                                <div id="mdi" style="max-height: 10%; overflow:auto;">
-                                                    @foreach ($groups as $item)
-                                                        <span><input class="talents_idmd-checkbox" name="groups[]"
-                                                                onchange="dragdrop(this.value, this.id);" type="checkbox"
-                                                                id="{{ $item->name . ' ' . $item->lastname }}"
-                                                                @if (in_array($item->id, array_column($selectedgroups, 'id'))) checked @endif
-                                                                value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
-                                                    @endforeach
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close</button>
+                                                        {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
+                                                    </div>
                                                 </div>
-
 
                                             </div>
                                         </div>
-                                        {{-- <div class="col-md-6">
+
+                                        <div class="modal fade" id="exampleModal" tabindex="-1"
+                                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="exampleModalLabel">Add Group</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="mb-3 text-start">
+                                                                    <label for="filter">Groups&nbsp;</label><input
+                                                                        id="filter" type="text"
+                                                                        class="filter form-control"
+                                                                        placeholder="Search Groups">
+                                                                    <br />
+
+                                                                    <div id="mdi"
+                                                                        style="max-height: 10%; overflow:auto;">
+                                                                        @foreach ($groups as $item)
+                                                                            <span><input class="talents_idmd-checkbox"
+                                                                                    name="groups[]"
+                                                                                    onchange="dragdrop(this.value, this.id);"
+                                                                                    type="checkbox"
+                                                                                    id="{{ $item->name . ' ' . $item->lastname }}"
+                                                                                    @if (in_array($item->id, array_column($selectedgroups, 'id'))) checked @endif
+                                                                                    value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
+                                                                        @endforeach
+                                                                    </div>
+
+
+                                                                </div>
+                                                            </div>
+                                                            {{-- <div class="col-md-6">
                                             <div class="mb-3">
                                                 <label for="users">Selected Groups</label>
                                                 <select name="groups[]" id="" class="form-control" multiple>
                                                 </select>
                                             </div>
                                         </div> --}}
-                                    </div>
-                                </div>
+                                                        </div>
+                                                    </div>
 
 
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Close</button>
-                                    {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Close</button>
+                                                        {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <input type="hidden" value="{{ auth()->id() }}" name="updated_by">
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    </form>
                                 </div>
                             </div>
-
-                        </div>
+                        </div><!-- End Reports -->
                     </div>
-
-                    <input type="hidden" value="{{ auth()->id() }}" name="updated_by">
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
-            </div>
-        </div>
-    </div>
+                </div><!-- End Left side columns -->
+        </section>
+    </main><!-- End #main -->
     <!-- Recent Sales End -->
 
     <script>

@@ -1,68 +1,100 @@
 @extends('backend.layouts.app')
 @section('content')
-    <!-- Recent Sales Start -->
-    <div class="container-fluid pt-4 px-4">
-        <div class="bg-light text-center rounded p-4">
-            <div class="d-flex align-items-center justify-content-between mb-4">
-                <h6 class="mb-0">Users</h6>
-                <a href="{{ route('users.create') }}">
-                    <button type="button" class="btn btn-primary">Add User</button>
-                </a>
-
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <div class="row">
+                <div class="col-md-6">
+                    <h1>Users</h1>
+                </div>
+                <div class="col-md-6 text-end"><a href="{{ route('users.create') }}" class="btn btn-primary"><i
+                            class="bi bi-person-plus-fill"></i> Add User</a></div>
             </div>
-            <div class="table-responsive">
-                <table class="table text-start align-middle table-bordered table-hover mb-0">
-                    <thead>
-                        <tr class="text-dark">
-                            <th scope="col">Name</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Created At</th>
-                            <th scope="col">Updated At</th>
-                            {{-- <th scope="col">Report Date</th>
-                            <th scope="col">Expiry</th> --}}
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($users as $item)
-                            <tr>
-                                <td>
-                                    <a href="{{ route('users.edit', $item->id) }}">
-                                        {{ $item->name . ' ' . $item->lastname }}
-                                    </a>
-                                </td>
-                                <td>{{ $item->email }}</td>
+            @if (Session::has('error'))
+                <div class="alert alert-danger alert-dismissible fade in show col-md-12 mt-2">
+                    <strong>Error!</strong> {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
 
-                                <td>
-                                    @if ($item->status == 1)
-                                        Active
-                                    @else
-                                        In-Active
-                                    @endif
-                                </td>
-                                <td>{{ $item->created_at->toDateString() }}</td>
-                                <td>{{ $item->updated_at->toDateString() }}</td>
-                                {{-- <td>{{ $item->report_date }}</td>
-                                <td>{{ $item->sharewith }}</td> --}}
+            @if (Session::has('success'))
+                <div class="alert alert-success alert-dismissible fade in show col-md-12 mt-2">
+                    <strong>Success!</strong> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item active">Users</li>
+                </ol>
+            </nav>
+        </div><!-- End Page Title -->
+        <section class="section dashboard">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body mt-3">
 
-                                <td class="d-flex justify-content-betweenx"><a class="btn btn-sm btn-primary"
-                                        href="{{ route('users.edit', $item->id) }}">Edit</a>
+                            <!-- Table with stripped rows -->
+                            <table class="table datatable">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Status</th>
+                                        <th data-type="date" data-format="YYYY/DD/MM">Created At</th>
+                                        <th>Updated At</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($users as $item)
+                                        <tr>
+                                            <td>
+                                                <a href="{{ route('users.edit', $item->id) }}">
+                                                    {{ $item->name . ' ' . $item->lastname }}
+                                                </a>
+                                            </td>
+                                            <td>{{ $item->email }}</td>
 
-                                    <form action="{{ route('users.destroy', $item->id) }}" method="post">
-                                        @csrf
-                                        @method('DELETE')
-                                        <input class="btn btn-sm btn-danger" onclick="return confirm('Are You Sure ?')"
-                                            type="submit" value="Delete">
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
+                                            <td>
+                                                @if ($item->status == 1)
+                                                    Active
+                                                @else
+                                                    In-Active
+                                                @endif
+                                            </td>
+                                            <td>{{ $item->created_at->toDateString() }}</td>
+                                            <td>{{ $item->updated_at->toDateString() }}</td>
 
-                    </tbody>
-                </table>
+                                            <td class="d-flex ">
+
+                                                <a href="{{ route('users.edit', $item->id) }}"
+                                                    class="btn btn-primary btn-sm mx-1"><i class="bi bi-pencil"></i>
+                                                    Edit</a>
+
+                                                <form action="{{ route('users.destroy', $item->id) }}" method="post">
+                                                    @csrf
+                                                    @method('DELETE')
+
+                                                    <button type="submit" class="btn btn-danger btn-sm"
+                                                        onclick="return confirm('Are You Sure ?')"><i
+                                                            class="bi bi-trash"></i>
+                                                        Delete</button>
+                                                    {{-- <input class="btn btn-sm btn-danger"
+                                                        onclick="return confirm('Are You Sure ?')" type="submit"
+                                                        value="Delete"> --}}
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            <!-- End Table with stripped rows -->
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <!-- Recent Sales End -->
+        </section>
+    </main>
 @endsection

@@ -2,49 +2,80 @@
 @section('content')
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.4.0/css/bootstrap-colorpicker.min.css">
-    <div class="container-fluid pt-4 px-4">
-        <div class="row g-4 ">
-            <div class="col-sm-12">
-                <div class="rounded h-100">
-                    <div class="m-n2">
-                        <div class="accordion accordion-flush" id="accordionFlushExample">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="flush-headingOne">
-                                    <button class="accordion-button text-dark fw-bold" type="button"
-                                        data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="true"
-                                        aria-controls="flush-collapseOne">
-                                        Applications
-                                    </button>
-                                </h2>
-                                <div id="flush-collapseOne" class="accordion-collapse collapse show"
-                                    aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                                    <div class="accordion-body">
-                                        <div class="row mt-5">
-                                            <div class="col-2 bg-light rounded">
-                                                <label for="colorPicker">Select</label>
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <div class="row">
+                <div class="col-md-6">
+                    <h1></h1>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="{{ route('get.view') }}" class="btn btn-secondary"><i class="bi bi-arrow-left-short"></i>
+                        Back</a>
+                </div>
+            </div>
+            @if (Session::has('error'))
+                <div class="alert alert-danger alert-dismissible fade in show col-md-12 mt-2">
+                    <strong>Error!</strong> {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
 
-                                                <select class="form-control col-3" name="data_type" id="chartType">
-                                                    {{-- <option value=""><i class="bi bi-clipboard-data"></i> Chart And Data</option> --}}
-                                                    <option value="dataOnly"><i class="bi bi-table"></i> Data Only
-                                                    </option>
-                                                    <option value="chartOnly"><i class="bi bi-bar-chart-line"></i>
-                                                        Chart
-                                                        Only</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-2 bg-light rounded" id="chartTypeDiv">
-                                                <label for="colorPicker">Select Chart:</label>
+            @if (Session::has('success'))
+                <div class="alert alert-success alert-dismissible fade in show col-md-12 mt-2">
+                    <strong>Success!</strong> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item active">Report</li>
+                </ol>
+            </nav>
+        </div><!-- End Page Title -->
+        <section class="section dashboard">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body mt-3">
+                            <div class="accordion accordion-flush" id="accordionFlushExample">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="flush-headingOne">
+                                        <button class="accordion-button text-dark fw-bold" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#flush-collapseOne"
+                                            aria-expanded="true" aria-controls="flush-collapseOne">
+                                            Applications
+                                        </button>
+                                    </h2>
+                                    <div id="flush-collapseOne" class="accordion-collapse collapse show"
+                                        aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                                        <div class="accordion-body">
+                                            <div class="row mt-5">
+                                                <div class="col-2 bg-light rounded">
+                                                    <label for="colorPicker">Select</label>
 
-                                                <select id="chartTypeSelect" class="form-control" name="selectChart">
-                                                    <option value="line">Single Line Chart</option>
-                                                    <option value="bar">Single Bar Chart</option>
-                                                    <option value="pie">Pie Chart</option>
-                                                    <option value="doughnut">Doughnut Chart</option>
-                                                </select>
-                                            </div>
+                                                    <select class="form-control col-3" name="data_type" id="chartType">
+                                                        {{-- <option value=""><i class="bi bi-clipboard-data"></i> Chart And Data</option> --}}
+                                                        <option value="dataOnly"><i class="bi bi-table"></i> Data Only
+                                                        </option>
+                                                        <option value="chartOnly"><i class="bi bi-bar-chart-line"></i>
+                                                            Chart
+                                                            Only</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-2 bg-light rounded" id="chartTypeDiv">
+                                                    <label for="colorPicker">Select Chart:</label>
 
-                                            <!-- Add dropdown menu -->
-                                            {{-- <div class="form-group col-2" id="colorPi">
+                                                    <select id="chartTypeSelect" class="form-control" name="selectChart">
+                                                        <option value="line">Single Line Chart</option>
+                                                        <option value="bar">Single Bar Chart</option>
+                                                        <option value="pie">Pie Chart</option>
+                                                        <option value="doughnut">Doughnut Chart</option>
+                                                    </select>
+                                                </div>
+
+                                                <!-- Add dropdown menu -->
+                                                {{-- <div class="form-group col-2" id="colorPi">
                                                 <label for="colorPicker">Select Color:</label>
                                                 <select id="colorPalette" class="form-control">
                                                     <option value="random">Random</option>
@@ -52,110 +83,112 @@
                                                     <option value="custom">Custom Palette</option>
                                                 </select>
                                             </div> --}}
-                                            <div class="form-group col-5" id="colorPi">
-                                                <label for="colorPicker">Select Palette:</label>
-                                                <ul class="list-unstyled form-control">
-                                                    <li class="init">Select Palette</li>
-                                                    <li data-value="random"><span><img
-                                                                src="{{ asset('public/backend/dashmin/img/palette.png') }}"
-                                                                width="200" style="margin-right: 10px;">Bold</span>
-                                                    </li>
-                                                    <li data-value="default">
-                                                        <span><img
-                                                                src="{{ asset('public/backend/dashmin/img/palette1.png') }}"
-                                                                width="200" style="margin-right: 10px;">Medium
-                                                        </span>
-                                                    </li>
-                                                    <li data-value="Bright">
-                                                        <span><img
-                                                                src="{{ asset('public/backend/dashmin/img/palette.png') }}"
-                                                                width="200" style="margin-right: 10px;">Bright
-                                                        </span>
-                                                    </li>
-                                                    <li data-value="custom"><span>Custom Palette</span></li>
-                                                </ul>
-                                            </div>
+                                                <div class="form-group col-5" id="colorPi">
+                                                    <label for="colorPicker">Select Palette:</label>
+                                                    <ul class="list-unstyled form-control">
+                                                        <li class="init">Select Palette</li>
+                                                        <li data-value="random"><span><img
+                                                                    src="{{ asset('public/backend/assets/img/palette.png') }}"
+                                                                    width="200" style="margin-right: 10px;">Bold</span>
+                                                        </li>
+                                                        <li data-value="default">
+                                                            <span><img
+                                                                    src="{{ asset('public/backend/assets/img/palette1.png') }}"
+                                                                    width="200" style="margin-right: 10px;">Medium
+                                                            </span>
+                                                        </li>
+                                                        <li data-value="Bright">
+                                                            <span><img
+                                                                    src="{{ asset('public/backend/assets/img/palette.png') }}"
+                                                                    width="200" style="margin-right: 10px;">Bright
+                                                            </span>
+                                                        </li>
+                                                        <li data-value="custom"><span>Custom Palette</span></li>
+                                                    </ul>
+                                                </div>
 
 
 
-                                            <!-- Canvas for the chart -->
-                                            <!-- Border width dropdown menu -->
-                                            <div class="form-group col-2" id="borderWi">
-                                                <label for="borderWidth">Select Border Width:</label>
-                                                <select id="borderWidth" class="form-control" name="borderWidth">
-                                                    <option value="10">Standard</option>
-                                                    <option value="20">Explode Smallest </option>
-                                                    <option value="30">Explode Largest</option>
-                                                </select>
-                                            </div>
+                                                <!-- Canvas for the chart -->
+                                                <!-- Border width dropdown menu -->
+                                                <div class="form-group col-2" id="borderWi">
+                                                    <label for="borderWidth">Select Border Width:</label>
+                                                    <select id="borderWidth" class="form-control" name="borderWidth">
+                                                        <option value="10">Standard</option>
+                                                        <option value="20">Explode Smallest </option>
+                                                        <option value="30">Explode Largest</option>
+                                                    </select>
+                                                </div>
 
-                                            <canvas id="myChart"></canvas>
-                                            <div class="mt-3">
-                                                <table class="table" id="dataOnly">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Application Name</th>
-                                                            <th>Count of Application Name</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @if (isset($countData))
-                                                            @foreach ($countData as $fieldName => $count)
-                                                                <tr>
-                                                                    <td>{{ $fieldName }}</td>
-                                                                    <td>{{ $count }}</td>
-                                                                </tr>
-                                                            @endforeach
-                                                        @else
+                                                <canvas id="myChart"></canvas>
+                                                <div class="mt-3">
+                                                    <table class="table" id="dataOnly">
+                                                        <thead>
                                                             <tr>
-                                                                <td colspan="2">No data in the cart</td>
+                                                                <th>Application Name</th>
+                                                                <th>Count of Application Name</th>
                                                             </tr>
-                                                        @endif
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                            <!-- Custom Color Picker Modal -->
-                                            <div class="modal fade" id="customColorModal" tabindex="-1" role="dialog"
-                                                aria-labelledby="customColorModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog" role="document">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="customColorModalLabel">Custom
-                                                                Color Picker</h5>
-                                                            <button type="button" class="close" data-dismiss="modal"
-                                                                aria-label="Close">
-                                                                <span aria-hidden="true">&times;</span>
-                                                            </button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="container mt-3" id="labelId">
-                                                                @foreach ($countData as $label => $value)
-                                                                    <div class="form-row">
-                                                                        <div class="form-group">
-                                                                            <label
-                                                                                for="colorInput_{{ $label }}">{{ $label }}
-                                                                                Color:</label>
-                                                                            <input type="color" name="labelColor[]"
-                                                                                class="form-control label-color"
-                                                                                id="colorInput_{{ $label }}"
-                                                                                data-label="{{ $label }}"
-                                                                                value="#d6d6d6">
-                                                                        </div>
-                                                                    </div>
+                                                        </thead>
+                                                        <tbody>
+                                                            @if (isset($countData))
+                                                                @foreach ($countData as $fieldName => $count)
+                                                                    <tr>
+                                                                        <td>{{ $fieldName }}</td>
+                                                                        <td>{{ $count }}</td>
+                                                                    </tr>
                                                                 @endforeach
+                                                            @else
+                                                                <tr>
+                                                                    <td colspan="2">No data in the cart</td>
+                                                                </tr>
+                                                            @endif
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <!-- Custom Color Picker Modal -->
+                                                <div class="modal fade" id="customColorModal" tabindex="-1"
+                                                    role="dialog" aria-labelledby="customColorModalLabel"
+                                                    aria-hidden="true">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="customColorModalLabel">Custom
+                                                                    Color Picker</h5>
+                                                                <button type="button" class="close"
+                                                                    data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
                                                             </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary"
-                                                                data-dismiss="modal">Close</button>
-                                                            <button type="button" class="btn btn-primary "
-                                                                id="submitColorBtn">Apply
-                                                                Color</button>
+                                                            <div class="modal-body">
+                                                                <div class="container mt-3" id="labelId">
+                                                                    @foreach ($countData as $label => $value)
+                                                                        <div class="form-row">
+                                                                            <div class="form-group">
+                                                                                <label
+                                                                                    for="colorInput_{{ $label }}">{{ $label }}
+                                                                                    Color:</label>
+                                                                                <input type="color" name="labelColor[]"
+                                                                                    class="form-control label-color"
+                                                                                    id="colorInput_{{ $label }}"
+                                                                                    data-label="{{ $label }}"
+                                                                                    value="#d6d6d6">
+                                                                            </div>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary"
+                                                                    data-dismiss="modal">Close</button>
+                                                                <button type="button" class="btn btn-primary "
+                                                                    id="submitColorBtn">Apply
+                                                                    Color</button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <!-- End of Bootstrap-styled cart -->
                                             </div>
-                                            <!-- End of Bootstrap-styled cart -->
                                         </div>
                                     </div>
                                 </div>
@@ -164,8 +197,8 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 @endsection
 @push('style')
     <style>

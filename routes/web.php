@@ -35,7 +35,9 @@ use App\Http\Controllers\backend\ReportController;
 Route::get('/', function () {
     return redirect()->route('login');
 });
-
+Route::get('/back', function () {
+    return redirect()->back();
+})->name('back');
 Auth::routes();
 
 //after complete backend

@@ -1,99 +1,204 @@
  @extends('backend.layouts.app')
  @section('content')
-     <!-- Sales Chart Start -->
-     <div class="container-fluid pt-4 px-4">
-         <div class="row g-4">
-             @foreach (@$dashboards as $dashboard)
-                 <div class=" {{ $dashboard->layout == '100' ? 'col-sm-12 col-xl-12' : 'col-sm-12 col-xl-6' }}">
-                     <div class="bg-light text-center rounded p-4">
-                         <div class="d-flex align-items-center justify-content-between mb-4">
-                             <h6 class="mb-0">{{ $dashboard->name }}</h6>
-                             {{-- <a href="">Show All</a> --}}
-                         </div>
-                         @foreach ($dashboard->reports as $report)
-                             @if ($report->statistics_mode == 'Y')
-                                 @if ($report->data_type == 'dataOnly')
-                                     @php
-                                         $countData = json_decode($report->data, true);
-                                     @endphp
-                                     <table class="table mb-3">
-                                         <thead>
-                                             <tr>
-                                                 <th>Application Name</th>
-                                                 <th>Count of Application Name</th>
-                                             </tr>
-                                         </thead>
-                                         <tbody>
-                                             @if (isset($countData))
-                                                 @foreach ($countData as $fieldName => $count)
-                                                     <tr>
-                                                         <td>{{ $fieldName }}</td>
-                                                         <td>{{ $count }}</td>
-                                                     </tr>
-                                                 @endforeach
-                                             @else
-                                                 <tr>
-                                                     <td colspan="2">No data in the cart</td>
-                                                 </tr>
-                                             @endif
-                                         </tbody>
-                                     </table>
-                                 @else
-                                     <canvas id="chart-{{ $dashboard->id }}-{{ $report->id }}"
-                                         data-report='{{ $report->data }}' data-type="{{ $report->selectChart }}"
-                                         data-legend="{{ $report->legendPosition }}"
-                                         data-palette="{{ $report->selectedPalette }}"
-                                         data-borderWidth="{{ $report->borderWidth }}"
-                                         data-labelColors="{{ $report->labelColor }}" class="chart-canvas">
-                                     </canvas>
-                                 @endif
-                             @else
-                                 @php
-                                     $allData = json_decode($report->data, true);
-                                     $fieldStatisticsNames = json_decode($report->fieldStatisticsNames, true);
-                                 @endphp
-                                 <table class="display table" style="width: 100%">
-                                     <thead>
-                                         <tr>
-                                             @foreach ($fieldStatisticsNames as $fieldName)
-                                                 <th>{{ ucfirst($fieldName) }}</th>
-                                             @endforeach
-                                         </tr>
-                                     </thead>
 
-                                     <tbody>
-                                         @for ($i = 0; $i < count($allData[$fieldStatisticsNames[0]]); $i++)
-                                             <tr>
-                                                 @foreach ($fieldStatisticsNames as $fieldName)
-                                                     <td>
-                                                         {{-- Check if the key exists and is an array --}}
-                                                         @if (isset($allData[$fieldName][$i]) && is_array($allData[$fieldName][$i]))
-                                                             {{-- Display all values associated with the current field name --}}
-                                                             @foreach ($allData[$fieldName][$i] as $value)
-                                                                 {{ $value }}
-                                                             @endforeach
-                                                         @else
-                                                             {{-- Display the value directly if it's not an array --}}
-                                                             {{ $allData[$fieldName][$i] }}
-                                                         @endif
-                                                     </td>
-                                                 @endforeach
-                                             </tr>
-                                         @endfor
-                                     </tbody>
-                                 </table>
-                             @endif
-                             {{-- <canvas id="chart-{{ $dashboard->id }}-{{ $report->id }}" data-report='{{ $report->data }}'
-                                 data-type="{{ $report->selectChart }}" data-legend="{{ $report->legendPosition }}"
-                                 data-palette="{{ $report->selectedPalette }}" data-labelColors="{{ $report->labelColor }}"
-                                 class="chart-canvas">
-                             </canvas> --}}
-                         @endforeach
-                     </div>
+     <main id="main" class="main">
+
+         <div class="pagetitle">
+             <div class="row">
+                 <div class="col-md-6">
+                     <h1>Dashboard</h1>
                  </div>
-             @endforeach
-         </div>
-     </div>
+                 <div class="col-md-6 text-end">
+                     <a href="{{ route('dashboard.index') }}" class="btn btn-secondary">
+                         Add Dashboard</a>
+                 </div>
+             </div>
+             @if (Session::has('error'))
+                 <div class="alert alert-danger alert-dismissible fade in show col-md-12 mt-2">
+                     <strong>Error!</strong> {{ session('error') }}
+                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                 </div>
+             @endif
+
+             @if (Session::has('success'))
+                 <div class="alert alert-success alert-dismissible fade in show col-md-12 mt-2">
+                     <strong>Success!</strong> {{ session('success') }}
+                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                 </div>
+             @endif
+             <nav>
+                 <ol class="breadcrumb">
+                     <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                     <li class="breadcrumb-item active">Dashboard</li>
+                 </ol>
+             </nav>
+         </div><!-- End Page Title -->
+
+         <section class="section dashboard">
+             <div class="row">
+                 @foreach (@$dashboards as $dashboard)
+                     <div class=" {{ $dashboard->layout == '100' ? 'col-sm-12 col-xl-12' : 'col-sm-12 col-xl-6' }}">
+
+                         <div class="card">
+                             <div class="card-body pb-0">
+                                 <h5 class="card-title">{{ $dashboard->name }}</h5>
+
+                                 @foreach ($dashboard->reports as $report)
+                                     @if ($report->statistics_mode == 'Y')
+                                         @if ($report->data_type == 'dataOnly')
+                                             @php
+                                                 $countData = json_decode($report->data, true);
+                                             @endphp
+                                             <table class="table mb-3">
+                                                 <thead>
+                                                     <tr>
+                                                         <th>Application Name</th>
+                                                         <th>Count of Application Name</th>
+                                                     </tr>
+                                                 </thead>
+                                                 <tbody>
+                                                     @if (isset($countData))
+                                                         @foreach ($countData as $fieldName => $count)
+                                                             <tr>
+                                                                 <td>{{ $fieldName }}</td>
+                                                                 <td>{{ $count }}</td>
+                                                             </tr>
+                                                         @endforeach
+                                                     @else
+                                                         <tr>
+                                                             <td colspan="2">No data in the cart</td>
+                                                         </tr>
+                                                     @endif
+                                                 </tbody>
+                                             </table>
+                                         @else
+                                             <canvas id="chart-{{ $dashboard->id }}-{{ $report->id }}"
+                                                 data-report='{{ $report->data }}' data-type="{{ $report->selectChart }}"
+                                                 data-legend="{{ $report->legendPosition }}"
+                                                 data-palette="{{ $report->selectedPalette }}"
+                                                 data-borderWidth="{{ $report->borderWidth }}"
+                                                 data-labelColors="{{ $report->labelColor }}" class="chart-canvas">
+                                             </canvas>
+                                         @endif
+                                     @else
+                                         @php
+                                             $allData = json_decode($report->data, true);
+                                             $fieldStatisticsNames = json_decode($report->fieldStatisticsNames, true);
+                                         @endphp
+                                         <table class="display table" style="width: 100%">
+                                             <thead>
+                                                 <tr>
+                                                     @foreach ($fieldStatisticsNames as $fieldName)
+                                                         <th>{{ ucfirst($fieldName) }}</th>
+                                                     @endforeach
+                                                 </tr>
+                                             </thead>
+
+                                             <tbody>
+                                                 @for ($i = 0; $i < count($allData[$fieldStatisticsNames[0]]); $i++)
+                                                     <tr>
+                                                         @foreach ($fieldStatisticsNames as $fieldName)
+                                                             <td>
+                                                                 @if (isset($allData[$fieldName][$i]) && is_array($allData[$fieldName][$i]))
+                                                                     @foreach ($allData[$fieldName][$i] as $value)
+                                                                         {{ $value }}
+                                                                     @endforeach
+                                                                 @else
+                                                                     {{ $allData[$fieldName][$i] }}
+                                                                 @endif
+                                                             </td>
+                                                         @endforeach
+                                                     </tr>
+                                                 @endfor
+                                             </tbody>
+                                         </table>
+                                     @endif
+                                 @endforeach
+
+                             </div>
+                         </div>
+                         {{-- <div class="bg-light text-center rounded p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <h6 class="mb-0">{{ $dashboard->name }}</h6>
+                        </div>
+                        @foreach ($dashboard->reports as $report)
+                            @if ($report->statistics_mode == 'Y')
+                                @if ($report->data_type == 'dataOnly')
+                                    @php
+                                        $countData = json_decode($report->data, true);
+                                    @endphp
+                                    <table class="table mb-3">
+                                        <thead>
+                                            <tr>
+                                                <th>Application Name</th>
+                                                <th>Count of Application Name</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (isset($countData))
+                                                @foreach ($countData as $fieldName => $count)
+                                                    <tr>
+                                                        <td>{{ $fieldName }}</td>
+                                                        <td>{{ $count }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            @else
+                                                <tr>
+                                                    <td colspan="2">No data in the cart</td>
+                                                </tr>
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <canvas id="chart-{{ $dashboard->id }}-{{ $report->id }}"
+                                        data-report='{{ $report->data }}' data-type="{{ $report->selectChart }}"
+                                        data-legend="{{ $report->legendPosition }}"
+                                        data-palette="{{ $report->selectedPalette }}"
+                                        data-borderWidth="{{ $report->borderWidth }}"
+                                        data-labelColors="{{ $report->labelColor }}" class="chart-canvas">
+                                    </canvas>
+                                @endif
+                            @else
+                                @php
+                                    $allData = json_decode($report->data, true);
+                                    $fieldStatisticsNames = json_decode($report->fieldStatisticsNames, true);
+                                @endphp
+                                <table class="display table" style="width: 100%">
+                                    <thead>
+                                        <tr>
+                                            @foreach ($fieldStatisticsNames as $fieldName)
+                                                <th>{{ ucfirst($fieldName) }}</th>
+                                            @endforeach
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @for ($i = 0; $i < count($allData[$fieldStatisticsNames[0]]); $i++)
+                                            <tr>
+                                                @foreach ($fieldStatisticsNames as $fieldName)
+                                                    <td>
+                                                        @if (isset($allData[$fieldName][$i]) && is_array($allData[$fieldName][$i]))
+                                                            @foreach ($allData[$fieldName][$i] as $value)
+                                                                {{ $value }}
+                                                            @endforeach
+                                                        @else
+                                                            {{ $allData[$fieldName][$i] }}
+                                                        @endif
+                                                    </td>
+                                                @endforeach
+                                            </tr>
+                                        @endfor
+                                    </tbody>
+                                </table>
+                            @endif
+                        @endforeach
+                    </div> --}}
+                     </div>
+                 @endforeach
+             </div><!-- End Website Traffic -->
+         </section>
+     </main>
+
      <script>
          function defaultPalette() {
              return ['#FF5733', '#36A2EB', '#FFC300', '#4BC0C0', '#5F9EA0', '#FFA07A', '#20B2AA', '#8A2BE2', '#FF6347',
