@@ -162,7 +162,8 @@ class ApplicationController extends Controller
 
             if ($request->application_id) {
                 $rules = [
-                    'attachments' => 'required|mimes:pdf,jpg,png|min:5|max:2048',
+                    // 'attachments' => 'required|mimes:pdf,jpg,png|min:5|max:2048',
+                    'attachments' => 'required|file|mimes:pdf,jpg,jpeg,png,xlsx,xls,csv|max:2048',
                 ];
 
                 $custommessages = [];

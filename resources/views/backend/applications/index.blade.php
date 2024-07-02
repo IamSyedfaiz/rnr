@@ -27,7 +27,7 @@
             @endif
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
                     <li class="breadcrumb-item active">Applications</li>
                 </ol>
             </nav>
@@ -136,6 +136,7 @@
                             <select name="status" id=""
                                 class="form-control @error('status') is-invalid @enderror form-select">
                                 <option value="1">Active</option>
+                                <option value="0">In-Active</option>
                             </select>
                         </div>
                         <input type="hidden" value="{{ auth()->id() }}" name="user_id">
