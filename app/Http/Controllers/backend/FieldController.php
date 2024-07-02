@@ -10,6 +10,7 @@ use App\Models\backend\Group;
 use App\Models\backend\Application;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class FieldController extends Controller
 {
@@ -68,6 +69,7 @@ class FieldController extends Controller
             'access' => 'required',
             'application_id' => 'required',
         ]);
+        // dd($validator);
 
         try {
             $data = $validator->validate();
@@ -161,8 +163,14 @@ class FieldController extends Controller
             return redirect()
                 ->route('application.edit', $application->id)
                 ->with(['success' => 'Field Created.', 'field' => 'active']);
+        } catch (ValidationException $e) {
+            // Handle the validation exception and redirect back with errors
+            return redirect()
+                ->back()
+                ->withErrors($e->validator)
+                ->withInput();
         } catch (\Exception $th) {
-            //throw $th;
+            // Handle other exceptions
             return redirect()->back()->with('error', $th->getMessage());
         }
     }

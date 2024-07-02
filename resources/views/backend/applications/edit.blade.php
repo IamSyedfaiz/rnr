@@ -24,7 +24,7 @@
             @endif
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
                     <li class="breadcrumb-item active">Edit Application</li>
                 </ol>
             </nav>
@@ -60,7 +60,6 @@
                             </div>
                         </div>
                         <div class="col-12">
-
                             <div class="tab-content" id="pills-tabContent">
                                 <div class="tab-pane fade show active" id="pills-home" role="tabpanel"
                                     aria-labelledby="pills-home-tab">
@@ -212,14 +211,9 @@
                                                     <!-- End Table with stripped rows -->
                                                 </div>
                                             </div>
-
                                         </div>
                                     </div>
-
                                 </div>
-
-
-
                                 <div class="tab-pane fade" id="pills-profile" role="tabpanel"
                                     aria-labelledby="pills-profile-tab">
                                     <div class="card">
@@ -307,25 +301,15 @@
                                                             </tr>
                                                         @endforeach
                                                     </tbody>
-
                                                 </table>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
-
-
                 </div><!-- End Reports -->
-
-
-            </div>
-            </div><!-- End Left side columns -->
-
             </div>
         </section>
     </main>

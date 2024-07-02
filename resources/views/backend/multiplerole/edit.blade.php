@@ -27,7 +27,7 @@
             @endif
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
                     <li class="breadcrumb-item active">Edit Role</li>
                 </ol>
             </nav>
@@ -81,20 +81,38 @@
                                                         {{-- <label for="exampleInputEmail1" class="form-label">{{ strtoupper($item->name) }}</label> --}}
                                                         <div class="usergrouplist">
                                                             <div class="d-flex  mb-2">
-                                                                <div class="col-md-2 addusers">
+                                                                <div class="col-md-6 addusers">
                                                                     <button type="button" class="btn btn-primary text-end"
                                                                         data-bs-toggle="modal"
                                                                         data-bs-target="#exampleModalusers"
                                                                         data-bs-whatever="@mdo">Add
                                                                         Users</button>
+                                                                    <div class="col-md-10">
+                                                                        <div class="mb-3">
+                                                                            <label for="users">Selected
+                                                                                Users</label>
+                                                                            <select name="user_list[]" id=""
+                                                                                class="form-control" multiple>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
 
-                                                                <div class="col-md-2 addgroups">
+                                                                <div class="col-md-6 addgroups">
                                                                     <button type="button" class="btn btn-primary text-end"
                                                                         data-bs-toggle="modal"
                                                                         data-bs-target="#exampleModalgroups"
                                                                         data-bs-whatever="@mdo">Add
                                                                         Groups</button>
+                                                                    <div class="col-md-10">
+                                                                        <div class="mb-3">
+                                                                            <label for="users">Selected
+                                                                                Groups</label>
+                                                                            <select name="group_list[]" id=""
+                                                                                class="form-control" multiple>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
 
@@ -103,7 +121,8 @@
                                                                 <div class="modal-dialog">
                                                                     <div class="modal-content">
                                                                         <div class="modal-header">
-                                                                            <h5 class="modal-title" id="exampleModalLabel">
+                                                                            <h5 class="modal-title"
+                                                                                id="exampleModalLabel">
                                                                                 Add Users</h5>
                                                                             <button type="button" class="btn-close"
                                                                                 data-bs-dismiss="modal"
@@ -112,13 +131,14 @@
                                                                         <div class="modal-body">
                                                                             <div class="row">
                                                                                 <div class="col-md-6">
-                                                                                    <div class="mb-3 text-start">
-                                                                                        <label
-                                                                                            for="filter">Users&nbsp;</label><input
-                                                                                            id="filter" type="text"
-                                                                                            class="filter form-control"
-                                                                                            placeholder="Search Users">
-                                                                                        <br />
+                                                                                    <label
+                                                                                        for="filter">Users&nbsp;</label><input
+                                                                                        id="filter" type="text"
+                                                                                        class="filter form-control"
+                                                                                        placeholder="Search Users">
+                                                                                    <br />
+                                                                                    <div class="mb-3 mt-3 text-start">
+
 
                                                                                         <div id="mdi"
                                                                                             style="max-height: 10%; overflow:auto;">
@@ -135,7 +155,7 @@
 
                                                                                     </div>
                                                                                 </div>
-                                                                                <div class="col-md-6">
+                                                                                {{-- <div class="col-md-6">
                                                                                     <div class="mb-3">
                                                                                         <label for="users">Selected
                                                                                             Users</label>
@@ -144,7 +164,7 @@
                                                                                             class="form-control" multiple>
                                                                                         </select>
                                                                                     </div>
-                                                                                </div>
+                                                                                </div> --}}
                                                                             </div>
                                                                         </div>
 
@@ -174,13 +194,13 @@
                                                                         <div class="modal-body">
                                                                             <div class="row">
                                                                                 <div class="col-md-6">
-                                                                                    <div class="mb-3 text-start">
-                                                                                        <label
-                                                                                            for="filter">Groups&nbsp;</label><input
-                                                                                            id="filter" type="text"
-                                                                                            class="filter form-control"
-                                                                                            placeholder="Search Groups">
-                                                                                        <br />
+                                                                                    <label
+                                                                                        for="filter">Groups&nbsp;</label><input
+                                                                                        id="filter" type="text"
+                                                                                        class="filter form-control"
+                                                                                        placeholder="Search Groups">
+                                                                                    <br />
+                                                                                    <div class="mb-3 mt-3 text-start">
 
                                                                                         <div id="mdi"
                                                                                             style="max-height: 10%; overflow:auto;">
@@ -197,16 +217,7 @@
 
                                                                                     </div>
                                                                                 </div>
-                                                                                <div class="col-md-6">
-                                                                                    <div class="mb-3">
-                                                                                        <label for="users">Selected
-                                                                                            Groups</label>
-                                                                                        <select name="group_list[]"
-                                                                                            id=""
-                                                                                            class="form-control" multiple>
-                                                                                        </select>
-                                                                                    </div>
-                                                                                </div>
+
                                                                             </div>
                                                                         </div>
                                                                         <div class="modal-footer">
