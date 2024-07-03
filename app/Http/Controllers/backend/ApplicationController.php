@@ -157,16 +157,22 @@ class ApplicationController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            //code...
-            // dd($request->all(), $request->application_id);
-
             if ($request->application_id) {
-                $rules = [
-                    // 'attachments' => 'required|mimes:pdf,jpg,png|min:5|max:2048',
-                    'attachments' => 'required|file|mimes:pdf,jpg,jpeg,png,xlsx,xls,csv|max:2048',
+                // $rules = [
+                //     // 'attachments' => 'required|mimes:pdf,jpg,png|min:5|max:2048',
+                //     'attachments' => 'required|file|mimes:pdf,jpg,jpeg,png,xlsx,xls,csv|max:2048',
+                // ];
+                $custommessages = [
+                    'attachments.required' => 'Please upload a file.',
+                    'attachments.mimes' => 'Only PDF, JPG, JPEG, PNG, XLSX, XLS, CSV, and DOCX files are allowed.',
+                    'attachments.max' => 'The file size should not exceed 2MB.',
                 ];
 
-                $custommessages = [];
+                // Define validation rules
+                $rules = [
+                    'attachments' => 'required|file|mimes:pdf,jpg,jpeg,png,xlsx,xls,csv,docx|max:2048',
+                ];
+                // $custommessages = [];
 
                 $this->validate($request, $rules, $custommessages);
                 # code...

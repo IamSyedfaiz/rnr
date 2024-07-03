@@ -68,8 +68,14 @@ class FieldController extends Controller
             'keyfield' => 'nullable',
             'access' => 'required',
             'application_id' => 'required',
+        ], [
+            'name.required' => 'The name field is required.',
+            'name.unique' => 'This name has already been taken.',
+            'type.required' => 'The type field is required.',
+            'status.required' => 'The status field is required.',
+            'access.required' => 'The access field is required.',
+            'application_id.required' => 'The application ID is required.',
         ]);
-        // dd($validator);
 
         try {
             $data = $validator->validate();
