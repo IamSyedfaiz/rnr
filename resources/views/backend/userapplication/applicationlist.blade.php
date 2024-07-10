@@ -60,7 +60,7 @@
                                         @foreach ($uniquePermissions as $permission)
                                             @if ($permission == 'create')
                                                 <a href="{{ route('user-application.edit', $id) }}"
-                                                    class="btn btn-primary mx-2" style="color:aliceblue">new</a>
+                                                    class="btn btn-primary mx-2" style="color:aliceblue">New</a>
                                             @endif
                                             @if ($permission == 'import')
                                                 <a href="{{ route('show.form', $id) }}" class="btn btn-success"

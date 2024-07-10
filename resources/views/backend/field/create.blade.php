@@ -72,7 +72,7 @@
                                         </div>
                                         <div class="class mb-3 row">
 
-                                            <div class="col-md-6">
+                                            <div class="col-md-12">
                                                 <label for="exampleInputEmail1" class="form-label"> <strong>Status</strong>
                                                 </label>
                                                 <select name="status" id=""
@@ -125,9 +125,8 @@
                                                     <div id="collapseTwo" class="accordion-collapse collapse"
                                                         aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
                                                         <div class="accordion-body">
-
-
-                                                            <input type="radio" name="access" value="public" required>
+                                                            <input type="radio" name="access" value="public" required
+                                                                checked>
                                                             <label for="">Public</label><br>
 
                                                             <div class="row mb-2">
@@ -136,7 +135,6 @@
                                                                         name="access" value="private" required>
                                                                     <label for="">Private</label><br>
                                                                 </div>
-
                                                             </div>
                                                             <div class="col-md-12 d-none showaddbtn" style="width: 100%">
 
@@ -212,9 +210,9 @@
                                                             </div>
 
                                                             <input type="button" class="btn btn-primary mb-2"
-                                                                onclick="addvaluelist()" value="add more">
+                                                                onclick="addvaluelist()" value="Add More">
                                                             <input type="button" class="btn btn-danger mb-2"
-                                                                onclick="removevaluelist()" value="remove">
+                                                                onclick="removevaluelist()" value="Remove">
 
                                                         </div>
                                                     </div>
@@ -411,7 +409,7 @@
                 var label1 = document.createElement('label');
                 label1.className = 'form-check-label';
                 label1.for = 'flexCheckDefault';
-                label1.innerText = 'Date Time';
+                label1.innerText = 'Date And Time';
 
                 div1.appendChild(input1);
                 div1.appendChild(label1);

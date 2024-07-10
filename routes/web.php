@@ -65,6 +65,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('multiplerole', MultipleroleController::class);
     Route::resource('user-application', UserApplicationController::class);
     Route::get('user-application/list/{id}', [UserApplicationController::class, 'userapplication_list'])->name('userapplication.list');
+    Route::post('update/edit/{id}', [UserApplicationController::class, 'updateEdit'])->name('update.edit');
     Route::get('user-application/edit/{id}', [UserApplicationController::class, 'userapplication_edit'])->name('userapplication.edit');
     Route::post('change/forder', [AjaxController::class, 'change_forder'])->name('change.forder');
     Route::get('user-application/index/{id}', [UserApplicationController::class, 'userapplication_index'])->name('userapplication.index');

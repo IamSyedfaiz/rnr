@@ -5,7 +5,7 @@
         <div class="pagetitle">
             <div class="row">
                 <div class="col-md-6">
-                    <h1>Application Indexing List</h1>
+                    <h1>Application Indexing List </h1>
                 </div>
             </div>
             @if (Session::has('error'))
@@ -53,9 +53,8 @@
                                                 <- back</a>
                                         </button>
                                     </div>
-                                    <form action="{{ route('user-application.update', $application->id) }}"
-                                        class="form-horizontal" enctype="multipart/form-data" method="post">
-                                        @method('PUT')
+                                    <form action="{{ route('update.edit', $application->id) }}" class="form-horizontal"
+                                        enctype="multipart/form-data" method="post">
                                         @csrf
                                         @php
                                             $i = 0;
@@ -80,7 +79,7 @@
                                                 </div>
                                             @endif
 
-                                            @if ($item->type == 'attachment')
+                                            {{-- @if ($item->type == 'attachment')
                                                 <div class="mb-3">
                                                     <label for="exampleInputEmail1"
                                                         class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
@@ -89,7 +88,6 @@
                                                         <a href="{{ asset('public/files/' . $filledformdata[str_replace(' ', '_', $item->name)]) }}"
                                                             target="_blank">(uploaded file)</a>
                                                     @endif
-                                                    {{-- {{ dd($filledformdata, $item->name) }} --}}
                                                     @if (isset($item->name))
                                                         <input type="file" class="form-control"
                                                             name="{{ $item->name }}"
@@ -104,7 +102,6 @@
                                             @endif
 
                                             @if ($item->type == 'images')
-                                                {{-- {{ dd($item->name) }} --}}
                                                 <div class="mb-3">
                                                     <label for="exampleInputEmail1"
                                                         class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
@@ -124,6 +121,20 @@
                                                     @endif
 
 
+                                                </div>
+                                            @endif --}}
+                                            @if ($item->type == 'attachment' || $item->type == 'images')
+                                                <div class="mb-3">
+                                                    <label for="exampleInputEmail1"
+                                                        class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
+
+                                                    @if (isset($filledformdata[str_replace(' ', '_', $item->name)]))
+                                                        <a href="{{ asset('public/files/' . $filledformdata[str_replace(' ', '_', $item->name)]) }}"
+                                                            target="_blank">(uploaded file)</a>
+                                                    @endif
+
+                                                    <input type="file" class="form-control" name="{{ $item->name }}"
+                                                        @if ($item->requiredfield == 1 && !isset($filledformdata[str_replace(' ', '_', $item->name)])) required @endif>
                                                 </div>
                                             @endif
 
@@ -187,7 +198,6 @@
 
 
                                             @if ($item->type == 'value_list')
-                                                {{-- {{ dd($item->valuelisttype) }} --}}
                                                 <div class="mb-3">
                                                     <label for="exampleInputEmail1"
                                                         class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label><br>
@@ -196,13 +206,19 @@
                                                     @if ($item->valuelisttype == 'dropdown')
                                                         @php
                                                             $valuelist = json_decode($item->valuelistvalue);
+                                                            $sanitizedFieldName = str_replace(' ', '_', $item->name);
+                                                            $selectedValue =
+                                                                old($item->name) ??
+                                                                ($filledformdata[$sanitizedFieldName] ?? '');
                                                         @endphp
                                                         <select name="{{ $item->name }}" class="form-control"
                                                             type="checkbox" id=""
                                                             @if ($item->requiredfield == 1) required @endif>
                                                             <option value="">Select Option</option>
                                                             @foreach ($valuelist as $item1)
-                                                                <option value="{{ $item1 }}">{{ $item1 }}
+                                                                <option value="{{ $item1 }}"
+                                                                    {{ $selectedValue == $item1 ? 'selected' : '' }}>
+                                                                    {{ $item1 }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
@@ -211,19 +227,24 @@
                                                     @if ($item->valuelisttype == 'radio')
                                                         @php
                                                             $valuelist = json_decode($item->valuelistvalue);
+                                                            $sanitizedFieldName = str_replace(' ', '_', $item->name);
+                                                            $selectedValue =
+                                                                old($item->name) ??
+                                                                ($filledformdata[$sanitizedFieldName] ?? '');
                                                         @endphp
 
                                                         @foreach ($valuelist as $item1)
                                                             <input name="{{ $item->name }}"
                                                                 value="{{ $item1 }}" id="nonr"
                                                                 class="form-check-input" type="radio"
+                                                                {{ $selectedValue == $item1 ? 'checked' : '' }}
                                                                 @if ($item->requiredfield == 1) required @endif>
                                                             <label
                                                                 for="{{ $item1 }}">{{ strtoupper($item1) }}</label><br>
                                                         @endforeach
                                                     @endif
 
-                                                    @if ($item->valuelisttype == 'checkinput')
+                                                    {{-- @if ($item->valuelisttype == 'checkinput')
                                                         @php
                                                             $valuelist = json_decode($item->valuelistvalue);
                                                         @endphp
@@ -234,15 +255,38 @@
                                                             <label
                                                                 for="{{ $item1 }}">{{ strtoupper($item1) }}</label><br>
                                                         @endforeach
+                                                    @endif --}}
+                                                    @if ($item->valuelisttype == 'checkinput')
+                                                        @php
+                                                            $valuelist = json_decode($item->valuelistvalue);
+                                                            $sanitizedFieldName = str_replace(' ', '_', $item->name);
+                                                            $selectedValue =
+                                                                old($item->name) ??
+                                                                ($filledformdata[$sanitizedFieldName] ?? '');
+                                                        @endphp
+                                                        @foreach ($valuelist as $item1)
+                                                            <input type="checkbox" class="form-check-input"
+                                                                name="{{ $item->name }}[{{ $item1 }}]"
+                                                                {{ $selectedValue == $item1 ? 'checked' : '' }}
+                                                                @if ($item->requiredfield == 1) required @endif>
+                                                            <label
+                                                                for="{{ $item1 }}">{{ strtoupper($item1) }}</label><br>
+                                                        @endforeach
                                                     @endif
+
 
                                                     @if ($item->valuelisttype == 'listbox')
                                                         @php
                                                             $valuelist = json_decode($item->valuelistvalue);
+                                                            $sanitizedFieldName = str_replace(' ', '_', $item->name);
+                                                            $selectedValue =
+                                                                old($item->name) ??
+                                                                ($filledformdata[$sanitizedFieldName] ?? '');
                                                         @endphp
                                                         @foreach ($valuelist as $item1)
                                                             <input type="checkbox" class="form-check-input"
                                                                 name="{{ $item->name }}[{{ $item1 }}]"
+                                                                {{ $selectedValue == $item1 ? 'checked' : '' }}
                                                                 @if ($item->requiredfield == 1) required @endif>
                                                             <label
                                                                 for="{{ $item1 }}">{{ strtoupper($item1) }}</label><br>
@@ -252,10 +296,15 @@
                                                     @if ($item->valuelisttype == 'valuepopup')
                                                         @php
                                                             $valuelist = json_decode($item->valuelistvalue);
+                                                            $sanitizedFieldName = str_replace(' ', '_', $item->name);
+                                                            $selectedValue =
+                                                                old($item->name) ??
+                                                                ($filledformdata[$sanitizedFieldName] ?? '');
                                                         @endphp
                                                         @foreach ($valuelist as $item1)
                                                             <input type="checkbox" class="form-check-input"
                                                                 name="{{ $item->name }}[{{ $item1 }}]"
+                                                                {{ $selectedValue == $item1 ? 'checked' : '' }}
                                                                 @if ($item->requiredfield == 1) required @endif>
                                                             <label
                                                                 for="{{ $item1 }}">{{ strtoupper($item1) }}</label><br>

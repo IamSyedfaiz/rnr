@@ -327,6 +327,7 @@ class UserApplicationController extends Controller
             unset($data['_method']);
             unset($data['userid']);
             unset($data['formdataid']);
+
             foreach (request()->allFiles() as $key => $value) {
                 if ($value->getSize() > 2e6) {
                     # code...
@@ -339,6 +340,7 @@ class UserApplicationController extends Controller
                     $data[$key] = $filename;
                 }
             }
+
             $application = Application::find($id);
             if (!$application) {
                 logger('Application not found with ID: ' . $id);
@@ -364,21 +366,25 @@ class UserApplicationController extends Controller
                     $validationRules = [];
                     foreach ($fieldDatas as $field) {
                         $rules = [];
-
-                        if ($field->requiredfield == 1) {
-                            $rules[] = 'required';
-                        }
-                        if ($field->requireuniquevalue == 1) {
-                            $formDataCheck = FormData::where('application_id', $application->id)->get();
-                            $jsonDataArray = [];
-
-                            foreach ($formDataCheck as $dataceck) {
-                                $jsonData = json_decode($dataceck->data, true);
-                                $jsonDataArray[] = $jsonData;
+                        if ($field->type == 'attachment' || $field->type == 'images') {
+                            // File validation rules
+                            $rules[] = ''; // Adjust as per your requirements
+                        } else {
+                            if ($field->requiredfield == 1) {
+                                $rules[] = 'required';
                             }
-                            foreach ($jsonDataArray as $jsonData) {
-                                if ($this->isDataMatch($request->all(), $jsonData)) {
-                                    return redirect()->back()->with('error', 'Duplicate data found!');
+                            if ($field->requireuniquevalue == 1) {
+                                $formDataCheck = FormData::where('application_id', $application->id)->get();
+                                $jsonDataArray = [];
+
+                                foreach ($formDataCheck as $dataceck) {
+                                    $jsonData = json_decode($dataceck->data, true);
+                                    $jsonDataArray[] = $jsonData;
+                                }
+                                foreach ($jsonDataArray as $jsonData) {
+                                    if ($this->isDataMatch($request->all(), $jsonData)) {
+                                        return redirect()->back()->with('error', 'Duplicate data found!');
+                                    }
                                 }
                             }
                         }
@@ -456,8 +462,8 @@ class UserApplicationController extends Controller
                         $reconstructedString = str_replace('OR', '||', $reconstructedString);
 
                         // logger($reconstructedString);
-                        logger(eval ("return $reconstructedString;"));
-                        if (eval ("return $reconstructedString;")) {
+                        logger(eval("return $reconstructedString;"));
+                        if (eval("return $reconstructedString;")) {
                             logger('Email sent!');
                             $selectedGroups = [];
                             if ($notification->group_list != 'null') {
@@ -599,20 +605,26 @@ class UserApplicationController extends Controller
                 foreach ($fieldDatas as $field) {
                     $rules = [];
 
-                    if ($field->requiredfield == 1) {
-                        $rules[] = 'required';
-                    }
-                    if ($field->requireuniquevalue == 1) {
-                        $formDataCheck = FormData::where('application_id', $application->id)->get();
-                        $jsonDataArray = [];
-
-                        foreach ($formDataCheck as $dataceck) {
-                            $jsonData = json_decode($dataceck->data, true);
-                            $jsonDataArray[] = $jsonData;
+                    // Handle file type separately
+                    if ($field->type == 'attachment' || $field->type == 'images') {
+                        // File validation rules
+                        $rules[] = ''; // Adjust as per your requirements
+                    } else {
+                        if ($field->requiredfield == 1) {
+                            $rules[] = 'required';
                         }
-                        foreach ($jsonDataArray as $jsonData) {
-                            if ($this->isDataMatch($request->all(), $jsonData)) {
-                                return redirect()->back()->with('error', 'Duplicate data found!');
+                        if ($field->requireuniquevalue == 1) {
+                            $formDataCheck = FormData::where('application_id', $application->id)->get();
+                            $jsonDataArray = [];
+
+                            foreach ($formDataCheck as $dataceck) {
+                                $jsonData = json_decode($dataceck->data, true);
+                                $jsonDataArray[] = $jsonData;
+                            }
+                            foreach ($jsonDataArray as $jsonData) {
+                                if ($this->isDataMatch($request->all(), $jsonData)) {
+                                    return redirect()->back()->with('error', 'Duplicate data found!');
+                                }
                             }
                         }
                     }
@@ -690,8 +702,8 @@ class UserApplicationController extends Controller
                     $reconstructedString = str_replace('OR', '||', $reconstructedString);
 
                     // logger($reconstructedString);
-                    logger(eval ("return $reconstructedString;"));
-                    if (eval ("return $reconstructedString;")) {
+                    logger(eval("return $reconstructedString;"));
+                    if (eval("return $reconstructedString;")) {
                         logger('Email sent!');
                         $selectedGroups = [];
                         if ($notification->group_list != 'null') {
@@ -824,112 +836,463 @@ class UserApplicationController extends Controller
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
-    // public function triggerButtonShow($requestData, $triggerId)
-    // {
-    //     $task = Task::where('workflow_id', $triggerId)->first();
-    //     $parentTaskId = $task->parentableName->id ?? '';
-    //     if ($parentTaskId) {
-    //         logger('parentTaskId');
+    public function updateEdit(Request $request, $id)
+    {
+        try {
+            $data = $request->all();
+            unset($data['_token']);
+            unset($data['_method']);
+            unset($data['userid']);
+            unset($data['formdataid']);
 
-    //         $taskParent = Task::find($parentTaskId);
-    //         $existingTasks = Cache::get('data', []);
-    //         $existingTasks[] = $taskParent->name;
-    //         Cache::put('data', $existingTasks);
-    //         if ($taskParent !== null && $taskParent->name == 'EvaluateContent') {
-    //             logger('=======');
-    //             logger('EvaluateContent');
-    //             // logger($taskParent->id);
-    //             $getValue = $this->TriggerEvaluateContent($requestData, $taskParent->id);
-    //             logger('getValue');
-    //             logger($getValue);
+            foreach (request()->allFiles() as $key => $value) {
+                if ($value->getSize() > 2e6) {
+                    # code...
+                    throw new \Exception('File Size is more then 2 mb');
+                } else {
+                    # code...
+                    unset($data[$key]);
+                    $filename = rand() . $value->getClientOriginalName();
+                    $value->move(public_path('files'), $filename);
+                    $data[$key] = $filename;
+                }
+            }
 
-    //             $childrenTasksIds = [];
-    //             $childrenTasksNames = [];
-    //             foreach ($taskParent->childrenName as $childTask) {
-    //                 $childrenTasksIds[] = $childTask->id;
-    //                 $childrenTasksNames[] = $childTask->name;
-    //             }
-    //             // logger('childrenTasksIds');
-    //             // logger($childrenTasksIds);
-    //             if ($getValue) {
-    //                 $this->triggerButtonChildren($requestData, $childrenTasksIds[0]);
-    //             } else {
-    //                 $this->triggerButtonChildren($requestData, $childrenTasksIds[1]);
-    //             }
+            $application = Application::find($id);
+            if (!$application) {
+                logger('Application not found with ID: ' . $id);
+                return;
+            }
 
-    //         } elseif ($taskParent !== null && $taskParent->name == 'SendNotification') {
-    //             logger('=======');
-    //             logger('SendNotification');
-    //             $this->TriggerSendMail($taskParent->id);
-    //             $this->triggerButtonChildren($requestData, $taskParent->id);
-    //         } elseif ($taskParent !== null && $taskParent->name == 'UpdateContent') {
-    //             logger('=======');
-    //             logger('UpdateContent');
+            if ($application->workFlow && $application->workFlow->id) {
+                logger('Workflow ID found: ' . $application->workFlow->id);
+                $requestData = request()->all();
+                $requestData['application_id'] = $id;
+                // logger($requestData);
+                $this->triggerButtonShow($requestData, $application->workFlow->id);
 
-    //             $this->TriggerUpdateContent($requestData, $taskParent->id);
-    //             $this->triggerButtonChildren($requestData, $taskParent->id);
-    //         } elseif ($taskParent !== null && $taskParent->name == 'UserAction') {
-    //             logger('UpdateContent');
-    //             $this->triggerButtonChildren($requestData, $taskParent->id);
-    //         } else {
-    //             return redirect()->back()->with('error', 'not found');
-    //         }
-    //     } else {
-    //         $existingTasks = Cache::get('data', []);
-    //         $existingTasks[] = $task->name;
-    //         Cache::put('data', $existingTasks);
-    //         if ($task !== null && $task->name == 'EvaluateContent') {
-    //             logger('=======');
-    //             logger('EvaluateContent');
-    //             $getValue = $this->TriggerEvaluateContent($requestData, $task->id);
-    //             // logger('getValue');
-    //             // logger($getValue);
-    //             // dd($getValue);
+                $logData = Cache::get('data');
+                logger($logData);
+                Cache::forget('data');
+                if (!in_array('UpdateContent', $logData)) {
+                    logger('No Workflow ID found for Application ID: ' . $id);
+                    $fieldDatas = Field::where('application_id', $application->id)
+                        ->where('status', 1)
+                        ->get();
+                    $notifications = Notification::where('active', 'Y')->where('recurring', 'instantly')->where('application_id', $id)->get();
 
-    //             $childrenTasksIds = [];
-    //             $childrenTasksNames = [];
-    //             if ($task->childrenName) {
-    //                 foreach ($task->childrenName as $childTask) {
-    //                     $childrenTasksIds[] = $childTask->id;
-    //                     $childrenTasksNames[] = $childTask->name;
-    //                 }
-    //             }
-    //             // logger($childrenTasksIds);
-    //             // logger($childrenTasksNames);
 
-    //             if ($getValue) {
-    //                 $this->triggerButtonChildren($requestData, $childrenTasksIds[0]);
-    //             } else {
-    //                 $this->triggerButtonChildren($requestData, $childrenTasksIds[1]);
-    //             }
-    //         } elseif ($task !== null && $task->name == 'SendNotification') {
-    //             logger('=======');
-    //             logger('SendNotification');
-    //             $childrenTasksIds = [];
-    //             $childrenTasksNames = [];
-    //             if ($task->childrenName) {
-    //                 foreach ($task->childrenName as $childTask) {
-    //                     $childrenTasksIds[] = $childTask->id;
-    //                     $childrenTasksNames[] = $childTask->name;
-    //                 }
-    //             }
-    //             $this->TriggerSendMail($task->id);
-    //             $this->triggerButtonChildren($requestData, $task->id);
-    //         } elseif ($task !== null && $task->name == 'UpdateContent') {
-    //             logger('=======');
-    //             logger('UpdateContent');
-    //             $this->TriggerUpdateContent($requestData, $task->id);
-    //             $this->triggerButtonChildren($requestData, $task->id);
-    //         } elseif ($task !== null && $task->name == 'UserAction') {
-    //             logger('=======');
-    //             logger('UpdateContent');
-    //             $this->triggerButtonChildren($task->id);
-    //         } else {
-    //             logger('No Workflow ID found for Application ID: ' . $requestData);
-    //         }
-    //     }
-    //     return redirect()->back()->with('success', 'Button Triggered a Workflow');
-    // }
+                    foreach ($notifications as $notification) {
+                        $inputString = $notification->advanced_operator_logic;
+                        $allFilterCriterias = $notification->filterCriterias;
+                        $bolos = [];
+                        foreach ($fieldDatas as $value) {
+                            foreach ($notification->filterCriterias as $filterCriteria) {
+                                if ($filterCriteria->field_id == $value->id) {
+                                    switch ($filterCriteria->filter_operator) {
+                                        case 'C':
+                                            if (strpos($request[$value->name], $filterCriteria->filter_value) !== false) {
+                                                $bolos[] = true;
+                                                logger("Contains comparison: IDs match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                            } else {
+                                                $bolos[] = false;
+                                                logger("Contains comparison: IDs do not match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                            }
+                                            break;
+                                        case 'DNC':
+                                            if (strpos($request[$value->name], $filterCriteria->filter_value) === false) {
+                                                $bolos[] = true;
+                                                logger("Does not contain comparison: IDs match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                            } else {
+                                                $bolos[] = false;
+                                                logger("Does not contain comparison: IDs do not match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                            }
+                                            break;
+                                        case 'E':
+                                            if ($request[$value->name] == $filterCriteria->filter_value) {
+                                                $bolos[] = true;
+
+                                                logger("Equals comparison: IDs match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                            } else {
+                                                $bolos[] = false;
+                                                logger("Equals comparison: IDs do not match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                            }
+                                            break;
+                                        case 'CH': // Changed
+                                            // Perform action for 'Changed' case
+                                            break;
+                                        case 'CT': // Changed To
+                                            // Perform action for 'Changed To' case
+                                            break;
+                                        case 'CF': // Changed From
+                                            // Perform action for 'Changed From' case
+                                            break;
+                                        // Handle other comparison cases
+                                    }
+                                }
+                            }
+                        }
+
+                        $extractedTokens = $this->extractVariablesAndOperators($inputString);
+                        $variables = $this->getVariables($extractedTokens);
+                        $reconstructedString = $this->rebuildString($extractedTokens);
+                        foreach ($extractedTokens as &$token) {
+                            if ($token['type'] === 'variable') {
+                                $variableValue = intval($token['value']);
+                                if (isset($bolos[$variableValue - 1])) {
+                                    $token['value'] = $bolos[$variableValue - 1] ? '1' : '0';
+                                }
+                            }
+                        }
+
+                        $reconstructedString = $this->rebuildString($extractedTokens);
+                        $reconstructedString = str_replace('AND', '&&', $reconstructedString);
+                        $reconstructedString = str_replace('OR', '||', $reconstructedString);
+
+                        // logger($reconstructedString);
+                        logger(eval("return $reconstructedString;"));
+                        if (eval("return $reconstructedString;")) {
+                            logger('Email sent!');
+                            $selectedGroups = [];
+                            if ($notification->group_list != 'null') {
+                                $groupIds = json_decode($notification->group_list);
+
+                                if ($groupIds) {
+                                    foreach ($groupIds as $groupId) {
+                                        $group = Group::find($groupId);
+
+                                        if ($group) {
+                                            $selectedGroups[] = $group->userids;
+                                        }
+                                    }
+                                }
+                            }
+                            $userGroups = [];
+                            foreach ($selectedGroups as $groupUserIds) {
+                                // Decode the JSON string to an array
+                                $groupUserIdsArray = json_decode($groupUserIds, true);
+
+                                // Check if $groupUserIdsArray is an array
+                                if (!is_array($groupUserIdsArray)) {
+                                    $this->error('Invalid data for groupUserIds: ' . $groupUserIds);
+                                    continue; // Skip to the next iteration if data is invalid
+                                }
+
+                                foreach ($groupUserIdsArray as $userId) {
+                                    // Check if $userId is a valid integer
+                                    if (!is_numeric($userId) || intval($userId) <= 0) {
+                                        $this->error("Invalid user ID: $userId");
+                                        continue; // Skip to the next iteration if user ID is invalid
+                                    }
+
+                                    // Find the user by ID
+                                    $user = User::find(intval($userId));
+
+                                    if ($user) {
+                                        $userGroups[] = $user->email;
+                                    } else {
+                                        $this->error("User not found for ID: $userId");
+                                    }
+                                }
+                            }
+
+                            $selectedUsers = [];
+                            if ($notification->user_list != 'null') {
+                                $UserIds = json_decode($notification->user_list);
+
+                                if ($UserIds) {
+                                    foreach ($UserIds as $UserId) {
+                                        $User = User::find($UserId);
+
+                                        if ($User) {
+                                            $selectedUsers[] = $User->email;
+                                        }
+                                    }
+                                }
+                            }
+
+                            $template = $notification->body;
+                            $Formdata01 = Formdata::where('application_id', $notification->application_id)->get();
+
+                            $parsedData = collect(json_decode($Formdata01, true));
+                            $replacedTemplates = [];
+
+                            $parsedData->each(function ($entry) use ($template, &$replacedTemplates) {
+                                $data = json_decode($entry['data'], true);
+
+                                // Replace placeholders with values
+                                $replacedTemplate = $template;
+
+                                foreach ($data as $key => $value) {
+                                    $placeholder = "[field:$key]";
+                                    $replacedTemplate = str_replace($placeholder, $value, $replacedTemplate);
+                                }
+
+                                $replacedTemplates[] = $replacedTemplate;
+                                logger($replacedTemplate);
+                            });
+
+                            // dd($replacedTemplates);
+                            $replaceddata['body'] = $replacedTemplates;
+
+                            // $data['body'] = $notification->body;
+                            if ($userGroups) {
+                                foreach ($userGroups as $recipient) {
+                                    Mail::send('email.loginmail', @$replaceddata, function ($msg) use ($recipient, $notification) {
+                                        $msg->from(env('MAIL_FROM_ADDRESS'));
+                                        $msg->to($recipient, env('MAIL_FROM_NAME'));
+                                        $msg->subject($notification->subject);
+                                    });
+                                }
+                            }
+                            if ($selectedUsers) {
+                                foreach ($selectedUsers as $recipient) {
+                                    Mail::send('email.loginmail', @$replaceddata, function ($msg) use ($recipient, $notification) {
+                                        $msg->from(env('MAIL_FROM_ADDRESS'));
+                                        $msg->to($recipient, env('MAIL_FROM_NAME'));
+                                        $msg->subject($notification->subject);
+                                    });
+                                }
+                            }
+                        } else {
+                            logger('---false---');
+                        }
+                    }
+
+                    if (isset($request->formdataid)) {
+                        $data1['data'] = json_encode($data);
+                        $data1['userid'] = $request->userid;
+                        $data1['application_id'] = $id;
+                        $formdata = Formdata::find($request->formdataid);
+                        $currentarray = $formdata->data;
+                        $changearray = $data1['data'];
+                        $formdata->update($data1);
+                        Log::channel('user')->info('Userid -> ' . auth()->user()->custom_userid . ' , Application Edited by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Application Name -> ' . $application->name . ' Current Data -> ' . $currentarray . ' Change Data -> ' . $changearray);
+
+                        return redirect()->back()->with('success', 'Form Updated.');
+                    } else {
+                        # code...
+                        $data1['data'] = json_encode($data);
+                        $data1['userid'] = $request->userid;
+                        $data1['application_id'] = $id;
+                        Log::channel('user')->info('Application Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Application Name -> ' . $application->name . ' Current Data -> ' . $data1['data']);
+                        Formdata::create($data1);
+                        return redirect()->route('userapplication.list', $id)->with('success', 'Form Saved.');
+                    }
+                }
+                // dd(12);
+                return redirect()->back();
+            } else {
+                logger('No Workflow ID found for Application ID: ' . $id);
+                $fieldDatas = Field::where('application_id', $application->id)
+                    ->where('status', 1)
+                    ->get();
+                $notifications = Notification::where('active', 'Y')->where('recurring', 'instantly')->where('application_id', $id)->get();
+                $validationRules = [];
+
+
+                foreach ($notifications as $notification) {
+                    $inputString = $notification->advanced_operator_logic;
+                    $allFilterCriterias = $notification->filterCriterias;
+                    $bolos = [];
+                    foreach ($fieldDatas as $value) {
+                        foreach ($notification->filterCriterias as $filterCriteria) {
+                            if ($filterCriteria->field_id == $value->id) {
+                                switch ($filterCriteria->filter_operator) {
+                                    case 'C':
+                                        if (strpos($request[$value->name], $filterCriteria->filter_value) !== false) {
+                                            $bolos[] = true;
+                                            logger("Contains comparison: IDs match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                        } else {
+                                            $bolos[] = false;
+                                            logger("Contains comparison: IDs do not match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                        }
+                                        break;
+                                    case 'DNC':
+                                        if (strpos($request[$value->name], $filterCriteria->filter_value) === false) {
+                                            $bolos[] = true;
+                                            logger("Does not contain comparison: IDs match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                        } else {
+                                            $bolos[] = false;
+                                            logger("Does not contain comparison: IDs do not match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                        }
+                                        break;
+                                    case 'E':
+                                        if ($request[$value->name] == $filterCriteria->filter_value) {
+                                            $bolos[] = true;
+
+                                            logger("Equals comparison: IDs match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                        } else {
+                                            $bolos[] = false;
+                                            logger("Equals comparison: IDs do not match. Request value: {$request[$value->name]}, filter value: {$filterCriteria->filter_value}");
+                                        }
+                                        break;
+                                    case 'CH': // Changed
+                                        // Perform action for 'Changed' case
+                                        break;
+                                    case 'CT': // Changed To
+                                        // Perform action for 'Changed To' case
+                                        break;
+                                    case 'CF': // Changed From
+                                        // Perform action for 'Changed From' case
+                                        break;
+                                    // Handle other comparison cases
+                                }
+                            }
+                        }
+                    }
+
+                    $extractedTokens = $this->extractVariablesAndOperators($inputString);
+                    $variables = $this->getVariables($extractedTokens);
+                    $reconstructedString = $this->rebuildString($extractedTokens);
+                    foreach ($extractedTokens as &$token) {
+                        if ($token['type'] === 'variable') {
+                            $variableValue = intval($token['value']);
+                            if (isset($bolos[$variableValue - 1])) {
+                                $token['value'] = $bolos[$variableValue - 1] ? '1' : '0';
+                            }
+                        }
+                    }
+
+                    $reconstructedString = $this->rebuildString($extractedTokens);
+                    $reconstructedString = str_replace('AND', '&&', $reconstructedString);
+                    $reconstructedString = str_replace('OR', '||', $reconstructedString);
+
+                    // logger($reconstructedString);
+                    logger(eval("return $reconstructedString;"));
+                    if (eval("return $reconstructedString;")) {
+                        logger('Email sent!');
+                        $selectedGroups = [];
+                        if ($notification->group_list != 'null') {
+                            $groupIds = json_decode($notification->group_list);
+
+                            if ($groupIds) {
+                                foreach ($groupIds as $groupId) {
+                                    $group = Group::find($groupId);
+
+                                    if ($group) {
+                                        $selectedGroups[] = $group->userids;
+                                    }
+                                }
+                            }
+                        }
+                        $userGroups = [];
+                        foreach ($selectedGroups as $groupUserIds) {
+                            // Decode the JSON string to an array
+                            $groupUserIdsArray = json_decode($groupUserIds, true);
+
+                            // Check if $groupUserIdsArray is an array
+                            if (!is_array($groupUserIdsArray)) {
+                                $this->error('Invalid data for groupUserIds: ' . $groupUserIds);
+                                continue; // Skip to the next iteration if data is invalid
+                            }
+
+                            foreach ($groupUserIdsArray as $userId) {
+                                // Check if $userId is a valid integer
+                                if (!is_numeric($userId) || intval($userId) <= 0) {
+                                    $this->error("Invalid user ID: $userId");
+                                    continue; // Skip to the next iteration if user ID is invalid
+                                }
+
+                                // Find the user by ID
+                                $user = User::find(intval($userId));
+
+                                if ($user) {
+                                    $userGroups[] = $user->email;
+                                } else {
+                                    $this->error("User not found for ID: $userId");
+                                }
+                            }
+                        }
+
+                        $selectedUsers = [];
+                        if ($notification->user_list != 'null') {
+                            $UserIds = json_decode($notification->user_list);
+
+                            if ($UserIds) {
+                                foreach ($UserIds as $UserId) {
+                                    $User = User::find($UserId);
+
+                                    if ($User) {
+                                        $selectedUsers[] = $User->email;
+                                    }
+                                }
+                            }
+                        }
+
+                        $template = $notification->body;
+                        $Formdata01 = Formdata::where('application_id', $notification->application_id)->get();
+
+                        $parsedData = collect(json_decode($Formdata01, true));
+                        $replacedTemplates = [];
+
+                        $parsedData->each(function ($entry) use ($template, &$replacedTemplates) {
+                            $data = json_decode($entry['data'], true);
+
+                            // Replace placeholders with values
+                            $replacedTemplate = $template;
+
+                            foreach ($data as $key => $value) {
+                                $placeholder = "[field:$key]";
+                                $replacedTemplate = str_replace($placeholder, $value, $replacedTemplate);
+                            }
+
+                            $replacedTemplates[] = $replacedTemplate;
+                            logger($replacedTemplate);
+                        });
+
+                        // dd($replacedTemplates);
+                        $replaceddata['body'] = $replacedTemplates;
+
+                        // $data['body'] = $notification->body;
+                        if ($userGroups) {
+                            foreach ($userGroups as $recipient) {
+                                Mail::send('email.loginmail', @$replaceddata, function ($msg) use ($recipient, $notification) {
+                                    $msg->from(env('MAIL_FROM_ADDRESS'));
+                                    $msg->to($recipient, env('MAIL_FROM_NAME'));
+                                    $msg->subject($notification->subject);
+                                });
+                            }
+                        }
+                        if ($selectedUsers) {
+                            foreach ($selectedUsers as $recipient) {
+                                Mail::send('email.loginmail', @$replaceddata, function ($msg) use ($recipient, $notification) {
+                                    $msg->from(env('MAIL_FROM_ADDRESS'));
+                                    $msg->to($recipient, env('MAIL_FROM_NAME'));
+                                    $msg->subject($notification->subject);
+                                });
+                            }
+                        }
+                    } else {
+                        logger('---false---');
+                    }
+                }
+
+                if (isset($request->formdataid)) {
+                    $data1['data'] = json_encode($data);
+                    $data1['userid'] = $request->userid;
+                    $data1['application_id'] = $id;
+                    $formdata = Formdata::find($request->formdataid);
+                    $currentarray = $formdata->data;
+                    $changearray = $data1['data'];
+                    $formdata->update($data1);
+                    Log::channel('user')->info('Userid -> ' . auth()->user()->custom_userid . ' , Application Edited by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Application Name -> ' . $application->name . ' Current Data -> ' . $currentarray . ' Change Data -> ' . $changearray);
+
+                    return redirect()->back()->with('success', 'Form Updated.');
+                } else {
+                    # code...
+                    $data1['data'] = json_encode($data);
+                    $data1['userid'] = $request->userid;
+                    $data1['application_id'] = $id;
+                    Log::channel('user')->info('Application Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Application Name -> ' . $application->name . ' Current Data -> ' . $data1['data']);
+                    Formdata::create($data1);
+                    return redirect()->route('userapplication.list', $id)->with('success', 'Form Saved.');
+                }
+            }
+        } catch (\Exception $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
     public function triggerButtonShow($requestData, $triggerId)
     {
         $task = Task::where('workflow_id', $triggerId)->first();
@@ -1352,8 +1715,8 @@ class UserApplicationController extends Controller
                     $reconstructedString = str_replace('AND', '&&', $reconstructedString);
                     $reconstructedString = str_replace('OR', '||', $reconstructedString);
                     logger("Evaluated advanced operator logic: $reconstructedString");
-                    logger(eval ("return $reconstructedString;"));
-                    if (eval ("return $reconstructedString;")) {
+                    logger(eval("return $reconstructedString;"));
+                    if (eval("return $reconstructedString;")) {
                         return true;
                     }
                 } else {
@@ -1363,7 +1726,7 @@ class UserApplicationController extends Controller
                             return $value ? 'true' : 'false';
                         }, $bolos),
                     );
-                    if (eval ("return $arrayAsString;")) {
+                    if (eval("return $arrayAsString;")) {
                         return true;
                     }
                 }
@@ -1484,8 +1847,6 @@ class UserApplicationController extends Controller
             // $application = Application::with(['roles.permissions'])->findOrFail($id);
             // $roles = $application->rolestable()->first();
 
-
-
             // $roles = Role::whereHas('permissions', function ($query) use ($id) {
             //     $query->where('application_id', $id);
             // })
@@ -1500,7 +1861,6 @@ class UserApplicationController extends Controller
             // $roles->each(function ($role) {
             //     $role->permissions_list = $role->permissions->pluck('name')->implode(', ');
             // });
-
 
             $roles = Role::whereHas('permissions', function ($query) use ($id) {
                 $query->where('application_id', $id);
@@ -1519,13 +1879,16 @@ class UserApplicationController extends Controller
             });
 
             // Collecting unique permissions from all roles
-            $uniquePermissions = $roles->flatMap(function ($role) {
-                return $role->permissions->pluck('name');
-            })->unique()->sort()->toArray();
+            $uniquePermissions = $roles
+                ->flatMap(function ($role) {
+                    return $role->permissions->pluck('name');
+                })
+                ->unique()
+                ->sort()
+                ->toArray();
 
             // dd($uniquePermissions);
             // dd($roles);
-
 
             $dbfields = Field::where(['application_id' => $application->id, 'status' => 1])
                 ->orderBy('forder', 'ASC')

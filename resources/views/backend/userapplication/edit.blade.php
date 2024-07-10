@@ -28,7 +28,7 @@
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                    <li class="breadcrumb-item active">Application</li>
+                    <li class="breadcrumb-item active">Application </li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -48,8 +48,8 @@
                                         <div class="mb-3">
                                             <label for="exampleInputEmail1"
                                                 class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
-                                            <input type="{{ $item->datetype }}" class="form-control"
-                                                name="{{ $item->name }}"
+                                            <input type="{{ $item->type }}" class="form-control"
+                                                name="{{ $item->name }}" value="{{ old($item->name) }}"
                                                 @if ($item->requiredfield == 1) required @endif>
 
                                         </div>
@@ -80,7 +80,7 @@
                                             <label for="exampleInputEmail1"
                                                 class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
                                             <input type="text" class="form-control" name="{{ $item->name }}"
-                                                minlength="7" maxlength="15" size="15"
+                                                minlength="7" maxlength="15" size="15" value="{{ old($item->name) }}"
                                                 pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"
                                                 @if ($item->requiredfield == 1) required @endif>
 
@@ -92,6 +92,7 @@
                                             <label for="exampleInputEmail1"
                                                 class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
                                             <input type="number" class="form-control" name="{{ $item->name }}"
+                                                value="{{ old($item->name) }}"
                                                 @if ($item->requiredfield == 1) required @endif>
 
                                         </div>
@@ -102,6 +103,7 @@
                                             <label for="exampleInputEmail1"
                                                 class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label>
                                             <input type="text" class="form-control" name="{{ $item->name }}"
+                                                value="{{ old($item->name) }}"
                                                 @if ($item->requiredfield == 1) required @endif>
 
                                         </div>
@@ -109,7 +111,6 @@
 
 
                                     @if ($item->type == 'value_list')
-                                        {{-- {{ dd($item->valuelisttype) }} --}}
                                         <div class="mb-3">
                                             <label for="exampleInputEmail1"
                                                 class="form-label">{{ strtoupper(str_replace('_', ' ', $item->name)) }}</label><br>
@@ -137,6 +138,7 @@
                                                 @foreach ($valuelist as $item1)
                                                     <input name="{{ $item->name }}" value="{{ $item1 }}"
                                                         id="nonr" class="form-check-input" type="radio"
+                                                        {{ old($item->name) == $item1 ? 'checked' : '' }}
                                                         @if ($item->requiredfield == 1) required @endif>
                                                     <label for="{{ $item1 }}">{{ strtoupper($item1) }}</label><br>
                                                 @endforeach
@@ -149,6 +151,7 @@
                                                 @foreach ($valuelist as $item1)
                                                     <input type="checkbox" class="form-check-input"
                                                         name="{{ $item->name }}[{{ $item1 }}]"
+                                                        {{ old($item->name) == $item1 ? 'checked' : '' }}
                                                         @if ($item->requiredfield == 1) required @endif>
                                                     <label for="{{ $item1 }}">{{ strtoupper($item1) }}</label><br>
                                                 @endforeach
