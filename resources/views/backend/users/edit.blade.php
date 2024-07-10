@@ -148,89 +148,7 @@
 
                                         <div class="mb-3 row">
 
-                                            <div class="col-md-6">
-                                                <label for="exampleInputEmail1"
-                                                    class="form-label @error('department') is-invalid @enderror">Groups</label>
 
-                                                <div class="col-md-4 showaddbtn">
-                                                    <button type="button" class="btn btn-primary text-end"
-                                                        data-bs-toggle="modal" data-bs-target="#exampleModal"
-                                                        data-bs-whatever="@mdo">Add Group</button>
-                                                </div>
-                                                <div class="modal fade" id="exampleModal" tabindex="-1"
-                                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="exampleModalLabel">New Group
-                                                                </h5>
-                                                                <button type="button" class="btn-close"
-                                                                    data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="row">
-                                                                    <div class="col-md-6">
-                                                                        <label for="filter">Groups&nbsp;</label><input
-                                                                            id="filter" type="text"
-                                                                            class="filter form-control"
-                                                                            placeholder="Search Groups">
-                                                                        <br />
-                                                                        <div class="mb-3 mt-3 text-start">
-
-
-                                                                            <div id="mdi"
-                                                                                style="max-height: 10%; overflow:auto;">
-                                                                                @foreach ($groups as $item)
-                                                                                    <span><input
-                                                                                            class="talents_idmd-checkbox"
-                                                                                            onchange="dragdrop(this.value, this.id);"
-                                                                                            type="checkbox"
-                                                                                            id="{{ $item->name . ' ' . $item->lastname }}"
-                                                                                            value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
-                                                                                @endforeach
-                                                                            </div>
-
-
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-md-6 mt-3">
-                                                                        <div class="mb-3">
-                                                                            <label for="users">Selected Groups</label>
-                                                                            <select name="group_id[]" id=""
-                                                                                class="form-control" multiple>
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary"
-                                                                    data-bs-dismiss="modal">Close</button>
-                                                                {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-                                                {{-- {{dd($groupids, $groups, $groupids != null)}} --}}
-                                                <select id="" class="form-control" multiple>
-                                                    @if ($groupids != null)
-                                                        @foreach ($groups as $item)
-                                                            @if (in_array($item->id, $groupids))
-                                                                <option value="">{{ $item->name }}</option>
-                                                            @endif
-                                                        @endforeach
-                                                    @endif
-                                                </select>
-                                                @error('group_id')
-                                                    <label id="group_id-error" class="error text-danger"
-                                                        for="group_id">{{ $message }}</label>
-                                                @enderror
-                                                <div id="namehelp" class="form-text">
-                                                </div>
-                                            </div>
 
                                             <div class="col-md-6">
                                                 <label for="exampleInputEmail1"
@@ -255,7 +173,88 @@
                                                 class="form-label"><strong>SHHkey/Token/Certificate</strong></label>
                                             <textarea name="remarks" id="" cols="30" rows="4" class="form-control">{{ $user->remarks }}</textarea>
                                         </div>
+                                        <div class="col-md-12 mb-2">
+                                            <label for="exampleInputEmail1"
+                                                class="form-label @error('department') is-invalid @enderror">Groups</label>
 
+                                            <div class="col-md-4 showaddbtn mb-2">
+                                                <button type="button" class="btn btn-primary text-end"
+                                                    data-bs-toggle="modal" data-bs-target="#exampleModal"
+                                                    data-bs-whatever="@mdo">Add Group</button>
+                                            </div>
+                                            <div class="modal fade" id="exampleModal" tabindex="-1"
+                                                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="exampleModalLabel">New Group
+                                                            </h5>
+                                                            <button type="button" class="btn-close"
+                                                                data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <label for="filter">Groups&nbsp;</label><input
+                                                                        id="filter" type="text"
+                                                                        class="filter form-control"
+                                                                        placeholder="Search Groups">
+                                                                    <br />
+                                                                    <div class="mb-3 mt-3 text-start">
+
+
+                                                                        <div id="mdi"
+                                                                            style="max-height: 10%; overflow:auto;">
+                                                                            @foreach ($groups as $item)
+                                                                                <span><input class="talents_idmd-checkbox"
+                                                                                        onchange="dragdrop(this.value, this.id);"
+                                                                                        type="checkbox"
+                                                                                        id="{{ $item->name . ' ' . $item->lastname }}"
+                                                                                        value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
+                                                                            @endforeach
+                                                                        </div>
+
+
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6 mt-3">
+                                                                    <div class="mb-3">
+                                                                        <label for="users">Selected Groups</label>
+                                                                        <select name="group_id[]" id=""
+                                                                            class="form-control" multiple>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Close</button>
+                                                            {{-- <button type="submit" class="btn btn-primary">Submit</button> --}}
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            {{-- {{dd($groupids, $groups, $groupids != null)}} --}}
+                                            <select id="" class="form-control" multiple>
+                                                @if ($groupids != null)
+                                                    @foreach ($groups as $item)
+                                                        @if (in_array($item->id, $groupids))
+                                                            <option value="">{{ $item->name }}</option>
+                                                        @endif
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                            @error('group_id')
+                                                <label id="group_id-error" class="error text-danger"
+                                                    for="group_id">{{ $message }}</label>
+                                            @enderror
+                                            <div id="namehelp" class="form-text">
+                                            </div>
+                                        </div>
                                         <button type="submit" class="btn btn-primary">Submit</button>
                                     </form>
                                 </div>
