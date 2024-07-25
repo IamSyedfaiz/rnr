@@ -177,7 +177,7 @@
                                             <label for="exampleInputEmail1"
                                                 class="form-label @error('department') is-invalid @enderror">Groups</label>
 
-                                            <div class="col-md-4 showaddbtn mb-2">
+                                            <div class="col-md-4 showaddbtn mb-4">
                                                 <button type="button" class="btn btn-primary text-end"
                                                     data-bs-toggle="modal" data-bs-target="#exampleModal"
                                                     data-bs-whatever="@mdo">Add Group</button>
@@ -192,11 +192,11 @@
                                                             <button type="button" class="btn-close"
                                                                 data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
-                                                        <div class="modal-body">
+                                                        {{-- <div class="modal-body">
                                                             <div class="row">
                                                                 <div class="col-md-6">
-                                                                    <label for="filter">Groups&nbsp;</label><input
-                                                                        id="filter" type="text"
+                                                                    <label for="filter">Groups&nbsp;</label>
+                                                                    <input id="filter" type="text"
                                                                         class="filter form-control"
                                                                         placeholder="Search Groups">
                                                                     <br />
@@ -206,11 +206,14 @@
                                                                         <div id="mdi"
                                                                             style="max-height: 10%; overflow:auto;">
                                                                             @foreach ($groups as $item)
-                                                                                <span><input class="talents_idmd-checkbox"
+                                                                                <span>
+                                                                                    <input class="talents_idmd-checkbox"
                                                                                         onchange="dragdrop(this.value, this.id);"
+                                                                                        @if (in_array($item->id, $groupids ?? [])) checked @endif
                                                                                         type="checkbox"
                                                                                         id="{{ $item->name . ' ' . $item->lastname }}"
-                                                                                        value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
+                                                                                        value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}
+                                                                                </span><br>
                                                                             @endforeach
                                                                         </div>
 
@@ -226,7 +229,97 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
+                                                        </div> --}}
+                                                        {{-- 
+                                                        <div class="modal-body">
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <label for="filter">Groups&nbsp;</label>
+                                                                    <input id="filter" type="text"
+                                                                        class="filter form-control"
+                                                                        placeholder="Search Groups">
+                                                                    <br />
+                                                                    <div class="mb-3 mt-3 text-start">
+                                                                        <div id="mdi"
+                                                                            style="max-height: 10%; overflow:auto;">
+                                                                            @foreach ($groups as $item)
+                                                                                <span>
+                                                                                    <input class="talents_idmd-checkbox"
+                                                                                        onchange="dragdrop(this.value, this.id);"
+                                                                                        @if (in_array($item->id, $groupids ?? [])) checked @endif
+                                                                                        type="checkbox"
+                                                                                        id="{{ $item->name . ' ' . $item->lastname }}"
+                                                                                        value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}
+                                                                                </span><br>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6 mt-3">
+                                                                    <div class="mb-3">
+                                                                        <label for="users">Selected Groups</label>
+                                                                        <select name="group_id[]" id="selected-groups"
+                                                                            class="form-control" multiple>
+                                                                            @foreach ($groups as $item)
+                                                                                @if (in_array($item->id, $groupids ?? []))
+                                                                                    <option value="{{ $item->id }}"
+                                                                                        id="{{ $item->id }}" selected>
+                                                                                        {{ $item->name . ' ' . $item->lastname }}
+                                                                                    </option>
+                                                                                @endif
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div> --}}
+
+                                                        <div class="modal-body">
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <label for="filter">Groups&nbsp;</label>
+                                                                    <input id="filter" type="text"
+                                                                        class="filter form-control"
+                                                                        placeholder="Search Groups">
+                                                                    <br />
+                                                                    <div class="mb-3 mt-3 text-start">
+                                                                        <div id="mdi"
+                                                                            style="max-height: 10%; overflow:auto;">
+                                                                            @foreach ($groups as $item)
+                                                                                <span>
+                                                                                    <input class="talents_idmd-checkbox"
+                                                                                        onchange="dragdrop(this.value, this.id);"
+                                                                                        @if (in_array($item->id, $groupids ?? [])) checked @endif
+                                                                                        type="checkbox"
+                                                                                        id="{{ $item->name . ' ' . $item->lastname }}"
+                                                                                        value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}
+                                                                                </span><br>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6 mt-3">
+                                                                    <div class="mb-3">
+                                                                        <label for="users">Selected Groups</label>
+                                                                        <select name="group_id[]" id="selected-groups"
+                                                                            class="form-control" multiple>
+                                                                            @foreach ($groups as $item)
+                                                                                @if (in_array($item->id, $groupids ?? []))
+                                                                                    <option value="{{ $item->id }}"
+                                                                                        id="option-{{ $item->id }}"
+                                                                                        selected>
+                                                                                        {{ $item->name . ' ' . $item->lastname }}
+                                                                                    </option>
+                                                                                @endif
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
+
+
+
 
 
                                                         <div class="modal-footer">
@@ -238,7 +331,7 @@
 
                                                 </div>
                                             </div>
-                                            {{-- {{dd($groupids, $groups, $groupids != null)}} --}}
+
                                             <select id="" class="form-control" multiple>
                                                 @if ($groupids != null)
                                                     @foreach ($groups as $item)
@@ -296,21 +389,105 @@
 
         filterEl.addEventListener('keyup', () => handler.call(null, filterEl.value));
 
+        // function dragdrop(value, name) {
+        //     if (document.getElementById(name).checked) {
+        //         var userselect = document.getElementsByName('group_id[]')[0];
+        //         var option = document.createElement('option');
+        //         option.value = value;
+        //         option.id = value;
+        //         option.innerText = name;
+        //         option.selected = true;
+        //         userselect.appendChild(option);
+        //     } else {
+        //         var userselect = document.getElementsByName('group_id[]')[0];
+        //         var removeoption = document.getElementById(value);
+        //         userselect.removeChild(removeoption);
+        //     }
+        // }
+
+        // function dragdrop(value, name) {
+        //     var checkbox = document.getElementById(name);
+        //     var userselect = document.getElementById('selected-groups');
+
+        //     if (checkbox.checked) {
+        //         if (!document.getElementById(value)) {
+        //             var option = document.createElement('option');
+        //             option.value = value;
+        //             option.id = value;
+        //             option.innerText = name;
+        //             option.selected = true;
+        //             userselect.appendChild(option);
+        //         }
+        //     } else {
+        //         var removeoption = document.getElementById(value);
+        //         if (removeoption) {
+        //             userselect.removeChild(removeoption);
+        //         }
+        //     }
+        // }
+
+        // // Ensure existing selected groups are shown when the modal is loaded
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     var groupIds = @json($groupids ?? []);
+        //     var userselect = document.getElementById('selected-groups');
+
+        //     groupIds.forEach(function(groupId) {
+        //         var checkbox = document.querySelector('input[value="' + groupId + '"]');
+        //         if (checkbox) {
+        //             checkbox.checked = true;
+        //             var name = checkbox.id;
+        //             if (!document.getElementById(groupId)) {
+        //                 var option = document.createElement('option');
+        //                 option.value = groupId;
+        //                 option.id = groupId;
+        //                 option.innerText = name;
+        //                 option.selected = true;
+        //                 userselect.appendChild(option);
+        //             }
+        //         }
+        //     });
+        // });
         function dragdrop(value, name) {
-            // console.log(value);
-            if (document.getElementById(name).checked) {
-                var userselect = document.getElementsByName('group_id[]')[0];
-                var option = document.createElement('option');
-                option.value = value;
-                option.id = value;
-                option.innerText = name;
-                option.selected = true;
-                userselect.appendChild(option);
+            var checkbox = document.getElementById(name);
+            var userselect = document.getElementById('selected-groups');
+
+            if (checkbox.checked) {
+                if (!document.getElementById('option-' + value)) {
+                    var option = document.createElement('option');
+                    option.value = value;
+                    option.id = 'option-' + value;
+                    option.innerText = name;
+                    option.selected = true;
+                    userselect.appendChild(option);
+                }
             } else {
-                var userselect = document.getElementsByName('group_id[]')[0];
-                var removeoption = document.getElementById(value);
-                userselect.removeChild(removeoption);
+                var removeoption = document.getElementById('option-' + value);
+                if (removeoption) {
+                    userselect.removeChild(removeoption);
+                }
             }
         }
+
+        // Ensure existing selected groups are shown when the modal is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            var groupIds = @json($groupids ?? []);
+            var userselect = document.getElementById('selected-groups');
+
+            groupIds.forEach(function(groupId) {
+                var checkbox = document.querySelector('input[value="' + groupId + '"]');
+                if (checkbox) {
+                    checkbox.checked = true;
+                    var name = checkbox.id;
+                    if (!document.getElementById('option-' + groupId)) {
+                        var option = document.createElement('option');
+                        option.value = groupId;
+                        option.id = 'option-' + groupId;
+                        option.innerText = name;
+                        option.selected = true;
+                        userselect.appendChild(option);
+                    }
+                }
+            });
+        });
     </script>
 @endsection

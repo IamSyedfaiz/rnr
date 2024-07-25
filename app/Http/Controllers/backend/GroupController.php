@@ -37,8 +37,10 @@ class GroupController extends Controller
     public function create()
     {
         try {
-            //code...
-            return view('backend.applications.create');
+            $users = User::where('id', '!=', 1)->orderBy('name')->get();
+
+            $selectedusers = [];
+            return view('backend.group.create', compact('selectedusers', 'users'));
         } catch (\Exception $th) {
             //throw $th;
             return redirect()->back()->with('error', $th->getMessage());
@@ -54,14 +56,11 @@ class GroupController extends Controller
     public function store(Request $request)
     {
         try {
-            // dd($request->all());
             $rules = [
                 'name' => 'required',
-                // 'attachments' => 'required|mimes:pdf,jpg,png|min:5|max:2048',
                 'userids' => 'required',
                 'user_id' => 'required',
                 'status' => 'required',
-                // 'description' => 'required',
             ];
 
             $custommessages = [];
@@ -80,6 +79,7 @@ class GroupController extends Controller
             if ($group) {
                 foreach ($userIds as $userId) {
                     $user = User::find($userId);
+                    // dd($user);
                     if ($user) {
                         $existingGroupIds = json_decode($user->group_id ?? '[]');
                         $newGroupIdString = strval($group->id);
@@ -119,10 +119,9 @@ class GroupController extends Controller
     public function edit($id)
     {
         try {
-            //code...
             $group = Group::find($id);
-            // dd($application->attachments);
-            $users = User::orderBy('name')->get();
+            $users = User::where('id', '!=', 1)->orderBy('name')->get();
+
             $selectedusers = [];
             if ($group->userids != null) {
                 # code...
@@ -152,12 +151,8 @@ class GroupController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            //code...
-            // dd($request->all(), $request->application_id);
-
             $rules = [
                 'name' => 'required',
-                // 'attachments' => 'required|mimes:pdf,jpg,png|min:5|max:2048',
                 // 'userids' => 'required',
                 'user_id' => 'required',
                 'status' => 'required',
@@ -172,18 +167,14 @@ class GroupController extends Controller
             unset($data['userids']);
 
             if ($request->userids != null) {
-                # code...
                 $data['userids'] = json_encode($request->userids);
             }
-            // dd($data);
             $group = Group::find($id);
 
             $changearray = [];
             if ($group->status == 1) {
-                # code...
                 $currentstatus = 'Active';
             } else {
-                # code...
                 $currentstatus = 'InActive';
             }
 
@@ -193,18 +184,12 @@ class GroupController extends Controller
             ];
 
             $currentarray['Usernames'] = [];
-            // dd(json_decode($group->userids));
             for ($i = 0; $i < count(json_decode($group->userids)); $i++) {
-                # code...
-                // dd(json_decode($group->userids)[$i]);
                 $u = User::find(json_decode($group->userids)[$i]);
-                // dd($request->userids, $u);
                 array_push($currentarray['Usernames'], $u->name . ' ' . $u->lastname);
             }
-            // dd($currentarray);
 
             if (isset($data['name']) && $group->name != $data['name']) {
-                # code...
                 $changearray['name'] = $data['name'];
             }
             if (isset($data['userids']) && $group->userids != $data['userids']) {
@@ -242,13 +227,13 @@ class GroupController extends Controller
                 }
                 $changearray['UsersChange'] = 'True';
             } else {
+                // dd($data, 'niche');
+
                 $userIds = $request->userids ?? [];
                 if ($group) {
                     if (!empty($userIds)) {
-                        // dd($userIds, 'uper');
                         foreach ($userIds as $userId) {
                             $user = User::find($userId);
-                            // dd($user);
                             if ($user) {
                                 $existingGroupIds = [];
                                 $newGroupIdString = strval($group->id);
@@ -290,16 +275,11 @@ class GroupController extends Controller
                 }
             }
 
-            // dd($currentarray, $changearray);
-
             $group->update($data);
             Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Group Updated by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' , Group Name -> ' . $group->name . ' , Current Data -> ' . json_encode($currentarray) . ' , Changed Data -> ' . json_encode($changearray));
+            return redirect()->route('group.index')->with('Successfully Group Updated.');
 
-            // dd($group);
-            # code...
-            return redirect()->back()->with('success', 'Successfully Group Updated.');
         } catch (\Exception $th) {
-            //throw $th;
             return redirect()->back()->with('error', $th->getMessage());
         }
     }

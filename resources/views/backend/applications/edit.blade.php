@@ -105,7 +105,7 @@
                                                             for="description">{{ $message }}</label>
                                                     @enderror
                                                 </div>
-                                                <div class="text-center">
+                                                <div class="">
                                                     <input type="hidden" value="{{ auth()->id() }}" name="updated_by">
 
                                                     <button type="submit" class="btn btn-primary">Submit</button>
@@ -220,7 +220,7 @@
                                         <div class="card-body pt-3">
                                             <div class="row">
                                                 <div class="col-md-6">
-                                                    <h5 class="card-title">Fields Table
+                                                    <h5 class="card-title">Fields Details
                                                     </h5>
                                                 </div>
                                                 <div class="col-md-6 text-end">

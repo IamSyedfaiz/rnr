@@ -247,9 +247,9 @@
                                                                 </div>
                                                             @endif
                                                             <input type="button" class="btn btn-primary mb-2"
-                                                                onclick="addvaluelist()" value="add more">
+                                                                onclick="addvaluelist()" value="Add More">
                                                             <input type="button" class="btn btn-danger mb-2"
-                                                                onclick="removevaluelist()" value="remove">
+                                                                onclick="removevaluelist()" value="Remove">
 
                                                         </div>
 

@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\backend\Group;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -50,27 +52,62 @@ class UserController extends Controller
     public function store(Request $request)
     {
         try {
-            //code...
-            // dd($request->all());
+            // $rules = [
+            //     'email' => 'required|email|unique:users,email',
+            //     'name' => 'required',
+            //     'custom_userid' => 'required',
+            //     'mobile_no' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+            //     'password' => 'required|min:6|same:repassword',
+            //     'repassword' => 'required|same:password',
+            // ];
 
-            $rules = [
-                'email' => 'required',
-                'name' => 'required',
-                'custom_userid' => 'required',
-                'mobile_no' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
-                'password' => 'required|min:6',
-                'repassword' => 'required',
-            ];
+            // $custommessages = [
+            //     'email.required' => 'The email field is required.',
+            //     'email.email' => 'Please enter a valid email address.',
+            //     'email.unique' => 'This email is already taken.',
+            //     'name.required' => 'The name field is required.',
+            //     'custom_userid.required' => 'The custom user ID field is required.',
+            //     'mobile_no.required' => 'The mobile number field is required.',
+            //     'mobile_no.regex' => 'Please check the mobile number format.',
+            //     'mobile_no.min' => 'The mobile number must be at least 10 digits.',
+            //     'password.required' => 'The password field is required.',
+            //     'password.min' => 'The password must be at least 6 characters.',
+            //     'password.same' => 'The password and confirmation password do not match.',
+            //     'repassword.required' => 'The confirmation password field is required.',
+            //     'repassword.same' => 'The password and confirmation password do not match.',
+            // ];
+            // $this->validate($request, $rules, $custommessages);
 
-            $custommessages = [
-                'mobile_no.regex' => 'Please Check Mobile Number',
-            ];
-
-            $this->validate($request, $rules, $custommessages);
+            $validator = Validator::make(
+                $request->all(),
+                [
+                    'email' => 'required|email|unique:users,email',
+                    'name' => 'required',
+                    'custom_userid' => 'required',
+                    'mobile_no' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+                    'password' => 'required|min:6|same:repassword',
+                    'repassword' => 'required|same:password',
+                ],
+                [
+                    'email.required' => 'The email field is required.',
+                    'email.email' => 'Please enter a valid email address.',
+                    'email.unique' => 'This email is already taken.',
+                    'name.required' => 'The name field is required.',
+                    'custom_userid.required' => 'The custom user ID field is required.',
+                    'mobile_no.required' => 'The mobile number field is required.',
+                    'mobile_no.regex' => 'Please check the mobile number format.',
+                    'mobile_no.min' => 'The mobile number must be at least 10 digits.',
+                    'password.required' => 'The password field is required.',
+                    'password.min' => 'The password must be at least 6 characters.',
+                    'password.same' => 'The password and confirmation password do not match.',
+                    'repassword.required' => 'The confirmation password field is required.',
+                    'repassword.same' => 'The password and confirmation password do not match.',
+                ],
+            );
 
             if ($request->password == $request->repassword) {
                 # code...
-                $data = $request->all();
+                $data = $validator->validate();
                 unset($data['_token']);
                 unset($data['password']);
                 unset($data['repassword']);
@@ -123,6 +160,12 @@ class UserController extends Controller
                 # code...
                 throw new \Exception('Password Does Not Matched');
             }
+        } catch (ValidationException $e) {
+            // Handle the validation exception and redirect back with errors
+            return redirect()
+                ->back()
+                ->withErrors($e->validator)
+                ->withInput();
         } catch (\Exception $th) {
             //throw $th;
             return redirect()->back()->with('error', $th->getMessage());

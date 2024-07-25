@@ -50,6 +50,24 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         try {
+            // Validation rules
+            $rules = [
+                'user_list' => 'nullable|array',
+                'group_list' => 'nullable|array',
+                'permission' => 'required|array',
+                'user_id' => 'required|integer',
+                // Add other fields that you need to validate
+            ];
+
+            // Custom validation messages
+            $messages = [
+                'permission.required' => 'Please select permissions',
+                'user_id.required' => 'The user ID is required',
+                'user_id.integer' => 'The user ID must be an integer',
+            ];
+
+            // Validate the request
+            $validatedData = $request->validate($rules, $messages);
             $data = $request->all();
             unset($data['_token']);
             unset($data['user_list']);
@@ -61,7 +79,6 @@ class RoleController extends Controller
 
             $role1 = Role::create($data);
             if ($permissions) {
-
                 $permissionsToInsert = [];
                 if ($role1) {
                     foreach ($permissions as $key => $permission) {
@@ -72,20 +89,14 @@ class RoleController extends Controller
                     }
                 } else {
                     return redirect()->back()->with('error', 'Role creation failed');
-
                 }
             } else {
                 return redirect()->back()->with('error', 'Please select permissions');
-
             }
-
-
 
             Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Role Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname);
 
-            return redirect()
-                ->route('role.index')
-                ->with('success', 'Successfully Roles Created.');
+            return redirect()->route('role.index')->with('success', 'Successfully Roles Created.');
             if ($request->user_list == null && $request->group_list == null) {
                 # code...
                 throw new \Exception('Select Atleast User or Group.');
@@ -155,7 +166,7 @@ class RoleController extends Controller
             $groups = Group::where('status', 1)->latest()->get();
             $applications = Application::where('status', 1)->latest()->get();
             $permissions = Permission::all();
-            // $existingPermissions = $role->permissions->pluck('id')->toArray();   
+            // $existingPermissions = $role->permissions->pluck('id')->toArray();
 
             // Fetch existing permissions for the role with application_id and permission_id
             $existingPermissions = \DB::table('role_permission')
@@ -240,7 +251,6 @@ class RoleController extends Controller
                 return redirect()->back()->with('success', 'Successfully Roles Updated.');
             } else {
                 return redirect()->route('role.index')->with('error', 'not found');
-
             }
         } catch (\Exception $th) {
             //throw $th;

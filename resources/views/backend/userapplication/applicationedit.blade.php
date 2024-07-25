@@ -7,6 +7,11 @@
                 <div class="col-md-6">
                     <h1>Application Indexing List </h1>
                 </div>
+                <div class="col-md-6 text-end">
+                    <a href="{{ route('userapplication.list', $application->id) }}" class="btn btn-secondary"><i
+                            class="bi bi-arrow-left-short"></i>
+                        Back</a>
+                </div>
             </div>
             @if (Session::has('error'))
                 <div class="alert alert-danger alert-dismissible fade in show col-md-12 mt-2">
@@ -47,11 +52,7 @@
                                                 </ul>
                                             </div>
                                         @endif
-                                        <button type="button" class="btn btn-danger">
-                                            <a href="{{ route('userapplication.list', $application->id) }}"
-                                                style="color:aliceblue">
-                                                <- back</a>
-                                        </button>
+
                                     </div>
                                     <form action="{{ route('update.edit', $application->id) }}" class="form-horizontal"
                                         enctype="multipart/form-data" method="post">

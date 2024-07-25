@@ -64,8 +64,8 @@
                                                     In-Active
                                                 @endif
                                             </td>
-                                            <td>{{ $item->created_at->toDateString() }}</td>
-                                            <td>{{ $item->updated_at->toDateString() }}</td>
+                                            <td>{{ $item->created_at }}</td>
+                                            <td>{{ $item->updated_at }}</td>
 
                                             <td class="d-flex ">
 
