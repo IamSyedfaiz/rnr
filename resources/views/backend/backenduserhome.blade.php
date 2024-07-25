@@ -5,7 +5,7 @@
         <div class="pagetitle">
             <div class="row">
                 <div class="col-md-6">
-                    <h1>Dashboard fgfgf</h1>
+                    <h1>Dashboard</h1>
                 </div>
                 @if (Session::has('error'))
                     <div class="alert alert-danger alert-dismissible fade in show col-md-12 mt-2">

@@ -206,13 +206,6 @@
 
         @if (auth()->user()->role == 'admin')
 
-            {{-- <div class="nav-item dropdown">
-                <a href="#" class="nav-item nav-link dropdown-toggle " data-bs-toggle="dropdown"><i
-                        class="fa fa-exclamation-triangle me-2"></i>Dashboard</a>
-                <div class="dropdown-menu bg-transparent border-0">
-                    <a href="{{ route('dashboard.index') }}" class="dropdown-item">View All</a>
-                </div>
-            </div> --}}
             <li class="nav-item">
                 <a class="nav-link collapsed" href="{{ route('users.index') }}">
                     <i class="bi bi-people"></i>
@@ -296,14 +289,9 @@
                     ->with('permissions.applications')
                     ->get();
 
-                // Combine both direct roles and group roles
                 $allRoles = $directRoles->merge($groupRoles);
-
-                // logger($allRoles);
-                // logger($groupRoles);
-                // logger($userId);
                 $applications = [];
-                foreach ($allRoles as $permission) {
+                foreach ($groupRoles as $permission) {
                     foreach ($permission->applications as $application) {
                         if (!isset($applications[$application->id])) {
                             $applications[$application->id] = $application;

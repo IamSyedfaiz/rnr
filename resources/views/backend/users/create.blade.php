@@ -44,64 +44,48 @@
                                         enctype="multipart/form-data">
                                         @csrf
                                         <div class="col-12">
-                                            @if (Session::has('error'))
-                                                <div class="alert alert-danger alert-dismissible fade in show col-md-12">
-                                                    <strong>Error!</strong> {{ session('error') }}
-                                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                                        aria-label="Close"></button>
-                                                </div>
-                                            @endif
-
-                                            @if (Session::has('success'))
-                                                <div class="alert alert-success alert-dismissible fade in show col-md-12">
-                                                    <strong>Success!</strong> {{ session('success') }}
-                                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                                        aria-label="Close"></button>
-                                                </div>
-                                            @endif
                                             <label for="inputNanme4" class="form-label">First Name</label>
                                             {{-- <input type="text" class="form-control" id="inputNanme4"> --}}
                                             <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                                name="name" id="name" aria-describedby="namehelp" required>
+                                                name="name" id="name" aria-describedby="namehelp" required
+                                                value="{{ old('name') }}">
                                             @error('name')
-                                                <label id="name-error" class="error text-danger"
-                                                    for="name">{{ $message }}</label>
+                                                <div id="nameHelp" class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="col-12">
                                             <label for="inputNanme4" class="form-label">Last Name</label>
                                             <input type="text"
                                                 class="form-control @error('lastname') is-invalid @enderror" name="lastname"
-                                                id="lastname" aria-describedby="lastnamehelp" required>
+                                                id="lastname" aria-describedby="lastnamehelp" required
+                                                value="{{ old('lastname') }}">
                                             @error('lastname')
-                                                <label id="lastname-error" class="error text-danger"
-                                                    for="lastname">{{ $message }}</label>
+                                                <div id="nameHelp" class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="col-12">
                                             <label for="inputNanme4" class="form-label">User ID</label>
                                             <input type="text"
                                                 class="form-control @error('lastname') is-invalid @enderror"
-                                                name="custom_userid" id="lastname" aria-describedby="lastnamehelp"
-                                                required>
-                                            @error('lastname')
-                                                <label id="lastname-error" class="error text-danger"
-                                                    for="lastname">{{ $message }}</label>
+                                                name="custom_userid" id="lastname" aria-describedby="lastnamehelp" required
+                                                value="{{ old('custom_userid') }}">
+                                            @error('custom_userid')
+                                                <div id="nameHelp" class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="col-12">
                                             <label for="inputEmail4" class="form-label">Email</label>
                                             <input type="text" class="form-control @error('email') is-invalid @enderror"
-                                                id="email" name="email" aria-describedby="namehelp" required>
+                                                id="email" name="email" aria-describedby="namehelp" required
+                                                value="{{ old('email') }}">
                                             @error('email')
-                                                <label id="email-error" class="error text-danger"
-                                                    for="email">{{ $message }}</label>
+                                                <div id="nameHelp" class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="col-12">
                                             <label for="inputNanme4" class="form-label">Mobile No.</label>
                                             <input type="text" class="form-control" id="name" name="mobile_no"
-                                                aria-describedby="namehelp" required>
+                                                aria-describedby="namehelp" required value="{{ old('mobile_no') }}">
                                             @error('mobile_no')
                                                 <label id="mobile_no-error" class="error text-danger"
                                                     for="mobile_no">{{ $message }}</label>
@@ -125,8 +109,8 @@
                                                     for="repassword">{{ $message }}</label>
                                             @enderror
                                         </div>
-                                        <div class="col-md-6">
-                                            {{-- <label for="inputNanme4" class="form-label">Group</label>
+                                        {{-- <div class="col-md-6"> --}}
+                                        {{-- <label for="inputNanme4" class="form-label">Group</label>
                                             <div id="checkboxes2">
                                                 <div class="control">
                                                     <input class="input form-control" type="text" placeholder="Search"
@@ -153,7 +137,7 @@
                                                     .childNodes[1].id.toLowerCase().includes(search.value.toLowerCase()) ? "inline" : "none"))
                                             </script> --}}
 
-                                        </div>
+                                        {{-- </div> --}}
                                         {{-- <div class="col-md-6">
                                             <label for="inputNanme4" class="form-label">Selected Groups</label>
                                             <select class="form-control form-select" multiple disabled>
@@ -164,23 +148,28 @@
                                         </div> --}}
                                         <div class="col-md-6">
                                             <label for="inputAddress" class="form-label">Status</label>
-
-                                            <select name="status" id="" class="form-control form-select"
-                                                required>
+                                            <select name="status" id="inputAddress"
+                                                class="form-control @error('status') is-invalid @enderror" required>
                                                 <option value="">Select Status</option>
-                                                <option selected value="1">Active</option>
-                                                <option value="0">Inactive</option>
+                                                <option value="1" {{ old('status') == 1 ? 'selected' : '' }}>Active
+                                                </option>
+                                                <option value="0" {{ old('status') == 0 ? 'selected' : '' }}>Inactive
+                                                </option>
                                             </select>
+                                            @error('status')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
+
                                         <div class="col-12">
                                             <label for="inputAddress" class="form-label">SHHkey/Token/Certificate</label>
-                                            <textarea class="form-control textarea" name="remarks"></textarea>
+                                            <textarea class="form-control textarea" name="remarks">{{ old('remarks') }}</textarea>
                                         </div>
                                         <div class="col-md-12">
                                             <label for="exampleInputEmail1"
                                                 class="form-label @error('department') is-invalid @enderror">Groups</label>
 
-                                            <div class="col-md-6 showaddbtn">
+                                            <div class="col-md-6 showaddbtn mb-3">
                                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                                     data-bs-target="#exampleModal" data-bs-whatever="@mdo">Add
                                                     Group</button>

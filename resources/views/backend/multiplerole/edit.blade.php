@@ -51,7 +51,12 @@
                                             <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab"
                                                 data-bs-target="#nav-profile" type="button" role="tab"
                                                 aria-controls="nav-profile" aria-selected="false">
-                                                Content
+                                                Rights
+                                            </button>
+                                            <button class="nav-link" id="nav-group-tab" data-bs-toggle="tab"
+                                                data-bs-target="#nav-group" type="button" role="tab"
+                                                aria-controls="nav-group" aria-selected="false">
+                                                Group
                                             </button>
 
                                         </div>
@@ -75,13 +80,56 @@
                                                     <div id="namehelp" class="form-text">
                                                     </div>
                                                 </div>
+
+
+                                                <input type="hidden" value="{{ auth()->id() }}" name="user_id">
+
+                                            </div>
+                                            <div class="tab-pane fade" id="nav-profile" role="tabpanel"
+                                                aria-labelledby="nav-profile-tab">
+                                                <table class="table datatable">
+                                                    <thead>
+                                                        <tr class="text-dark">
+                                                            <th scope="col">Application Name</th>
+                                                            <th scope="col">Import</th>
+                                                            <th scope="col">Create</th>
+                                                            <th scope="col">Read</th>
+                                                            <th scope="col">Update</th>
+                                                            <th scope="col">Delete</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($applications as $application)
+                                                            <tr>
+                                                                <td>
+                                                                    <a
+                                                                        href="{{ route('application.edit', $application->id) }}">
+                                                                        {{ $application->name }}</a>
+                                                                </td>
+
+                                                                @foreach ($permissions as $permission)
+                                                                    <td>
+                                                                        <input type="checkbox"
+                                                                            name="permission[{{ $application->id }}][]"
+                                                                            value="{{ $permission->id }}"
+                                                                            id="{{ $permission->id }}">
+                                                                    </td>
+                                                                @endforeach
+                                                            </tr>
+                                                        @endforeach
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="tab-pane fade" id="nav-group" role="tabpanel"
+                                                aria-labelledby="nav-group-tab">
                                                 <div>
 
-                                                    <div class="mb-3">
+                                                    <div class="my-3">
                                                         {{-- <label for="exampleInputEmail1" class="form-label">{{ strtoupper($item->name) }}</label> --}}
                                                         <div class="usergrouplist">
                                                             <div class="d-flex  mb-2">
-                                                                <div class="col-md-6 addusers">
+                                                                {{-- <div class="col-md-6 addusers">
                                                                     <button type="button" class="btn btn-primary text-end"
                                                                         data-bs-toggle="modal"
                                                                         data-bs-target="#exampleModalusers"
@@ -96,10 +144,11 @@
                                                                             </select>
                                                                         </div>
                                                                     </div>
-                                                                </div>
+                                                                </div> --}}
 
                                                                 <div class="col-md-6 addgroups">
-                                                                    <button type="button" class="btn btn-primary text-end"
+                                                                    <button type="button"
+                                                                        class="btn btn-primary text-end"
                                                                         data-bs-toggle="modal"
                                                                         data-bs-target="#exampleModalgroups"
                                                                         data-bs-whatever="@mdo">Add
@@ -234,45 +283,6 @@
                                                     </div>
 
                                                 </div>
-
-                                                <input type="hidden" value="{{ auth()->id() }}" name="user_id">
-
-                                            </div>
-                                            <div class="tab-pane fade" id="nav-profile" role="tabpanel"
-                                                aria-labelledby="nav-profile-tab">
-                                                <table class="table datatable">
-                                                    <thead>
-                                                        <tr class="text-dark">
-                                                            <th scope="col">Application Name</th>
-                                                            <th scope="col">Import</th>
-                                                            <th scope="col">Create</th>
-                                                            <th scope="col">Read</th>
-                                                            <th scope="col">Update</th>
-                                                            <th scope="col">Delete</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach ($applications as $application)
-                                                            <tr>
-                                                                <td>
-                                                                    <a
-                                                                        href="{{ route('application.edit', $application->id) }}">
-                                                                        {{ $application->name }}</a>
-                                                                </td>
-
-                                                                @foreach ($permissions as $permission)
-                                                                    <td>
-                                                                        <input type="checkbox"
-                                                                            name="permission[{{ $application->id }}][]"
-                                                                            value="{{ $permission->id }}"
-                                                                            id="{{ $permission->id }}">
-                                                                    </td>
-                                                                @endforeach
-                                                            </tr>
-                                                        @endforeach
-
-                                                    </tbody>
-                                                </table>
                                             </div>
 
                                         </div>

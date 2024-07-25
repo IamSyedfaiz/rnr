@@ -74,7 +74,7 @@
                                                 @endif
                                             </td>
                                             <td>{{ $item->user->name }}</td>
-                                            <td>{{ $item->updated_at->toDateString() }}</td>
+                                            <td>{{ $item->updated_at }}</td>
                                             <td class="d-flex justify-content-betweenx">
 
                                                 <a href="{{ route('role.edit', $item->id) }}"
