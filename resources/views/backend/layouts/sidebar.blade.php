@@ -271,26 +271,41 @@
             </li>
         @else
             @php
-                $user = Auth::user();
-                $userId = $user->id;
-                $directRoles = App\Models\backend\Role::whereJsonContains('user_list', (string) $userId)
-                    ->with('permissions.applications')
-                    ->get();
-
+                $userId = Auth::user()->id;
+                // $directRoles = App\Models\backend\Role::whereJsonContains('user_list', (string) $userId)
+                //     ->with('permissions.applications')
+                //     ->get();
+                logger($userId);
                 $groupIds = App\Models\backend\Group::whereJsonContains('userids', (string) $userId)
                     ->pluck('id')
                     ->toArray();
+                logger($groupIds);
 
-                $groupRoles = App\Models\backend\Role::where(function ($query) use ($groupIds) {
-                    foreach ($groupIds as $groupId) {
-                        $query->orWhereJsonContains('group_list', (string) $groupId);
-                    }
-                })
-                    ->with('permissions.applications')
-                    ->get();
+                // $groupRoles = App\Models\backend\Role::where(function ($query) use ($groupIds) {
+                //     foreach ($groupIds as $groupId) {
+                //         $query->orWhereJsonContains('group_list', (string) $groupId);
+                //     }
+                // })
+                //     ->with('permissions.applications')
+                //     ->get();
+                if (!empty($groupIds)) {
+                    $groupRoles = App\Models\backend\Role::where(function ($query) use ($groupIds) {
+                        foreach ($groupIds as $groupId) {
+                            $query->orWhereJsonContains('group_list', (string) $groupId);
+                        }
+                    })
+                        ->with('permissions.applications')
+                        ->get();
+                } else {
+                    $groupRoles = collect();
+                }
+                // dd($groupRoles);
 
-                $allRoles = $directRoles->merge($groupRoles);
+                // $allRoles = $directRoles->merge($groupRoles);
                 $applications = [];
+
+                // logger($groupRoles);
+
                 foreach ($groupRoles as $permission) {
                     foreach ($permission->applications as $application) {
                         if (!isset($applications[$application->id])) {
@@ -298,6 +313,8 @@
                         }
                     }
                 }
+                logger(count($applications));
+
             @endphp
 
             {{-- <div class="nav-item dropdown">

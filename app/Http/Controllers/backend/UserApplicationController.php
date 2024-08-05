@@ -23,6 +23,7 @@ use App\Models\backend\Notification;
 use App\Models\backend\Permission;
 use App\Models\backend\Role;
 use App\Models\backend\UpdateContent;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class UserApplicationController extends Controller
@@ -462,8 +463,8 @@ class UserApplicationController extends Controller
                         $reconstructedString = str_replace('OR', '||', $reconstructedString);
 
                         // logger($reconstructedString);
-                        logger(eval("return $reconstructedString;"));
-                        if (eval("return $reconstructedString;")) {
+                        logger(eval ("return $reconstructedString;"));
+                        if (eval ("return $reconstructedString;")) {
                             logger('Email sent!');
                             $selectedGroups = [];
                             if ($notification->group_list != 'null') {
@@ -702,8 +703,8 @@ class UserApplicationController extends Controller
                     $reconstructedString = str_replace('OR', '||', $reconstructedString);
 
                     // logger($reconstructedString);
-                    logger(eval("return $reconstructedString;"));
-                    if (eval("return $reconstructedString;")) {
+                    logger(eval ("return $reconstructedString;"));
+                    if (eval ("return $reconstructedString;")) {
                         logger('Email sent!');
                         $selectedGroups = [];
                         if ($notification->group_list != 'null') {
@@ -881,7 +882,6 @@ class UserApplicationController extends Controller
                         ->get();
                     $notifications = Notification::where('active', 'Y')->where('recurring', 'instantly')->where('application_id', $id)->get();
 
-
                     foreach ($notifications as $notification) {
                         $inputString = $notification->advanced_operator_logic;
                         $allFilterCriterias = $notification->filterCriterias;
@@ -950,8 +950,8 @@ class UserApplicationController extends Controller
                         $reconstructedString = str_replace('OR', '||', $reconstructedString);
 
                         // logger($reconstructedString);
-                        logger(eval("return $reconstructedString;"));
-                        if (eval("return $reconstructedString;")) {
+                        logger(eval ("return $reconstructedString;"));
+                        if (eval ("return $reconstructedString;")) {
                             logger('Email sent!');
                             $selectedGroups = [];
                             if ($notification->group_list != 'null') {
@@ -1090,7 +1090,6 @@ class UserApplicationController extends Controller
                 $notifications = Notification::where('active', 'Y')->where('recurring', 'instantly')->where('application_id', $id)->get();
                 $validationRules = [];
 
-
                 foreach ($notifications as $notification) {
                     $inputString = $notification->advanced_operator_logic;
                     $allFilterCriterias = $notification->filterCriterias;
@@ -1159,8 +1158,8 @@ class UserApplicationController extends Controller
                     $reconstructedString = str_replace('OR', '||', $reconstructedString);
 
                     // logger($reconstructedString);
-                    logger(eval("return $reconstructedString;"));
-                    if (eval("return $reconstructedString;")) {
+                    logger(eval ("return $reconstructedString;"));
+                    if (eval ("return $reconstructedString;")) {
                         logger('Email sent!');
                         $selectedGroups = [];
                         if ($notification->group_list != 'null') {
@@ -1715,8 +1714,8 @@ class UserApplicationController extends Controller
                     $reconstructedString = str_replace('AND', '&&', $reconstructedString);
                     $reconstructedString = str_replace('OR', '||', $reconstructedString);
                     logger("Evaluated advanced operator logic: $reconstructedString");
-                    logger(eval("return $reconstructedString;"));
-                    if (eval("return $reconstructedString;")) {
+                    logger(eval ("return $reconstructedString;"));
+                    if (eval ("return $reconstructedString;")) {
                         return true;
                     }
                 } else {
@@ -1726,7 +1725,7 @@ class UserApplicationController extends Controller
                             return $value ? 'true' : 'false';
                         }, $bolos),
                     );
-                    if (eval("return $arrayAsString;")) {
+                    if (eval ("return $arrayAsString;")) {
                         return true;
                     }
                 }
@@ -1844,6 +1843,8 @@ class UserApplicationController extends Controller
         try {
             $forms = Formdata::where(['userid' => auth()->id(), 'application_id' => $id])->get();
             $application = Application::find($id);
+            $userId = Auth::user()->id;
+
             // $application = Application::with(['roles.permissions'])->findOrFail($id);
             // $roles = $application->rolestable()->first();
 
@@ -1861,17 +1862,23 @@ class UserApplicationController extends Controller
             // $roles->each(function ($role) {
             //     $role->permissions_list = $role->permissions->pluck('name')->implode(', ');
             // });
+            $groupIds = Group::whereJsonContains('userids', (string) $userId)->pluck('id')->toArray();
+            // dd($groupIds);
 
             $roles = Role::whereHas('permissions', function ($query) use ($id) {
                 $query->where('application_id', $id);
-            })
-                ->with([
-                    'permissions' => function ($query) use ($id) {
-                        $query->where('application_id', $id);
-                    },
-                ])
+            })->where(function ($query) use ($groupIds) {
+                foreach ($groupIds as $groupId) {
+                    $query->orWhereJsonContains('group_list', (string) $groupId);
+                }
+            })->with([
+                        'permissions' => function ($query) use ($id) {
+                            $query->where('application_id', $id);
+                        },
+                    ])
                 ->get();
 
+            // dd($roles, $id);
             // Format the permissions into a string for each role
             $roles->each(function ($role) {
                 // Use pluck('name')->unique()->implode(', ') to ensure unique permission names
