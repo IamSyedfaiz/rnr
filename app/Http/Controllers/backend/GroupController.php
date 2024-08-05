@@ -168,6 +168,8 @@ class GroupController extends Controller
 
             if ($request->userids != null) {
                 $data['userids'] = json_encode($request->userids);
+            } else {
+                $data['userids'] = null;
             }
             $group = Group::find($id);
 
@@ -182,11 +184,12 @@ class GroupController extends Controller
                 'name' => $group->name,
                 'status' => $currentstatus,
             ];
-
-            $currentarray['Usernames'] = [];
-            for ($i = 0; $i < count(json_decode($group->userids)); $i++) {
-                $u = User::find(json_decode($group->userids)[$i]);
-                array_push($currentarray['Usernames'], $u->name . ' ' . $u->lastname);
+            if (is_array($group->userids) && !empty($group->userids)) {
+                $currentarray['Usernames'] = [];
+                for ($i = 0; $i < count(json_decode($group->userids)); $i++) {
+                    $u = User::find(json_decode($group->userids)[$i]);
+                    array_push($currentarray['Usernames'], $u->name . ' ' . $u->lastname);
+                }
             }
 
             if (isset($data['name']) && $group->name != $data['name']) {
@@ -246,7 +249,55 @@ class GroupController extends Controller
                             }
                         }
                     } else {
-                        return redirect()->back()->with('error', 'Please Select One User.');
+                        // dd($group);
+                        if ($group) {
+                            $userIds = $request->userids ?? [];
+
+                            // If userids is null or empty, remove this group from all users
+                            if (empty($userIds)) {
+                                $allUsers = User::all();
+                                foreach ($allUsers as $user) {
+                                    $existingGroupIds = json_decode($user->group_id, true) ?? [];
+                                    $newGroupIdString = strval($group->id);
+                                    $updatedGroupIds = array_filter($existingGroupIds, function ($groupId) use ($newGroupIdString) {
+                                        return $groupId !== $newGroupIdString;
+                                    });
+                                    $user->group_id = json_encode(array_values($updatedGroupIds));
+                                    $user->save();
+                                }
+                            } else {
+                                // Existing logic for when userIds is not empty
+                                foreach ($userIds as $userId) {
+                                    $user = User::find($userId);
+                                    if ($user) {
+                                        $existingGroupIds = json_decode($user->group_id ?? '[]');
+                                        $newGroupIdString = strval($group->id);
+                                        if (!in_array($newGroupIdString, $existingGroupIds)) {
+                                            $existingGroupIds[] = $newGroupIdString;
+                                        }
+                                        $updatedGroupIdsJson = json_encode($existingGroupIds);
+                                        $user->group_id = $updatedGroupIdsJson;
+                                        $user->save();
+                                    }
+                                }
+                                $allUsers = User::all();
+                                foreach ($allUsers as $user) {
+                                    if (!in_array(strval($user->id), $userIds)) {
+                                        $existingGroupIds = json_decode($user->group_id, true) ?? [];
+                                        $existingGroupIds = array_map('strval', $existingGroupIds);
+                                        $newGroupIdString = strval($group->id);
+                                        $updatedGroupIds = array_diff($existingGroupIds, [$newGroupIdString]);
+                                        $user->group_id = json_encode(array_values($updatedGroupIds));
+                                        $user->save();
+                                    }
+                                }
+                            }
+                        } else {
+                            return redirect()->back()->with('error', 'Group not found.');
+                        }
+
+                        // sare user se ye wala group hatana hai or is groupe se
+                        // return redirect()->back()->with('error', 'Please Select One User.');
                     }
                     $allUsers = User::all();
                     foreach ($allUsers as $user) {
@@ -274,11 +325,11 @@ class GroupController extends Controller
                     $changearray['status'] = 'InActive';
                 }
             }
-
+            // dd($data);
             $group->update($data);
+
             Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Group Updated by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' , Group Name -> ' . $group->name . ' , Current Data -> ' . json_encode($currentarray) . ' , Changed Data -> ' . json_encode($changearray));
             return redirect()->route('group.index')->with('Successfully Group Updated.');
-
         } catch (\Exception $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
