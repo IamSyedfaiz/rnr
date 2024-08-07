@@ -345,9 +345,9 @@
 
                     @if (count($applications) === 0)
                         <li>
-                            <a href="#">
+                            {{-- <a href="#">
                                 <i class="bi bi-circle"></i><span>No applications</span>
-                            </a>
+                            </a> --}}
                         </li>
                     @else
                         @foreach ($applications as $item)

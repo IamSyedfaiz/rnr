@@ -132,7 +132,7 @@
 
                                                 <div class="col-md-6">
                                                     <label for="exampleInputEmail1"
-                                                        class="form-label @error('repassword') is-invalid @enderror">Re-Password</label>
+                                                        class="form-label @error('repassword') is-invalid @enderror">Confirm-Password</label>
                                                     <input type="password" class="form-control" id="name"
                                                         name="password_confirmation" aria-describedby="namehelp">
                                                     @error('repassword')
@@ -187,7 +187,7 @@
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title" id="exampleModalLabel">New Group
+                                                            <h5 class="modal-title" id="exampleModalLabel">Groups
                                                             </h5>
                                                             <button type="button" class="btn-close"
                                                                 data-bs-dismiss="modal" aria-label="Close"></button>

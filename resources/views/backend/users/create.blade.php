@@ -101,7 +101,7 @@
                                             @enderror
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="inputPassword4" class="form-label">Re-Password</label>
+                                            <label for="inputPassword4" class="form-label">Confirm-Password</label>
                                             <input type="password" class="form-control" id="name" name="repassword"
                                                 aria-describedby="namehelp">
                                             @error('repassword')
@@ -151,9 +151,11 @@
                                             <select name="status" id="inputAddress"
                                                 class="form-control @error('status') is-invalid @enderror" required>
                                                 <option value="">Select Status</option>
-                                                <option value="1" {{ old('status') == 1 ? 'selected' : '' }}>Active
+                                                <option value="1" {{ old('status', 1) == 1 ? 'selected' : '' }}>
+                                                    Active
                                                 </option>
-                                                <option value="0" {{ old('status') == 0 ? 'selected' : '' }}>Inactive
+                                                <option value="0" {{ old('status', '') == 0 ? 'selected' : '' }}>
+                                                    Inactive
                                                 </option>
                                             </select>
                                             @error('status')
@@ -179,7 +181,7 @@
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title" id="exampleModalLabel">New Group
+                                                            <h5 class="modal-title" id="exampleModalLabel">Groups
                                                             </h5>
                                                             <button type="button" class="btn-close"
                                                                 data-bs-dismiss="modal" aria-label="Close"></button>

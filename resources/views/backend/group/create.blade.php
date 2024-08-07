@@ -4,7 +4,7 @@
         <div class="pagetitle">
             <div class="row">
                 <div class="col-md-6">
-                    <h1>Edit Group</h1>
+                    <h1>Add Group</h1>
                 </div>
                 <div class="col-md-6 text-end"><a href="{{ route('group.index') }}" class="btn btn-secondary"><i
                             class="bi bi-arrow-left-short"></i> Back</a></div>
@@ -25,7 +25,7 @@
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                    <li class="breadcrumb-item active">Edit Group</li>
+                    <li class="breadcrumb-item active">Add Group</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
