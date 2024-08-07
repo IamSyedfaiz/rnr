@@ -56,7 +56,7 @@
                                             <button class="nav-link" id="nav-group-tab" data-bs-toggle="tab"
                                                 data-bs-target="#nav-group" type="button" role="tab"
                                                 aria-controls="nav-group" aria-selected="false">
-                                                Group
+                                                Groups
                                             </button>
                                         </div>
                                     </nav>
