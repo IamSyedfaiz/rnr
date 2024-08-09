@@ -81,7 +81,7 @@
                                                 <div class="modal-content">
                                                     <div class="modal-body">
                                                         <div class="row">
-                                                            <div class="col-md-6">
+                                                            <div class="col-md-12">
                                                                 <label for="filter">Users&nbsp;</label><input
                                                                     id="filter" type="text"
                                                                     class="filter form-control"
@@ -91,7 +91,7 @@
                                                                     <div id="mdi"
                                                                         style="max-height: 10%; overflow:auto;">
                                                                         @foreach ($users as $item)
-                                                                            <span><input class="talents_idmd-checkbox"
+                                                                            <span><input class="talents_idmd-checkbox mx-2"
                                                                                     name="userids[]"
                                                                                     onchange="dragdrop(this.value, this.id);"
                                                                                     type="checkbox"

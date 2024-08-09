@@ -84,7 +84,7 @@
                                         </div>
                                         <div class="col-12">
                                             <label for="inputNanme4" class="form-label">Mobile No.</label>
-                                            <input type="text" class="form-control" id="name" name="mobile_no"
+                                            <input type="number" class="form-control" id="name" name="mobile_no"
                                                 aria-describedby="namehelp" required value="{{ old('mobile_no') }}">
                                             @error('mobile_no')
                                                 <label id="mobile_no-error" class="error text-danger"

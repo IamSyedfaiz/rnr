@@ -82,7 +82,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label for="exampleInputEmail1" class="form-label">description</label>
+                                                    <label for="exampleInputEmail1" class="form-label">Description</label>
                                                     <input type="text"
                                                         class="form-control @error('description') is-invalid @enderror"
                                                         name="description" id="description"
