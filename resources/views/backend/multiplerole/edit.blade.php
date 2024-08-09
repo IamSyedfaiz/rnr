@@ -56,12 +56,13 @@
                                             <button class="nav-link" id="nav-group-tab" data-bs-toggle="tab"
                                                 data-bs-target="#nav-group" type="button" role="tab"
                                                 aria-controls="nav-group" aria-selected="false">
-                                                Group
+                                                Groups
                                             </button>
 
                                         </div>
                                     </nav>
-                                    <form action="{{ route('role.store') }}" class="form-horizontal" method="post">
+                                    <form action="{{ route('role.store') }}" class="form-horizontal" method="post"
+                                        enctype="multipart/form-data">
                                         @csrf
                                         <div class="tab-content" id="nav-tabContent">
 
@@ -80,8 +81,29 @@
                                                     <div id="namehelp" class="form-text">
                                                     </div>
                                                 </div>
-
-
+                                                <div class="mb-3">
+                                                    <label for="exampleInputEmail1" class="form-label">description</label>
+                                                    <input type="text"
+                                                        class="form-control @error('description') is-invalid @enderror"
+                                                        name="description" id="description"
+                                                        aria-describedby="descriptionhelp" required>
+                                                    @error('description')
+                                                        <label id="description-error" class="error text-danger"
+                                                            for="description">{{ $message }}</label>
+                                                    @enderror
+                                                    <div id="descriptionhelp" class="form-text">
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="attachment" class="form-label">Attachment</label>
+                                                    <input type="file"
+                                                        class="form-control @error('attachment') is-invalid @enderror"
+                                                        name="attachment" id="attachment">
+                                                    @error('attachment')
+                                                        <label id="attachment-error" class="error text-danger"
+                                                            for="attachment">{{ $message }}</label>
+                                                    @enderror
+                                                </div>
                                                 <input type="hidden" value="{{ auth()->id() }}" name="user_id">
 
                                             </div>
@@ -146,19 +168,20 @@
                                                                     </div>
                                                                 </div> --}}
 
-                                                                <div class="col-md-6 addgroups">
+                                                                <div class="col-md-12 addgroups">
                                                                     <button type="button"
                                                                         class="btn btn-primary text-end"
                                                                         data-bs-toggle="modal"
                                                                         data-bs-target="#exampleModalgroups"
                                                                         data-bs-whatever="@mdo">Add
                                                                         Groups</button>
-                                                                    <div class="col-md-10">
+                                                                    <div class="col-12 mt-3">
                                                                         <div class="mb-3">
                                                                             <label for="users">Selected
                                                                                 Groups</label>
                                                                             <select name="group_list[]" id=""
-                                                                                class="form-control" multiple>
+                                                                                class="form-control" multiple
+                                                                                style="height: 200px">
                                                                             </select>
                                                                         </div>
                                                                     </div>

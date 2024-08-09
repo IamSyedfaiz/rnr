@@ -143,13 +143,9 @@
                                                     </div>
                                                 </div>
                                             </div>
-
                                         </div>
 
                                         <div class="mb-3 row">
-
-
-
                                             <div class="col-md-6">
                                                 <label for="exampleInputEmail1"
                                                     class="form-label @error('department') is-invalid @enderror">Status</label>
@@ -158,9 +154,9 @@
                                                     <option value="1">Active</option>
                                                     <option value="0">In-Active</option>
                                                 </select>
-                                                @error('group_id')
-                                                    <label id="group_id-error" class="error text-danger"
-                                                        for="group_id">{{ $message }}</label>
+                                                @error('status')
+                                                    <label id="status-error" class="error text-danger"
+                                                        for="status">{{ $message }}</label>
                                                 @enderror
                                                 <div id="namehelp" class="form-text">
                                                 </div>

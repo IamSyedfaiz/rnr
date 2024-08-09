@@ -53,49 +53,101 @@ class GroupController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    // public function store(Request $request)
+    // {
+    //     try {
+    //         $rules = [
+    //             'name' => 'required',
+    //             'userids' => 'required',
+    //             'user_id' => 'required',
+    //             'status' => 'required',
+    //         ];
+
+    //         $custommessages = [
+    //             'name.required' => 'The group name is required.',
+    //             'userids.required' => 'Please select at least one user.',
+    //             'user_id.required' => 'User ID is required.',
+    //             'status.required' => 'Status is required.',
+    //             'status.boolean' => 'Status must be active or inactive.',
+    //         ];
+
+    //         $this->validate($request, $rules, $custommessages);
+    //         //code...
+    //         $data = $request->all();
+    //         // dd($data);
+    //         unset($data['_token']);
+    //         unset($data['userids']);
+
+    //         $data['userids'] = json_encode($request->userids);
+    //         $groupName = $request->name;
+    //         $userIds = $request->userids;
+    //         $group = Group::create($data);
+    //         if ($group) {
+    //             foreach ($userIds as $userId) {
+    //                 $user = User::find($userId);
+    //                 // dd($user);
+    //                 if ($user) {
+    //                     $existingGroupIds = json_decode($user->group_id ?? '[]');
+    //                     $newGroupIdString = strval($group->id);
+    //                     if (!in_array($newGroupIdString, $existingGroupIds)) {
+    //                         $existingGroupIds[] = $newGroupIdString;
+    //                     }
+    //                     $updatedGroupIdsJson = json_encode($existingGroupIds);
+    //                     $user->group_id = $updatedGroupIdsJson;
+    //                     $user->save();
+    //                 }
+    //             }
+    //         }
+    //         Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Group Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Group Name -> ' . $group->name);
+    //         return redirect()->route('group.index')->with('success', 'Group Created.');
+    //     } catch (\Exception $th) {
+    //         return redirect()->back()->with('error', $th->getMessage());
+    //     }
+    // }
     public function store(Request $request)
     {
         try {
-            $rules = [
-                'name' => 'required',
-                'userids' => 'required',
-                'user_id' => 'required',
-                'status' => 'required',
-            ];
+            // Validate the request
+            $validatedData = $request->validate(
+                [
+                    'name' => 'required|string|max:255',
+                    'userids' => 'required|array',
+                    'user_id' => 'required|integer',
+                    'status' => 'required|boolean',
+                ],
+                [
+                    'name.required' => 'The group name is required.',
+                    'userids.required' => 'Please select at least one user.',
+                    'user_id.required' => 'User ID is required.',
+                    'status.required' => 'Status is required.',
+                    'status.boolean' => 'Status must be active or inactive.',
+                ],
+            );
 
-            $custommessages = [];
+            // Create the group
+            $validatedData['userids'] = json_encode($request->userids);
+            $group = Group::create($validatedData);
 
-            $this->validate($request, $rules, $custommessages);
-            //code...
-            $data = $request->all();
-            // dd($data);
-            unset($data['_token']);
-            unset($data['userids']);
-
-            $data['userids'] = json_encode($request->userids);
-            $groupName = $request->name;
-            $userIds = $request->userids;
-            $group = Group::create($data);
-            if ($group) {
-                foreach ($userIds as $userId) {
-                    $user = User::find($userId);
-                    // dd($user);
-                    if ($user) {
-                        $existingGroupIds = json_decode($user->group_id ?? '[]');
-                        $newGroupIdString = strval($group->id);
-                        if (!in_array($newGroupIdString, $existingGroupIds)) {
-                            $existingGroupIds[] = $newGroupIdString;
-                        }
-                        $updatedGroupIdsJson = json_encode($existingGroupIds);
-                        $user->group_id = $updatedGroupIdsJson;
-                        $user->save();
+            // Update users' group_id field
+            foreach ($request->userids as $userId) {
+                $user = User::find($userId);
+                if ($user) {
+                    $existingGroupIds = json_decode($user->group_id ?? '[]', true);
+                    $newGroupIdString = (string) $group->id;
+                    if (!in_array($newGroupIdString, $existingGroupIds)) {
+                        $existingGroupIds[] = $newGroupIdString;
                     }
+                    $user->group_id = json_encode($existingGroupIds);
+                    $user->save();
                 }
             }
+
+            // Log the creation of the group
             Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Group Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Group Name -> ' . $group->name);
+
             return redirect()->route('group.index')->with('success', 'Group Created.');
-        } catch (\Exception $th) {
-            return redirect()->back()->with('error', $th->getMessage());
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 

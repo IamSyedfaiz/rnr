@@ -88,13 +88,15 @@
                                                                     <div id="mdi"
                                                                         style="max-height: 10%; overflow:auto;">
                                                                         @foreach ($users as $item)
-                                                                            <span><input class="talents_idmd-checkbox"
+                                                                            <span>
+                                                                                <input class="talents_idmd-checkbox"
                                                                                     {{-- name="userids[]" --}}
                                                                                     onchange="dragdrop(this.value, this.id);"
                                                                                     type="checkbox"
                                                                                     id="{{ $item->name . ' ' . $item->lastname }}"
                                                                                     @if (in_array($item->id, array_column($selectedusers, 'id'))) checked @endif
-                                                                                    value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>
+                                                                                    value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}
+                                                                            </span><br>
                                                                         @endforeach
                                                                     </div>
                                                                 </div>

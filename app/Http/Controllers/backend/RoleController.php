@@ -56,11 +56,18 @@ class RoleController extends Controller
                 'group_list' => 'nullable|array',
                 'permission' => 'required|array',
                 'user_id' => 'required|integer',
-                // Add other fields that you need to validate
+                'name' => 'required|string',
+                'description' => 'required|string',
+                'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png,xlsx,xls,csv,docx|max:2048',
             ];
 
             // Custom validation messages
             $messages = [
+                'description.required' => 'The description field is required.',
+                'description.string' => 'The description must be a valid string.',
+                'attachment.file' => 'The attachment must be a file.',
+                'attachment.mimes' => 'The attachment must be a file of type: jpg, png, pdf, docx.',
+                'attachment.max' => 'The attachment must not be greater than 2MB.',
                 'permission.required' => 'Please select permissions',
                 'user_id.required' => 'The user ID is required',
                 'user_id.integer' => 'The user ID must be an integer',
@@ -69,6 +76,33 @@ class RoleController extends Controller
             // Validate the request
             $validatedData = $request->validate($rules, $messages);
             $data = $request->all();
+
+            // Handle file upload
+            if ($request->hasFile('attachment')) {
+                $file = $request->file('attachment');
+                $originalName = $file->getClientOriginalName();
+                $uniqueName = time() . '_' . $originalName;
+                $size = round($file->getSize() / 1024, 4) . 'KB';
+                $type = $file->getMimeType();
+                $destinationPath = public_path('/role');
+
+                // Check if directory exists, if not, create it
+                if (!is_dir($destinationPath)) {
+                    mkdir($destinationPath, 0755, true);
+                }
+
+                // Move the file to the destination path and check if successful
+                if ($file->move($destinationPath, $uniqueName)) {
+                    // Add file details to the data array
+                    $data['attachment_name'] = $originalName;
+                    $data['attachment'] = $uniqueName;
+                    $data['attachment_size'] = $size;
+                    $data['attachment_type'] = $type;
+                } else {
+                    return redirect()->back()->with('error', 'Failed to save the file. Please try again.');
+                }
+            }
+            // dd($data);
             unset($data['_token']);
             unset($data['user_list']);
             unset($data['group_list']);
@@ -198,6 +232,36 @@ class RoleController extends Controller
             $role = Role::find($id);
             if ($role) {
                 $data = $request->all();
+
+                // dd($data);
+                if ($request->hasFile('attachment')) {
+                    $file = $request->file('attachment');
+                    $originalName = $file->getClientOriginalName();
+                    $uniqueName = time() . '_' . $originalName;
+                    $size = round($file->getSize() / 1024, 4) . 'KB';
+                    $type = $file->getMimeType();
+                    $destinationPath = public_path('/role');
+                    // Check if the directory exists, if not, create it
+                    if (!is_dir($destinationPath)) {
+                        mkdir($destinationPath, 0755, true);
+                    }
+
+                    // Move the file to the destination path and check if successful
+                    if ($file->move($destinationPath, $uniqueName)) {
+                        // Delete the old file if it exists
+                        if (!empty($role->attachment)) {
+                            $oldFilePath = $destinationPath . '/' . $role->attachment;
+                            if (file_exists($oldFilePath)) {
+                                unlink($oldFilePath);
+                            }
+                        }
+
+                        $data['attachment'] = $uniqueName;
+                    } else {
+                        return redirect()->back()->with('error', 'Failed to save the new file. Please try again.');
+                    }
+                }
+
                 unset($data['_token']);
                 unset($data['_method']);
                 unset($data['user_list']);
