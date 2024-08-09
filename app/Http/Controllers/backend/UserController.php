@@ -52,32 +52,6 @@ class UserController extends Controller
     public function store(Request $request)
     {
         try {
-            // $rules = [
-            //     'email' => 'required|email|unique:users,email',
-            //     'name' => 'required',
-            //     'custom_userid' => 'required',
-            //     'mobile_no' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
-            //     'password' => 'required|min:6|same:repassword',
-            //     'repassword' => 'required|same:password',
-            // ];
-
-            // $custommessages = [
-            //     'email.required' => 'The email field is required.',
-            //     'email.email' => 'Please enter a valid email address.',
-            //     'email.unique' => 'This email is already taken.',
-            //     'name.required' => 'The name field is required.',
-            //     'custom_userid.required' => 'The custom user ID field is required.',
-            //     'mobile_no.required' => 'The mobile number field is required.',
-            //     'mobile_no.regex' => 'Please check the mobile number format.',
-            //     'mobile_no.min' => 'The mobile number must be at least 10 digits.',
-            //     'password.required' => 'The password field is required.',
-            //     'password.min' => 'The password must be at least 6 characters.',
-            //     'password.same' => 'The password and confirmation password do not match.',
-            //     'repassword.required' => 'The confirmation password field is required.',
-            //     'repassword.same' => 'The password and confirmation password do not match.',
-            // ];
-            // $this->validate($request, $rules, $custommessages);
-
             $validator = Validator::make(
                 $request->all(),
                 [
@@ -211,23 +185,53 @@ class UserController extends Controller
     {
         try {
             // dd($request->all());
-            $rules = [
-                'email' => 'required',
-                'name' => 'required',
-                'custom_userid' => 'required',
+            // $rules = [
+            //     'email' => 'required',
+            //     'name' => 'required',
+            //     'custom_userid' => 'required',
 
-                'mobile_no' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
-                'password' => 'required_with:password_confirmation|confirmed',
-            ];
+            //     'mobile_no' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+            //     'password' => 'required_with:password_confirmation|confirmed',
+            // ];
 
-            $custommessages = [
-                // 'custom_userid' => 'User Id Is Already Exists.',
-                'password.confirmed' => 'Password Does Not Match',
-            ];
+            // $custommessages = [
+            //     // 'custom_userid' => 'User Id Is Already Exists.',
+            //     'password.confirmed' => 'Password Does Not Match',
+            // ];
 
-            $this->validate($request, $rules, $custommessages);
+            // $this->validate($request, $rules, $custommessages);
+            $validator = Validator::make(
+                $request->all(),
+                [
+                    'email' => 'required|email|unique:users,email,' . $id,
+                    'name' => 'required',
+                    'custom_userid' => 'required',
+                    'status' => 'nullable',
+                    'group_id' => 'nullable',
+                    'mobile_no' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+                    'password' => 'required|min:6|same:password_confirmation',
+                    'password_confirmation' => 'required|same:password',
+                ],
+                [
+                    'email.required' => 'The email field is required.',
+                    'email.email' => 'Please enter a valid email address.',
+                    'email.unique' => 'This email is already taken.',
+                    'name.required' => 'The name field is required.',
+                    'custom_userid.required' => 'The custom user ID field is required.',
+                    'mobile_no.required' => 'The mobile number field is required.',
+                    'mobile_no.regex' => 'Please check the mobile number format.',
+                    'mobile_no.min' => 'The mobile number must be at least 10 digits.',
+                    'password.required' => 'The password field is required.',
+                    'password.min' => 'The password must be at least 6 characters.',
+                    'password.same' => 'The password and confirmation password do not match.',
+                    'password_confirmation.required' => 'The confirmation password field is required.',
+                    'password_confirmation.same' => 'The password and confirmation password do not match.',
+                ],
+            );
 
-            $data = $request->all();
+            // $data = $request->all();
+            $data = $validator->validate();
+
             unset($data['_token']);
             unset($data['password']);
             unset($data['password_confirmation']);
@@ -299,54 +303,7 @@ class UserController extends Controller
                 }
             }
 
-            // if (isset($data['group_id']) && $user->group_id != $data['group_id']) {
-            //     # code...
-            //     // dd($data);
-            //     $changearray['Groupnames'] = [];
-            //     for ($i = 0; $i < count($request->group_id); $i++) {
-            //         # code...
-            //         $u = Group::find($request->group_id[$i]);
-            //         // dd($id, $u);
 
-            //         if ($u) {
-            //             // Decode the userids JSON to an array
-            //             $userIds = json_decode($u->userids, true);
-
-            //             // Ensure $userIds is an array
-            //             if (!is_array($userIds)) {
-            //                 $userIds = [];
-            //             }
-
-            //             // Add the new user ID if it isn't already in the array
-            //             if (!in_array($id, $userIds)) {
-            //                 $userIds[] = $id;
-            //             }
-
-            //             // Encode the array back to JSON and save
-            //             $u->userids = json_encode($userIds);
-            //             $u->save();
-
-            //             // Debugging output
-            //             // dd($u);
-            //         } else {
-            //             // Handle the case where the group is not found
-            //             dd("Group with ID $id not found");
-            //         }
-            //         // dd($ud);
-
-            //         if (!$u) {
-            //             # code...
-            //             $changearray['Groupnames'] = null;
-            //         } else {
-            //             array_push($changearray['Groupnames'], $u->name);
-            //         }
-            //     }
-            //     $changearray['GroupChange'] = 'True';
-            //     // dd($changearray);
-            // } else {
-            //     $user->group_id = null;
-            //     $user->save();
-            // }
             if (isset($data['group_id']) && $user->group_id != $data['group_id']) {
                 $changearray['Groupnames'] = [];
 

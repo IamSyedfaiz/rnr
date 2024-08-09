@@ -16,7 +16,7 @@ class Role extends Model
     //     'group_list' => 'json',
     // ];
 
-    protected $fillable = ['name', 'user_list', 'group_list', 'user_id'];
+    protected $fillable = ['name', 'user_list', 'group_list', 'user_id', 'description', 'attachment'];
     public function role_applicationname()
     {
         return $this->hasOne(Application::class, 'id', 'application_id');

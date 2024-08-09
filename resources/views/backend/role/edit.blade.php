@@ -61,7 +61,7 @@
                                         </div>
                                     </nav>
                                     <form action="{{ route('role.update', $role->id) }}" class="form-horizontal"
-                                        method="post">
+                                        enctype="multipart/form-data" method="post">
                                         @csrf
                                         @method('PUT')
                                         <div class="tab-content" id="nav-tabContent">
@@ -81,8 +81,50 @@
                                                     <div id="namehelp" class="form-text">
                                                     </div>
                                                 </div>
+                                                <div class="mb-3">
+                                                    <label for="exampleInputEmail1" class="form-label">description</label>
+                                                    <input type="text"
+                                                        class="form-control @error('description') is-invalid @enderror"
+                                                        name="description" id="description"
+                                                        aria-describedby="descriptionhelp" value="{{ $role->description }}"
+                                                        required>
+                                                    @error('description')
+                                                        <label id="description-error" class="error text-danger"
+                                                            for="description">{{ $message }}</label>
+                                                    @enderror
+                                                    <div id="descriptionhelp" class="form-text">
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="attachment" class="form-label">Attachment</label>
+                                                    <input type="file"
+                                                        class="form-control @error('attachment') is-invalid @enderror"
+                                                        name="attachment" id="attachment">
+                                                    @error('attachment')
+                                                        <label id="attachment-error" class="error text-danger"
+                                                            for="attachment">{{ $message }}</label>
+                                                    @enderror
+                                                </div>
+                                                @if ($role->attachment)
+                                                    @php
+                                                        $filePath = asset('public/role/' . $role->attachment);
+                                                        $fileExtension = strtolower(
+                                                            pathinfo($filePath, PATHINFO_EXTENSION),
+                                                        );
+                                                    @endphp
 
-
+                                                    <div class="mb-3">
+                                                        <label for="attachment" class="form-label">Current
+                                                            Attachment</label>
+                                                        @if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif']))
+                                                            <img src="{{ $filePath }}" alt="Image"
+                                                                class="img-thumbnail" width="200">
+                                                        @elseif (in_array($fileExtension, ['xls', 'xlsx', 'csv', 'pdf', 'docx']))
+                                                            <a href="{{ $filePath }}" target="_blank">Download
+                                                                Attachment</a>
+                                                        @endif
+                                                    </div>
+                                                @endif
                                                 <input type="hidden" value="{{ auth()->id() }}" name="user_id">
 
                                             </div>
@@ -258,7 +300,7 @@
                                                             @if ($selectedgroups != [])
                                                                 <div class="col-md-12 mt-3">
                                                                     <select id="" class="form-control " multiple
-                                                                        disabled>
+                                                                        style="height: 200px" disabled>
                                                                         @foreach ($selectedgroups as $item)
                                                                             <option selected>
                                                                                 {{ @$item->name }}
@@ -268,6 +310,11 @@
                                                                 </div>
                                                             @endif
                                                         </div>
+                                                        @php
+                                                            $selectedGroupIds = array_map(function ($group) {
+                                                                return $group['id'];
+                                                            }, $selectedgroups);
+                                                        @endphp
                                                         <div class="modal fade" id="exampleModalgroups" tabindex="-1"
                                                             aria-labelledby="exampleModalLabel" aria-hidden="true">
                                                             <div class="modal-dialog">
@@ -296,6 +343,7 @@
                                                                                             <span><input
                                                                                                     class="talents_idmd-checkbox"
                                                                                                     onchange="dragdrop(this.value, this.id);"
+                                                                                                    @if (in_array($item->id, $selectedGroupIds)) checked @endif
                                                                                                     type="checkbox"
                                                                                                     id="{{ $item->name . ' ' . $item->lastname }}"
                                                                                                     value="{{ $item->id }}">{{ $item->name . ' ' . $item->lastname }}</span><br>

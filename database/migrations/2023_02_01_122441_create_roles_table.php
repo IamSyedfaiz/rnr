@@ -15,6 +15,8 @@ return new class extends Migration {
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->text('description')->nullable();
+            $table->string('attachment')->nullable();
             $table->longText('user_list')->default(0);
             $table->longText('group_list')->default(0);
             $table->foreignId('user_id')->constrained('users');
