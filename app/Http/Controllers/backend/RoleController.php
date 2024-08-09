@@ -57,7 +57,7 @@ class RoleController extends Controller
                 'permission' => 'required|array',
                 'user_id' => 'required|integer',
                 'name' => 'required|string',
-                'description' => 'required|string',
+                'description' => 'nullable|string',
                 'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png,xlsx,xls,csv,docx|max:2048',
             ];
 

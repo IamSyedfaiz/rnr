@@ -57,6 +57,10 @@ class UserController extends Controller
                 [
                     'email' => 'required|email|unique:users,email',
                     'name' => 'required',
+                    'lastname' => 'required',
+                    'status' => 'nullable',
+                    'remarks' => 'nullable',
+                    'group_id' => 'nullable',
                     'custom_userid' => 'required',
                     'mobile_no' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
                     'password' => 'required|min:6|same:repassword',
@@ -78,7 +82,8 @@ class UserController extends Controller
                     'repassword.same' => 'The password and confirmation password do not match.',
                 ],
             );
-
+            // dd($request->all());
+            // dd($validator->validate());
             if ($request->password == $request->repassword) {
                 # code...
                 $data = $validator->validate();
@@ -206,11 +211,13 @@ class UserController extends Controller
                     'email' => 'required|email|unique:users,email,' . $id,
                     'name' => 'required',
                     'custom_userid' => 'required',
+                    'lastname' => 'required',
+                    'remarks' => 'nullable',
                     'status' => 'nullable',
                     'group_id' => 'nullable',
                     'mobile_no' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
-                    'password' => 'required|min:6|same:password_confirmation',
-                    'password_confirmation' => 'required|same:password',
+                    'password' => 'nullable|min:6|same:password_confirmation',
+                    'password_confirmation' => 'nullable|same:password',
                 ],
                 [
                     'email.required' => 'The email field is required.',
@@ -302,7 +309,6 @@ class UserController extends Controller
                     $changearray['status'] = 'InActive';
                 }
             }
-
 
             if (isset($data['group_id']) && $user->group_id != $data['group_id']) {
                 $changearray['Groupnames'] = [];
