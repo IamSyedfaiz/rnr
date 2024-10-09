@@ -68,10 +68,15 @@
                                             <td class="d-flex justify-content-betweenx">
 
                                                 <a href="{{ route('application.edit', $item->id) }}"
-                                                    class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+                                                    class="btn btn-primary btn-sm">
+                                                    <i class="bi bi-pencil"></i>
+                                                    Edit
+                                                </a>
                                                 <a href="{{ route('workflow.show', $item->id) }}"
-                                                    class="btn btn-primary btn-sm mx-2"><i class="bi bi-bezier2 "></i>
-                                                    Workflow</a>
+                                                    class="btn btn-primary btn-sm mx-2">
+                                                    <i class="bi bi-bezier2 "></i>
+                                                    Workflow
+                                                </a>
                                                 {{-- <a href="" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i>
                                                 Delete</a>
                                                 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\backend;
 use App\Helpers\NotificationHelper;
 use App\Http\Controllers\Controller;
 use App\Models\backend\EvaluateContent;
+use App\Models\backend\Transition;
 use App\Models\backend\TriggerMail;
 use Illuminate\Http\Request;
 use App\Models\backend\Application;
@@ -25,6 +26,7 @@ use App\Models\backend\Role;
 use App\Models\backend\UpdateContent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Maatwebsite\Excel\Concerns\ToArray;
 
 class UserApplicationController extends Controller
 {
@@ -123,6 +125,9 @@ class UserApplicationController extends Controller
     {
         try {
             $application = Application::find($id);
+            // $transitions = Transition::where('application_id', $id)->get();
+            $workflow = Workflow::where('application_id', $id)->get();
+
             $users = User::latest()->get();
             $groups = Group::latest()->get();
             $dbfields = Field::where(['application_id' => $application->id, 'status' => 1])
@@ -352,8 +357,45 @@ class UserApplicationController extends Controller
                 logger('Workflow ID found: ' . $application->workFlow->id);
                 $requestData = request()->all();
                 $requestData['application_id'] = $id;
-                // logger($requestData);
-                $this->triggerButtonShow($requestData, $application->workFlow->id);
+
+                // dd($requestData);
+
+                $transitionId = $requestData['transition_id'] ?? null;
+                logger('transitionId: ' . $transitionId);
+                if ($transitionId) {
+                    $transition = Transition::find($transitionId);
+                    $task = Task::where('workflow_id', $application->workFlow->id)
+                        ->first();
+                    $childrenTasksIds = [];
+                    $childrenTasksNames = [];
+                    foreach ($task->childrenName as $childTask) {
+                        $childrenTasksIds[] = $childTask->id;
+                        $childrenTasksNames[] = $childTask->name;
+                    }
+                    logger('if me gaya code', $childrenTasksIds);
+                    // logger('if me gaya code', $transitionId);
+
+                    // dd($childrenTasksIds, $childrenTasksNames, 'yes');
+                    // $actionTypeChildren = '';
+                    $actionTypeChildren = $this->triggerButtonChildren($requestData, $childrenTasksIds[$transitionId]);
+
+                    if ($actionTypeChildren == 'UserAction') {
+                        return redirect()->route('userapplication.user.action', ['id' => $id, 'triggerId' => $application->workFlow->id])->with(['success', 'Form Saved.', 'requestData' => $requestData]);
+                    }
+                } else {
+                    // dd($requestData, 'no');
+                    logger('else me gaya code');
+
+                    $actionType = $this->triggerButtonShow($requestData, $application->workFlow->id);
+                    if ($actionType == 'UserAction') {
+                        return redirect()->route('userapplication.user.action', ['id' => $id, 'triggerId' => $application->workFlow->id])->with(['success', 'Form Saved.', 'requestData' => $requestData]);
+                    }
+                }
+
+                // dd($actionTypeChildren);
+                // dd($actionType);
+
+                dd('aabhi nahi huw hai');
 
                 $logData = Cache::get('data');
                 logger($logData);
@@ -1295,12 +1337,18 @@ class UserApplicationController extends Controller
     public function triggerButtonShow($requestData, $triggerId)
     {
         $task = Task::where('workflow_id', $triggerId)->first();
+        // $transition = Transition::find($requestData['transition_id']);
+
+        // $task = Task::where('workflow_id', $triggerId)
+        //     ->where('id', '!=', 1)
+        //     ->first();
+        // dd($task->toArray());
         $parentTask = $task->parentableName ?? $task;
         $parentTaskName = $parentTask->name ?? '';
-
         $existingTasks = Cache::get('data', []);
         $existingTasks[] = $parentTaskName;
         Cache::put('data', $existingTasks);
+        // dd($parentTaskName);
 
         $childrenTasksIds = [];
         if ($parentTask && !is_null($parentTask->childrenName)) {
@@ -1308,7 +1356,8 @@ class UserApplicationController extends Controller
                 $childrenTasksIds[] = $childTask->id;
             }
         }
-
+        $actionType = '';
+        // $requestData = null;
         switch ($parentTaskName) {
             case 'EvaluateContent':
                 logger('=======');
@@ -1334,15 +1383,23 @@ class UserApplicationController extends Controller
             case 'UserAction':
                 logger('=======');
                 logger('UserAction');
-                $this->triggerButtonChildren($requestData, $parentTask->id);
+                logger($requestData);
+
+                $actionType = 'UserAction';
+                //  $this->userAction($requestData, $parentTask->id);
+
+                // dd($requestData);
+                // dd(1);
+                // $this->triggerButtonChildren($requestData, $parentTask->id);
                 break;
 
             default:
                 logger('No Workflow ID found for Application ID: ' . $requestData);
                 return redirect()->back()->with('error', 'not found');
         }
+        return $actionType;
 
-        return redirect()->back()->with('success', 'Button Triggered a Workflow');
+        // return redirect()->back()->with('success', 'Button Triggered a Workflow');
     }
 
     public function triggerButtonChildren($requestData, $triggerId)
@@ -1350,7 +1407,7 @@ class UserApplicationController extends Controller
         logger('triggerButtonChildren');
 
         $tasks = Task::find($triggerId);
-        logger($tasks);
+        // logger($tasks);
         $existingTasks = Cache::get('data', []);
         $existingTasks[] = $tasks->name;
         Cache::put('data', $existingTasks);
@@ -1361,6 +1418,7 @@ class UserApplicationController extends Controller
             $childrenTasksIds[] = $childTask->id;
             $childrenTasksNames[] = $childTask->name;
         }
+        // $actionTypeChildren = 'asgdgasjhg';
 
         if ($tasks->name == 'SendNotification') {
             logger('=======');
@@ -1378,16 +1436,25 @@ class UserApplicationController extends Controller
         } elseif ($tasks->name == 'UpdateContent') {
             logger('=======');
             logger('UpdateContent');
+
             // logger($childrenTasksIds);
             $this->TriggerUpdateContent($requestData, $tasks->id);
             $this->triggerButtonChildren($requestData, $childrenTasksIds[0]);
         } elseif ($tasks->name == 'UserAction') {
             logger('=======');
+            logger('pehchaan yahi hai ');
             logger('UserAction');
+            // $actionTypeChildren = 'UserAction';
+            // return 'UserAction';
+            // dd($actionType);
         } else {
             logger('No Workflow ID found for Application ID: ');
         }
-        return redirect()->back()->with('success', 'Button Triggered a Workflow');
+        logger("actionTypeChildren");
+        // logger($actionTypeChildren);
+        logger("=-=-=-=-=s-=s-s=-s=-");
+        // return $actionTypeChildren;
+        return 'UserAction';
     }
     public function TriggerSendMail($id)
     {
@@ -2169,6 +2236,133 @@ class UserApplicationController extends Controller
         } catch (\Exception $th) {
             //throw $th;
             //throw $th;
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
+    public function userAction($requestData, $triggerId)
+    {
+        try {
+            $id = $requestData['application_id'];
+
+            $application = Application::find($requestData['application_id']);
+            $workflow = Workflow::where('application_id', $requestData['application_id'])->get();
+
+            // $transitions = Transition::where('workflow_id', $triggerId)->get();
+            // $tasks = Task::where('workflow_id', $triggerId)->get();
+
+            $filteredTasks = Task::where('workflow_id', $triggerId)
+                ->where('name', 'userAction')
+                ->first();
+
+            if ($filteredTasks) {
+                // Agar task mil jata hai, tabhi transitions ko fetch kare
+                $transitions = Transition::where('task_id', $filteredTasks->id)->get();
+            } else {
+                // Agar task nahi milta, toh handle kare (optional)
+                $transitions = collect(); // Empty collection
+            }
+            // dd($transitions->ToArray());
+
+            $users = User::latest()->get();
+            $groups = Group::latest()->get();
+            $dbfields = Field::where(['application_id' => $application->id, 'status' => 1])
+                ->orderBy('forder', 'ASC')
+                ->get();
+            $fields = [];
+            $userid = [];
+            for ($i = 0; $i < count($dbfields); $i++) {
+                if ($dbfields[$i]->access == 'private') {
+                    # code...
+                    if ($dbfields[$i]->groups != 'null') {
+                        array_push($userid, $this->findusers($dbfields[$i]->groups));
+
+                        $useridfound = 'false';
+                        for ($j = 0; $j < count($userid); $j++) {
+                            if (in_array(auth()->id(), $userid[$j])) {
+                                $useridfound = 'true';
+                            }
+                        }
+
+                        if ($useridfound == 'true') {
+                            array_push($fields, $dbfields[$i]);
+                        }
+                    }
+                } else {
+                    array_push($fields, $dbfields[$i]);
+                }
+            }
+
+            return [$groups, $id, $users, $application, $fields, $transitions, $filteredTasks];
+
+        } catch (\Exception $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
+    public function userapplication_userAction($id, $triggerId)
+    {
+        try {
+            $requestData = session('requestData');
+            $application = Application::find($id);
+            $workflow = Workflow::where('application_id', $id)->get();
+            // $tasks = Task::where('workflow_id', $triggerId)->get();
+
+            if (@$requestData['transition_id']) {
+                $transitionGet = Transition::find($requestData['transition_id']);
+                $filteredTasks = Task::where('workflow_id', $triggerId)
+                    ->where('id', '!=', $transitionGet->task_id)
+                    ->where('id', '>', $transitionGet->task_id)
+                    ->where('name', 'userAction')
+                    ->first();
+            } else {
+                $filteredTasks = Task::where('workflow_id', $triggerId)
+                    ->where('name', 'userAction')
+                    ->first();
+            }
+            // $filteredTasks = Task::where('workflow_id', $triggerId)
+            //     ->where('name', 'userAction')
+            //     ->first();
+            // dd($filteredTasks);
+
+            if ($filteredTasks) {
+                // Agar task mil jata hai, tabhi transitions ko fetch kare
+                $transitions = Transition::where('task_id', $filteredTasks->id)->get();
+            } else {
+                // Agar task nahi milta, toh handle kare (optional)
+                $transitions = collect(); // Empty collection
+            }
+            // dd($transitions->ToArray());
+
+            $users = User::latest()->get();
+            $groups = Group::latest()->get();
+            $dbfields = Field::where(['application_id' => $application->id, 'status' => 1])
+                ->orderBy('forder', 'ASC')
+                ->get();
+            $fields = [];
+            $userid = [];
+            for ($i = 0; $i < count($dbfields); $i++) {
+                if ($dbfields[$i]->access == 'private') {
+                    # code...
+                    if ($dbfields[$i]->groups != 'null') {
+                        array_push($userid, $this->findusers($dbfields[$i]->groups));
+
+                        $useridfound = 'false';
+                        for ($j = 0; $j < count($userid); $j++) {
+                            if (in_array(auth()->id(), $userid[$j])) {
+                                $useridfound = 'true';
+                            }
+                        }
+
+                        if ($useridfound == 'true') {
+                            array_push($fields, $dbfields[$i]);
+                        }
+                    }
+                } else {
+                    array_push($fields, $dbfields[$i]);
+                }
+            }
+            return view('backend.userapplication.edit', compact('groups', 'id', 'users', 'application', 'fields', 'transitions', 'filteredTasks', 'requestData'));
+
+        } catch (\Exception $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
     }

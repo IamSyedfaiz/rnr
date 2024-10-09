@@ -1043,7 +1043,6 @@
                          * Class Definition
                          * ------------------------------------------------------------------------
                          */
-
                         var Carousel = /*#__PURE__*/ (function () {
                             function Carousel(element, config) {
                                 this._items = null;
@@ -50947,13 +50946,13 @@
                                         this.canvas_y + -(this.pos_y - e_pos_y);
                                     this.editor_selected = false;
                                 }
-
                                 if (this.connection === true) {
                                     if (ele_last.classList[0] === "input") {
                                         // Fix connection;
                                         var output_id =
                                             this.ele_selected.parentElement
                                                 .parentElement.id;
+
                                         var output_class =
                                             this.ele_selected.classList[1];
                                         var input_id =
@@ -51076,7 +51075,6 @@
                                             deletebox
                                         );
                                     }
-
                                     if (this.connection_selected) {
                                         deletebox.style.top =
                                             e.clientY *
@@ -51112,12 +51110,25 @@
                                     transition.className =
                                         "fas fa-cog settings-button";
                                     transition.classList.add("transitionx");
+                                    transition.setAttribute(
+                                        "data-type",
+                                        "exampleType"
+                                    );
+                                    transition.setAttribute(
+                                        "data-element-id",
+                                        workflowId
+                                    );
                                     transition.onclick = function (e) {
+                                        console.log(e);
                                         if (e.view.node.data.task_id) {
                                             console.log(
                                                 e.view.node.data.task_id
                                             );
-                                            window.location.href = `workflow/transition/edit/${e.view.node.data.task_id}`;
+
+                                            // transition.style.display = "none";
+                                            // alert(e.view.node.data);
+                                            // window.location.href = `{{ route('workflow.getElementSettings', ['workflow' => e.view.node.data]) }}`;
+                                            // window.location.href = `workflow/transition/edit/${e.view.node.data.task_id}`;
                                         } else {
                                             alert("task id not found.");
                                         }
@@ -51270,6 +51281,7 @@
                                     "http://www.w3.org/2000/svg",
                                     "svg"
                                 );
+
                                 this.connection_ele = connection;
                                 var path = document.createElementNS(
                                     "http://www.w3.org/2000/svg",
@@ -51349,6 +51361,7 @@
                             key: "updateConnectionNodes",
                             value: function updateConnectionNodes(id) {
                                 // Aquí nos quedamos;
+
                                 var idSearch = "node_in_" + id;
                                 var idSearchOut = "node_out_" + id;
                                 var line_path = this.line_path / 2;

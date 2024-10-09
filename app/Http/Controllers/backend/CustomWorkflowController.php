@@ -7,6 +7,7 @@ use App\Models\backend\Application;
 use App\Models\backend\EvaluateContent;
 use App\Models\backend\EvaluateRule;
 use App\Models\backend\Notification;
+use App\Models\backend\Transition;
 use App\Models\backend\TriggerMail;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -367,6 +368,7 @@ class CustomWorkflowController extends Controller
     public function loadResourceIntelligence($id, Request $request)
     {
         $workflow = Workflow::find($id);
+
 
         if ($request->type == 'task') {
             $element = Task::where('workflow_id', $workflow->id)
@@ -1219,6 +1221,42 @@ class CustomWorkflowController extends Controller
             return redirect()->back()->with('success', 'Data saved successfully');
         } catch (\Exception $th) {
             return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
+    public function transitionStore(Request $request)
+    {
+        try {
+            // dd($request->all());
+            Transition::create([
+                'user_id' => $request->user_id,
+                'application_id' => $request->application_id,
+                'workflow_id' => $request->workflow_id,
+                'task_id' => $request->task_id,
+                'condition' => $request->condition,
+            ]);
+
+            Log::channel('custom')->info('Transition Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname);
+            return redirect()->back()->with('success', 'Data saved successfully');
+        } catch (\Exception $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
+    public function getTaskByElementId($elementId)
+    {
+        // Find the task by the element ID
+        $task = Task::find($elementId);
+        // dd($task);
+        if ($task) {
+            // Return task details as a JSON response
+            return response()->json([
+                'success' => true,
+                'task' => $task
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Task not found'
+            ]);
         }
     }
 }

@@ -1,55 +1,57 @@
 @extends('workflows::layouts.workflow_app')
 @section('content')
-<!-- Recent Sales Start -->
-<div class="container-fluid pt-4 px-4">
-  <div class="bg-light text-start rounded p-4">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-      {{-- <h6 class="mb-0">Application Create</h6> --}}
+    <!-- Recent Sales Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="bg-light text-start rounded p-4">
+            <div class="bg-light rounded h-100 p-4">
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <h6 class="mb-4">Transition</h6>
+                        </div>
 
-    </div>
-    {{-- {{ dd(Session::get('genral'), Session::get('field')) }} --}}
+                        <form action="{{ route('transition.store') }}" class="form-horizontal" enctype="multipart/form-data"
+                            method="post">
+                            @csrf
+                            <input type="text" value="{{ auth()->id() }}" name="user_id">
+                            <input type="text" name="application_id" value="{{ @$element->application_id }}">
+                            <input type="text" name="workflow_id" value="{{ @$element->id }}">
+                            {{-- <input type="text" name="task_id" value="{{ @$task->id }}"> --}}
+                            <div class="my-3">
+                                <input type="text" name="condition" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <select class="form-control" name="task_id">
+                                    @foreach ($tasks as $index => $task)
+                                        <option value="{{ $task->id }}">{{ $task->name }} ({{ $index + 1 }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-    <div class="bg-light rounded h-100 p-4">
-      <div class="tab-content" id="pills-tabContent">
-        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-          <div class="d-flex align-items-center justify-content-between mb-4">
-            <h6 class="mb-4">Transition</h6>
-            <button type="button" class="btn btn-danger">
-              <a href="{{route('workflow.show', $application->id)}}" style="color:aliceblue">
-                <- back</a>
-            </button>
-          </div>
+                            <div class="settings-footer text-right">
+                                <button class="btn btn-default"
+                                    onclick="closeSettings();">{{ __('workflows::workflows.Close') }}</button>
+                                <button type="submit"
+                                    class="btn btn-success">{{ __('workflows::workflows.Save') }}</button>
+                            </div>
+                        </form>
 
-          <form action="{{route('updatecontent.save')}}" class="form-horizontal" enctype="multipart/form-data" method="post">
-            @csrf
+                    </div>
+                </div>
 
-            <div class="mb-3">
-              <select class="form-control" name="condition">
-                <option value="success">Success</option>
-                <option value="failure">Failure</option>
-              </select>
             </div>
-            <input type="hidden" value="{{ auth()->id() }}" name="userid">
-            <input type="hidden" value="{{ $task->id }}" name="taskid">
 
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </form>
 
         </div>
-      </div>
-
     </div>
 
 
-  </div>
-</div>
-
-
-<!-- Recent Sales End -->
+    <!-- Recent Sales End -->
 
 
 
-{{-- <script src="https://cdn.ckeditor.com/4.20.1/standard/ckeditor.js"></script>
+    {{-- <script src="https://cdn.ckeditor.com/4.20.1/standard/ckeditor.js"></script>
     <script>
         CKEDITOR.replace('editor1');
     </script> --}}

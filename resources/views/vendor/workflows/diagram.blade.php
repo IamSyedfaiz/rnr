@@ -19,6 +19,10 @@
             }
         }
     </style>
+    <script>
+        var workflowId = @json($id);
+    </script>
+
 
     <script src="{{ asset('public/vendor/workflows/js/workflow.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/trix/1.2.3/trix-core.js"></script>
@@ -100,7 +104,7 @@
         editor.start();
         @if (@$workflow)
             @foreach ($workflow->tasks as $task)
-                console.log('{{ $task->name }}');
+                // console.log('{{ $task->name }}');
                 if ('{{ $task->name }}' == 'Start') {
                     var new_node = `@include('workflows::layouts.task_node_html', [
                         'elementName' => $task->name,
@@ -184,7 +188,7 @@
 
             function saveConditions(id, type) {
                 var data = $('#builder').queryBuilder('getRules');
-                // console.log(data);
+                console.log(data, 'haha');
                 $.ajax({
                     type: "POST",
                     url: "{{ route('workflow.changeConditions', ['workflow' => $workflow]) }}",
@@ -241,6 +245,7 @@
                     var parentNode = editor.getNodeByData('{{ $task->parentable->family }}_id',
                         {{ $task->parentable->id }});
 
+                    console.log(parentNode, 'yahi hai');
                     if (parentNode) { // Check if parentNode exists
                         var node = editor.getNodeByData('task_id', {{ $task->id }});
 
@@ -666,7 +671,7 @@
                         }
                     },
                     success: function(data) {
-                        console.log("Before Send:", ajaxRequest);
+                        // console.log("Before Send:", ajaxRequest);
                         $('#settings-container').html(data);
                         $('#settings-container').fadeIn();
                     }
