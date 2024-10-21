@@ -77,13 +77,19 @@
                                                     <i class="bi bi-bezier2 "></i>
                                                     Workflow
                                                 </a>
+                                                <a href="{{ route('workflow.logs.show', $item->id) }}"
+                                                    class="btn btn-primary btn-sm mx-2">
+                                                    <i class="bi bi-bezier2 "></i>
+                                                    Track
+                                                </a>
                                                 {{-- <a href="" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i>
                                                 Delete</a>
                                                 
                                                 <a class="btn btn-sm btn-primary"
                                                     href="{{ route('application.edit', $item->id) }}">Edit</a> --}}
 
-                                                <form action="{{ route('application.destroy', $item->id) }}" method="post">
+                                                <form action="{{ route('application.destroy', $item->id) }}"
+                                                    method="post">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger btn-sm"

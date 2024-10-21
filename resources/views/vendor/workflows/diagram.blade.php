@@ -245,7 +245,7 @@
                     var parentNode = editor.getNodeByData('{{ $task->parentable->family }}_id',
                         {{ $task->parentable->id }});
 
-                    console.log(parentNode, 'yahi hai');
+                    // console.log(parentNode, 'yahi hai');
                     if (parentNode) { // Check if parentNode exists
                         var node = editor.getNodeByData('task_id', {{ $task->id }});
 
@@ -351,6 +351,7 @@
             editor.on('connectionCreated', function(connection) {
                 $inputNode = editor.getNode(connection.input_id);
                 $outputNode = editor.getNode(connection.ouput_id);
+                console.log('connection');
                 console.log(connection);
                 $.ajax({
                     type: "POST",
@@ -650,7 +651,10 @@
             // }
 
             var ajaxRequest = null;
-            $(document).on('click', '.settings-button', function() {
+            $(document).on('click', '.settings-button', function(e) {
+                console.log('ab isse hi kuch ho skta hai');
+                console.log(e);
+
                 var type = $(this).data('type');
                 var elementid = $(this).data('element-id');
                 // alert(type);

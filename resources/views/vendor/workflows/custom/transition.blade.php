@@ -36,7 +36,34 @@
                                     class="btn btn-success">{{ __('workflows::workflows.Save') }}</button>
                             </div>
                         </form>
-
+                        <div class="table-responsive mt-5">
+                            <table class="table  table-striped  text-start align-middle table-bordered table-hover mb-0"
+                                id="dataTable">
+                                <thead>
+                                    <tr class="text-white" style="background-color: #009CFF;">
+                                        <th scope="col">ID</th>
+                                        <th scope="col">Transition NAME</th>
+                                        <th scope="col">Transition NODE</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($transitions as $index => $transition)
+                                        <tr class="data-row">
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>{{ $transition->task_id }}</td>
+                                            <td>{{ $transition->condition }}</td>
+                                            <td>
+                                                <a href="{{ route('transition.destroy', $transition->id) }}"
+                                                    class="btn btn-danger">
+                                                    delete
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 

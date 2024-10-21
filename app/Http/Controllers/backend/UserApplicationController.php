@@ -20,6 +20,7 @@ use the42coders\Workflows\Tasks\Task;
 use Illuminate\Support\Facades\Mail;
 use App\Traits\WorkflowTraits;
 use App\Models\backend\FilterCriteria;
+use App\Models\backend\MyLog;
 use App\Models\backend\Notification;
 use App\Models\backend\Permission;
 use App\Models\backend\Role;
@@ -332,7 +333,7 @@ class UserApplicationController extends Controller
             unset($data['_token']);
             unset($data['_method']);
             unset($data['userid']);
-            unset($data['formdataid']);
+            unset($data['form data id']);
 
             foreach (request()->allFiles() as $key => $value) {
                 if ($value->getSize() > 2e6) {
@@ -358,49 +359,72 @@ class UserApplicationController extends Controller
                 $requestData = request()->all();
                 $requestData['application_id'] = $id;
 
-                // dd($requestData);
+                // $transitionId = $requestData['transition_id'] ?? null;
+                $taskInfo = $request->input('transition_id') ?? null;
 
-                $transitionId = $requestData['transition_id'] ?? null;
-                logger('transitionId: ' . $transitionId);
-                if ($transitionId) {
-                    $transition = Transition::find($transitionId);
+                // logger('transitionId: ' . $transitionId);
+                // if ($transitionId) {
+                if ($taskInfo) {
+                    list($taskId, $index) = explode('-', $taskInfo);
+
+                    // dd($taskId, $index);
+                    // $transition = Transition::where('workflow_id', $application->workFlow->id)->get();
+                    $transition = Transition::find($taskId);
+                    // dd($transition->toArray());
                     $task = Task::where('workflow_id', $application->workFlow->id)
+                        ->where('id', $transition->task_id)
                         ->first();
+                    // dd($task->toArray());
                     $childrenTasksIds = [];
                     $childrenTasksNames = [];
                     foreach ($task->childrenName as $childTask) {
+                        if ($childTask->name === 'UserAction') {
+                            continue;
+                        }
                         $childrenTasksIds[] = $childTask->id;
                         $childrenTasksNames[] = $childTask->name;
                     }
                     logger('if me gaya code', $childrenTasksIds);
                     // logger('if me gaya code', $transitionId);
 
-                    // dd($childrenTasksIds, $childrenTasksNames, 'yes');
+                    // dd($childrenTasksIds, $childrenTasksNames, $taskId, $index, 'yes');
                     // $actionTypeChildren = '';
-                    $actionTypeChildren = $this->triggerButtonChildren($requestData, $childrenTasksIds[$transitionId]);
-
+                    [$actionTypeChildren, $mergedData] = $this->triggerButtonChildren($requestData, $childrenTasksIds[$index]);
+                    // dd($mergedData, 'if');
                     if ($actionTypeChildren == 'UserAction') {
-                        return redirect()->route('userapplication.user.action', ['id' => $id, 'triggerId' => $application->workFlow->id])->with(['success', 'Form Saved.', 'requestData' => $requestData]);
+                        return redirect()->route('userapplication.user.action', ['id' => $id, 'triggerId' => $application->workFlow->id])->with(['success', 'Form Saved.', 'requestData' => $mergedData]);
                     }
                 } else {
                     // dd($requestData, 'no');
                     logger('else me gaya code');
 
-                    $actionType = $this->triggerButtonShow($requestData, $application->workFlow->id);
+                    [$actionType, $mergedData] = $this->triggerButtonShow($requestData, $application->workFlow->id);
+                    // dd($actionType);
+                    // dd($mergedData);
                     if ($actionType == 'UserAction') {
-                        return redirect()->route('userapplication.user.action', ['id' => $id, 'triggerId' => $application->workFlow->id])->with(['success', 'Form Saved.', 'requestData' => $requestData]);
+                        return redirect()->route('userapplication.user.action', ['id' => $id, 'triggerId' => $application->workFlow->id])->with(['success', 'Form Saved.', 'requestData' => $mergedData]);
                     }
                 }
+                // dd($mergedData);
 
                 // dd($actionTypeChildren);
-                // dd($actionType);
-
-                dd('aabhi nahi huw hai');
+                $this->logWorkflow('stop',  $application->workFlow->id);
+                unset($mergedData['_token']);      // Remove the _token
+                unset($mergedData['transition_id']);      // Remove the _token
+                unset($mergedData['_method']);      // Remove the _token
+                unset($mergedData['userid']);      // Remove the userid
+                unset($mergedData['application_id']);
+                // dd($mergedData);
+                // dd('stop');
 
                 $logData = Cache::get('data');
+                // $logData = Cache::get('mergedData');
                 logger($logData);
                 Cache::forget('data');
-                if (!in_array('UpdateContent', $logData)) {
+                // dd($logData);
+                // Cache::forget('mergedData');
+                // if (!in_array('UpdateContent', $logData)) {
+                if ($application->workFlow->id) {
                     logger('No Workflow ID found for Application ID: ' . $id);
                     $fieldDatas = Field::where('application_id', $application->id)
                         ->where('status', 1)
@@ -482,7 +506,7 @@ class UserApplicationController extends Controller
                                         case 'CF': // Changed From
                                             // Perform action for 'Changed From' case
                                             break;
-                                        // Handle other comparison cases
+                                            // Handle other comparison cases
                                     }
                                 }
                             }
@@ -505,8 +529,8 @@ class UserApplicationController extends Controller
                         $reconstructedString = str_replace('OR', '||', $reconstructedString);
 
                         // logger($reconstructedString);
-                        logger(eval ("return $reconstructedString;"));
-                        if (eval ("return $reconstructedString;")) {
+                        logger(eval("return $reconstructedString;"));
+                        if (eval("return $reconstructedString;")) {
                             logger('Email sent!');
                             $selectedGroups = [];
                             if ($notification->group_list != 'null') {
@@ -613,9 +637,10 @@ class UserApplicationController extends Controller
                             logger('---false---');
                         }
                     }
-
+                    // dd($mergedData);
                     if (isset($request->formdataid)) {
-                        $data1['data'] = json_encode($data);
+                        // $data1['data'] = json_encode($data);
+                        $data1['data'] = json_encode($mergedData);
                         $data1['userid'] = $request->userid;
                         $data1['application_id'] = $id;
                         $formdata = Formdata::find($request->formdataid);
@@ -627,7 +652,8 @@ class UserApplicationController extends Controller
                         return redirect()->back()->with('success', 'Form Updated.');
                     } else {
                         # code...
-                        $data1['data'] = json_encode($data);
+                        // $data1['data'] = json_encode($data);
+                        $data1['data'] = json_encode($mergedData);
                         $data1['userid'] = $request->userid;
                         $data1['application_id'] = $id;
                         Log::channel('user')->info('Application Created by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' Application Name -> ' . $application->name . ' Current Data -> ' . $data1['data']);
@@ -635,9 +661,9 @@ class UserApplicationController extends Controller
                         return redirect()->route('userapplication.list', $id)->with('success', 'Form Saved.');
                     }
                 }
-                // dd(12);
                 return redirect()->back();
             } else {
+                dd(12);
                 logger('No Workflow ID found for Application ID: ' . $id);
                 $fieldDatas = Field::where('application_id', $application->id)
                     ->where('status', 1)
@@ -722,7 +748,7 @@ class UserApplicationController extends Controller
                                     case 'CF': // Changed From
                                         // Perform action for 'Changed From' case
                                         break;
-                                    // Handle other comparison cases
+                                        // Handle other comparison cases
                                 }
                             }
                         }
@@ -745,8 +771,8 @@ class UserApplicationController extends Controller
                     $reconstructedString = str_replace('OR', '||', $reconstructedString);
 
                     // logger($reconstructedString);
-                    logger(eval ("return $reconstructedString;"));
-                    if (eval ("return $reconstructedString;")) {
+                    logger(eval("return $reconstructedString;"));
+                    if (eval("return $reconstructedString;")) {
                         logger('Email sent!');
                         $selectedGroups = [];
                         if ($notification->group_list != 'null') {
@@ -969,7 +995,7 @@ class UserApplicationController extends Controller
                                         case 'CF': // Changed From
                                             // Perform action for 'Changed From' case
                                             break;
-                                        // Handle other comparison cases
+                                            // Handle other comparison cases
                                     }
                                 }
                             }
@@ -992,8 +1018,8 @@ class UserApplicationController extends Controller
                         $reconstructedString = str_replace('OR', '||', $reconstructedString);
 
                         // logger($reconstructedString);
-                        logger(eval ("return $reconstructedString;"));
-                        if (eval ("return $reconstructedString;")) {
+                        logger(eval("return $reconstructedString;"));
+                        if (eval("return $reconstructedString;")) {
                             logger('Email sent!');
                             $selectedGroups = [];
                             if ($notification->group_list != 'null') {
@@ -1177,7 +1203,7 @@ class UserApplicationController extends Controller
                                     case 'CF': // Changed From
                                         // Perform action for 'Changed From' case
                                         break;
-                                    // Handle other comparison cases
+                                        // Handle other comparison cases
                                 }
                             }
                         }
@@ -1200,8 +1226,8 @@ class UserApplicationController extends Controller
                     $reconstructedString = str_replace('OR', '||', $reconstructedString);
 
                     // logger($reconstructedString);
-                    logger(eval ("return $reconstructedString;"));
-                    if (eval ("return $reconstructedString;")) {
+                    logger(eval("return $reconstructedString;"));
+                    if (eval("return $reconstructedString;")) {
                         logger('Email sent!');
                         $selectedGroups = [];
                         if ($notification->group_list != 'null') {
@@ -1336,19 +1362,32 @@ class UserApplicationController extends Controller
     }
     public function triggerButtonShow($requestData, $triggerId)
     {
-        $task = Task::where('workflow_id', $triggerId)->first();
+        $task = Task::where('workflow_id', $triggerId)
+            ->orderBy('parentable_id', 'asc')->first();
+        $this->logWorkflow('Start', $triggerId);
+
         // $transition = Transition::find($requestData['transition_id']);
 
-        // $task = Task::where('workflow_id', $triggerId)
-        //     ->where('id', '!=', 1)
-        //     ->first();
+        // $tasks = Task::where('workflow_id', $triggerId)
+        //     ->get();
+        if ($task) {
+            // Check if the task ID is the same as the triggerId
+            if ($task->workflow_id === $triggerId) {
+                $parentTask = $task; // If the same, keep the current task as parent
+                // dd('if');
+            } else {
+                // Otherwise, retrieve the actual parent task
+                // dd('else');
+                $parentTask = Task::find($task->parentable_id);
+            }
+        }
+        // dd($parentTask);
         // dd($task->toArray());
-        $parentTask = $task->parentableName ?? $task;
+        // $parentTask = $task->parentableName ?? $task;
         $parentTaskName = $parentTask->name ?? '';
         $existingTasks = Cache::get('data', []);
         $existingTasks[] = $parentTaskName;
         Cache::put('data', $existingTasks);
-        // dd($parentTaskName);
 
         $childrenTasksIds = [];
         if ($parentTask && !is_null($parentTask->childrenName)) {
@@ -1357,113 +1396,210 @@ class UserApplicationController extends Controller
             }
         }
         $actionType = '';
-        // $requestData = null;
+        $mergedData = '';
+        // dd($parentTask);
+        // dd($parentTaskName, $childrenTasksIds);
         switch ($parentTaskName) {
             case 'EvaluateContent':
                 logger('=======');
                 logger('EvaluateContent');
+                $this->logWorkflow('Evaluate Content', $triggerId);
                 $getValue = $this->TriggerEvaluateContent($requestData, $parentTask->id);
-                $this->triggerButtonChildren($requestData, $getValue ? $childrenTasksIds[0] : $childrenTasksIds[1]);
+                [$actionType, $mergedData]  =  $this->triggerButtonChildren($requestData, $getValue ? $childrenTasksIds[0] : $childrenTasksIds[1]);
+                // $actionType = $actionTypeGet;
+                // $mergedData = $requestData;
+
                 break;
 
             case 'SendNotification':
                 logger('=======');
                 logger('SendNotification');
+                $this->logWorkflow('Send Notification', $triggerId);
+
                 $this->TriggerSendMail($parentTask->id);
-                $this->triggerButtonChildren($requestData, $parentTask->id);
+                [$actionType, $mergedData] = $this->triggerButtonChildren($requestData, $childrenTasksIds[0]);
+                // $actionType = $actionTypeGet;
+                // $mergedData = $requestData;
                 break;
 
             case 'UpdateContent':
                 logger('=======');
                 logger('UpdateContent');
-                $this->TriggerUpdateContent($requestData, $parentTask->id);
-                $this->triggerButtonChildren($requestData, $parentTask->id);
+                $this->logWorkflow('Update Content', $triggerId);
+
+                $updateContent = $this->TriggerUpdateContent($requestData, $parentTask->id);
+                // logger('bhai yahi hai ');
+                // logger($requestData);
+                // dd($updateContent);
+                $decodedData = json_decode($updateContent['data'], true);
+                $mergedData1 = array_merge($requestData, $decodedData);
+
+                // If you want to log or work with this merged array:
+                logger()->debug('Merged Data:', $mergedData1);
+
+                [$actionType, $mergedData] = $this->triggerButtonChildren($mergedData1, $childrenTasksIds[0]);
+                // $actionType = $actionTypeGet;
                 break;
 
             case 'UserAction':
                 logger('=======');
                 logger('UserAction');
+                $this->logWorkflow('User Action', $triggerId);
+
                 logger($requestData);
-
                 $actionType = 'UserAction';
-                //  $this->userAction($requestData, $parentTask->id);
-
-                // dd($requestData);
-                // dd(1);
-                // $this->triggerButtonChildren($requestData, $parentTask->id);
                 break;
-
             default:
                 logger('No Workflow ID found for Application ID: ' . $requestData);
                 return redirect()->back()->with('error', 'not found');
         }
-        return $actionType;
 
-        // return redirect()->back()->with('success', 'Button Triggered a Workflow');
+        return [$actionType, $mergedData];
     }
 
+    // public function triggerButtonChildren($requestData, $triggerId)
+    // {
+    //     logger('triggerButtonChildren');
+    //     $tasks = Task::find($triggerId);
+    //     // logger($tasks);
+    //     $existingTasks = Cache::get('data', []);
+    //     $existingTasks[] = $tasks->name;
+    //     Cache::put('data', $existingTasks);
+
+    //     $childrenTasksIds = [];
+    //     $childrenTasksNames = [];
+    //     foreach ($tasks->childrenName as $childTask) {
+    //         $childrenTasksIds[] = $childTask->id;
+    //         $childrenTasksNames[] = $childTask->name;
+    //     }
+
+
+    //     if ($tasks->name == 'SendNotification') {
+    //         logger('=======');
+    //         logger('SendNotification');
+    //         if ($childrenTasksIds) {
+    //             $this->TriggerSendMail($childrenTasksIds[0]);
+    //             $this->triggerButtonChildren($requestData, $childrenTasksIds[0]);
+    //         } else {
+    //             $this->TriggerSendMail($tasks->id);
+    //         }
+    //     } elseif ($tasks->name == 'EvaluateContent') {
+    //         logger('=======');
+    //         logger('EvaluateContent');
+    //         $this->triggerButtonChildren($requestData, $childrenTasksIds[0]);
+    //     } elseif ($tasks->name == 'UpdateContent') {
+    //         logger('=======');
+    //         logger('UpdateContent');
+
+    //         // logger($childrenTasksIds);
+    //         $this->TriggerUpdateContent($requestData, $tasks->id);
+    //         $this->triggerButtonChildren($requestData, $childrenTasksIds[0]);
+    //     } elseif ($tasks->name == 'UserAction') {
+    //         logger('=======');
+    //         logger('UserAction');
+    //         logger('return UserAction');
+    //         return 'UserAction';
+    //     } else {
+    //         logger('No Workflow ID found for Application ID: ');
+    //     }
+    //     logger("actionTypeChildren");
+    //     return null;
+    // }
     public function triggerButtonChildren($requestData, $triggerId)
     {
-        logger('triggerButtonChildren');
+        logger('triggerButtonChildren called with Trigger ID: ' . $triggerId);
 
+        // Retrieve the task by ID
         $tasks = Task::find($triggerId);
-        // logger($tasks);
+        if (!$tasks) {
+            logger('No task found for Trigger ID: ' . $triggerId);
+            return null;  // If no task is found, return null
+        }
+        // dd($tasks);
+
+        // Log the task details
+        logger('Current Task: ' . $tasks->name);
+
+        // Cache the task name
         $existingTasks = Cache::get('data', []);
         $existingTasks[] = $tasks->name;
         Cache::put('data', $existingTasks);
 
+        // Get child task IDs
         $childrenTasksIds = [];
         $childrenTasksNames = [];
         foreach ($tasks->childrenName as $childTask) {
             $childrenTasksIds[] = $childTask->id;
             $childrenTasksNames[] = $childTask->name;
         }
-        // $actionTypeChildren = 'asgdgasjhg';
+        $mergedData = $requestData;
+        $actionTypeChildren = '';
 
-        if ($tasks->name == 'SendNotification') {
-            logger('=======');
-            logger('SendNotification');
-            if ($childrenTasksIds) {
-                $this->TriggerSendMail($childrenTasksIds[0]);
-                $this->triggerButtonChildren($requestData, $childrenTasksIds[0]);
-            } else {
-                $this->TriggerSendMail($tasks->id);
-            }
-        } elseif ($tasks->name == 'EvaluateContent') {
-            logger('=======');
-            logger('EvaluateContent');
-            $this->triggerButtonChildren($requestData, $childrenTasksIds[0]);
-        } elseif ($tasks->name == 'UpdateContent') {
-            logger('=======');
-            logger('UpdateContent');
+        // Use switch case to handle different task names
+        switch ($tasks->name) {
+            case 'SendNotification':
+                logger('SendNotification triggered');
+                $this->logWorkflow('Send Notification', $tasks->workflow_id);
+                // $mergedData = $requestData;
 
-            // logger($childrenTasksIds);
-            $this->TriggerUpdateContent($requestData, $tasks->id);
-            $this->triggerButtonChildren($requestData, $childrenTasksIds[0]);
-        } elseif ($tasks->name == 'UserAction') {
-            logger('=======');
-            logger('pehchaan yahi hai ');
-            logger('UserAction');
-            // $actionTypeChildren = 'UserAction';
-            // return 'UserAction';
-            // dd($actionType);
-        } else {
-            logger('No Workflow ID found for Application ID: ');
+                if (!empty($childrenTasksIds)) {
+                    $this->TriggerSendMail($childrenTasksIds[0]);
+                    return $this->triggerButtonChildren($requestData, $childrenTasksIds[0]);
+                } else {
+                    $this->TriggerSendMail($tasks->id);
+                }
+
+
+                break;
+
+            case 'EvaluateContent':
+                logger('EvaluateContent triggered');
+                $this->logWorkflow('Evaluate Content', $tasks->workflow_id);
+                // $mergedData = $requestData;
+
+                if (!empty($childrenTasksIds)) {
+                    return $this->triggerButtonChildren($requestData, $childrenTasksIds[0]);
+                }
+
+                break;
+
+            case 'UpdateContent':
+                logger('UpdateContent triggered');
+                $this->logWorkflow('Update Content', $tasks->workflow_id);
+
+                $updateContent =  $this->TriggerUpdateContent($requestData, $tasks->id);
+                // dd($updateContent);
+                // logger('bhai yahi hai ');
+                $decodedData = json_decode($updateContent['data'], true);
+
+                // Merge the form request data with the decoded JSON data
+                $mergedData = array_merge($requestData, $decodedData);
+                if (!empty($childrenTasksIds)) {
+                    return $this->triggerButtonChildren($mergedData, $childrenTasksIds[0]);
+                }
+
+                break;
+
+            case 'UserAction':
+                logger('UserAction triggered yahi ');
+                $this->logWorkflow('User Action', $tasks->workflow_id);
+
+                $actionTypeChildren = 'UserAction';
+                return [$actionTypeChildren, $requestData];;
+            default:
+                logger('No matching task type found for: ' . $tasks->name);
+                break;
         }
-        logger("actionTypeChildren");
-        // logger($actionTypeChildren);
-        logger("=-=-=-=-=s-=s-s=-s=-");
-        // return $actionTypeChildren;
-        return 'UserAction';
+
+        logger('actionTypeChildren - ' . $actionTypeChildren);
+        return [$actionTypeChildren, $mergedData];
     }
+
     public function TriggerSendMail($id)
     {
         try {
             logger('TriggerSendMail');
-            // logger($id);
-
             $tasksGet = Task::find($id);
-            // logger($tasksGet);
 
             if ($tasksGet->name == 'SendNotification') {
                 $triggerMail = TriggerMail::find($tasksGet->workflow_id);
@@ -1781,8 +1917,8 @@ class UserApplicationController extends Controller
                     $reconstructedString = str_replace('AND', '&&', $reconstructedString);
                     $reconstructedString = str_replace('OR', '||', $reconstructedString);
                     logger("Evaluated advanced operator logic: $reconstructedString");
-                    logger(eval ("return $reconstructedString;"));
-                    if (eval ("return $reconstructedString;")) {
+                    logger(eval("return $reconstructedString;"));
+                    if (eval("return $reconstructedString;")) {
                         return true;
                     }
                 } else {
@@ -1792,7 +1928,7 @@ class UserApplicationController extends Controller
                             return $value ? 'true' : 'false';
                         }, $bolos),
                     );
-                    if (eval ("return $arrayAsString;")) {
+                    if (eval("return $arrayAsString;")) {
                         return true;
                     }
                 }
@@ -1816,50 +1952,17 @@ class UserApplicationController extends Controller
             $updateContent = UpdateContent::where('task_id', $id)->first();
             if (!$updateContent) {
                 logger('No updateContent found for task_id: ' . $id);
-                return back()->with('error', 'No content found for the provided task ID.');
+                return null;
             }
-
-            // $fieldDatas = Field::where('application_id', $filteredData['application_id'])
-            //     ->where('status', 1)
-            //     ->get();
-            // $validationRules = [];
-            // foreach ($fieldDatas as $field) {
-            //     $rules = [];
-
-            //     if ($field->requiredfield == 1) {
-            //         $rules[] = 'required';
-            //     }
-            //     if ($field->requireuniquevalue == 1) {
-            //         $formDataCheck = FormData::where('application_id', $filteredData['application_id'])->get();
-            //         $jsonDataArray = [];
-
-            //         foreach ($formDataCheck as $dataceck) {
-            //             $jsonData = json_decode($dataceck->data, true);
-            //             $jsonDataArray[] = $jsonData;
-            //         }
-            //         logger($jsonData);
-            //         $updateDataArray = json_decode($updateContent->data, true);
-            //         logger($updateDataArray);
-            //         foreach ($jsonDataArray as $jsonData) {
-            //             if ($this->isDataMatch($updateDataArray, $jsonData)) {
-            //                 logger('Duplicate data found!');
-
-            //                 return redirect()->back()->with('error', 'Duplicate data found!');
-            //             }
-            //         }
-            //     }
-
-            //     $validationRules[$field->name] = $rules;
-            // }
-            // $updateContent->validate($validationRules);
             try {
-                Formdata::create([
-                    'application_id' => $filteredData['application_id'],
-                    'data' => $updateContent->data,
-                    'userid' => $filteredData['userid'],
-                ]);
+                // Formdata::create([
+                //     'application_id' => $filteredData['application_id'],
+                //     'data' => $updateContent->data,
+                //     'userid' => $filteredData['userid'],
+                // ]);
                 logger('Form data created successfully.');
-                return back()->with('success', 'Data saved successfully.');
+                // dd($updateContent);
+                return $updateContent;
             } catch (\Exception $exception) {
                 logger('Failed to save form data:', ['error' => $exception->getMessage()]);
                 return back()->with('error', 'Failed to save data.');
@@ -1939,10 +2042,10 @@ class UserApplicationController extends Controller
                     $query->orWhereJsonContains('group_list', (string) $groupId);
                 }
             })->with([
-                        'permissions' => function ($query) use ($id) {
-                            $query->where('application_id', $id);
-                        },
-                    ])
+                'permissions' => function ($query) use ($id) {
+                    $query->where('application_id', $id);
+                },
+            ])
                 ->get();
 
             // dd($roles, $id);
@@ -2293,7 +2396,6 @@ class UserApplicationController extends Controller
             }
 
             return [$groups, $id, $users, $application, $fields, $transitions, $filteredTasks];
-
         } catch (\Exception $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
@@ -2305,13 +2407,20 @@ class UserApplicationController extends Controller
             $application = Application::find($id);
             $workflow = Workflow::where('application_id', $id)->get();
             // $tasks = Task::where('workflow_id', $triggerId)->get();
+            // if (@$requestData['transition_id']) {
+            $taskInfo = $requestData['transition_id'] ?? null;  // e.g., "3-1"
 
-            if (@$requestData['transition_id']) {
-                $transitionGet = Transition::find($requestData['transition_id']);
+            // logger('transitionId: ' . $transitionId);
+            // if ($transitionId) {
+            if ($taskInfo) {
+                list($taskId, $index) = explode('-', $taskInfo);
+                // dd($taskId);
+                // $transitionGet = Transition::find($requestData['transition_id']);
+                $transitionGet = Transition::find($taskId);
                 $filteredTasks = Task::where('workflow_id', $triggerId)
                     ->where('id', '!=', $transitionGet->task_id)
-                    ->where('id', '>', $transitionGet->task_id)
                     ->where('name', 'userAction')
+                    ->where('id', '>', $transitionGet->task_id)
                     ->first();
             } else {
                 $filteredTasks = Task::where('workflow_id', $triggerId)
@@ -2321,7 +2430,7 @@ class UserApplicationController extends Controller
             // $filteredTasks = Task::where('workflow_id', $triggerId)
             //     ->where('name', 'userAction')
             //     ->first();
-            // dd($filteredTasks);
+            //   dd($filteredTasks->toArray());
 
             if ($filteredTasks) {
                 // Agar task mil jata hai, tabhi transitions ko fetch kare
@@ -2361,9 +2470,18 @@ class UserApplicationController extends Controller
                 }
             }
             return view('backend.userapplication.edit', compact('groups', 'id', 'users', 'application', 'fields', 'transitions', 'filteredTasks', 'requestData'));
-
         } catch (\Exception $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
+    }
+
+    private function logWorkflow($functionName, $workflowId)
+    {
+        // Save the function call to the workflow log
+        MyLog::create([
+            'workflow_id' => $workflowId,
+            'name' => $functionName,
+        ]);
+        Log::info('Workflow ' . $workflowId . ': ' . $functionName . ' called');
     }
 }

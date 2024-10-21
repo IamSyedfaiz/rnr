@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\backend;
 
 // namespace the42coders\Workflows\Http\Controllers;
@@ -22,6 +23,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\backend\Field;
 use App\Models\backend\Formdata;
 use App\Models\backend\Group;
+use App\Models\backend\MyLog;
 use App\Models\backend\UpdateContent;
 use App\Models\backend\UserAction;
 use App\Models\User;
@@ -1241,22 +1243,32 @@ class CustomWorkflowController extends Controller
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
-    public function getTaskByElementId($elementId)
+    public function transitionDestroy($id)
     {
-        // Find the task by the element ID
-        $task = Task::find($elementId);
-        // dd($task);
-        if ($task) {
-            // Return task details as a JSON response
-            return response()->json([
-                'success' => true,
-                'task' => $task
+        try {
+            $transition = Transition::find($id);
+            if (!$transition) {
+                return redirect()->back()->with('error', 'Transition not found.');
+            }
+            $transition->delete();
+            Log::channel('custom')->info('UserAction transition Destroy  by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname);
+            return redirect()->back()->with('success', 'Data transition delete successfully');
+        } catch (\Exception $th) {
+            return redirect()->back()->with('error', $th->getMessage());
+        }
+    }
+    public function workflowLogsShow($id)
+    {
+        try {
+            $myLogs = MyLog::where('workflow_id', $id)->get();
+            if (!$myLogs) {
+                return redirect()->back()->with('error', 'myLogs not found.');
+            }
+            return view('backend.applications.showLogs', [
+                'myLogs' => $myLogs,
             ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Task not found'
-            ]);
+        } catch (\Exception $th) {
+            return redirect()->back()->with('error', $th->getMessage());
         }
     }
 }

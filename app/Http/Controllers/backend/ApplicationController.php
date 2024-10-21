@@ -10,6 +10,8 @@ use App\Models\backend\Field;
 use App\Models\backend\Group;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use the42coders\Workflows\Tasks\Task;
+use the42coders\Workflows\Workflow;
 
 class ApplicationController extends Controller
 {
@@ -281,6 +283,17 @@ class ApplicationController extends Controller
             //code...
             $application = Application::find($id);
             Log::channel('custom')->info('Userid -> ' . auth()->user()->custom_userid . ' , Application Deleted by -> ' . auth()->user()->name . ' ' . auth()->user()->lastname . ' , Application Name -> ' . $application->name);
+            $workflows = Workflow::where('application_id', $id)->get();
+
+            // Loop through each workflow and delete its related tasks before deleting the workflow
+            foreach ($workflows as $workflow) {
+                // Delete tasks related to this workflow
+                Task::where('workflow_id', $workflow->id)->delete();
+
+                // Delete the workflow itself
+                $workflow->delete();
+            }
+
             Application::destroy($id);
 
             return redirect()->back()->with('success', 'Successfully Application Delete.');

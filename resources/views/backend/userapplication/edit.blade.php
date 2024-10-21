@@ -50,8 +50,8 @@
                                         <label for="transition_id" class="col-form-label fw-bold text-left ">transition Node
                                         </label>
                                         <select name="transition_id" id="transition_id" class="form-control">
-                                            @foreach (@$transitions as $transition)
-                                                <option value="{{ $transition->id }}">
+                                            @foreach (@$transitions as $index => $transition)
+                                                <option value="{{ $transition->id }}-{{ $index }}">
                                                     {{ $transition->condition }}
                                                 </option>
                                             @endforeach

@@ -50736,16 +50736,18 @@
                                             );
                                             this.node_selected = null;
                                         }
-
+                                        // console.log(this.node_selected);
                                         if (this.connection_selected != null) {
                                             this.connection_selected.classList.remove(
                                                 "selected"
                                             );
                                             this.connection_selected = null;
                                         }
+                                        console.log(this.connection_selected);
 
                                         this.connection_selected =
                                             this.ele_selected;
+
                                         this.connection_selected.classList.add(
                                             "selected"
                                         );
@@ -50881,6 +50883,8 @@
                                 input_class,
                                 output_class
                             ) {
+                                // console.log("addConnection run");
+
                                 var connection = document.createElementNS(
                                     "http://www.w3.org/2000/svg",
                                     "svg"
@@ -51044,6 +51048,8 @@
                             key: "contextmenu",
                             value: function contextmenu(e) {
                                 e.preventDefault();
+                                console.log(e);
+                                console.log("contextmenu run");
 
                                 if (this.editor_mode === "fixed") {
                                     return false;
@@ -51069,6 +51075,7 @@
                                         document.createElement("div");
                                     deletebox.classList.add("drawflow-delete");
                                     deletebox.innerHTML = "x";
+                                    // console.log("contextmenu run");
 
                                     if (this.node_selected) {
                                         this.node_selected.appendChild(
@@ -51119,7 +51126,8 @@
                                         workflowId
                                     );
                                     transition.onclick = function (e) {
-                                        console.log(e);
+                                        // console.log(e);
+                                        // console.log(node);
                                         if (e.view.node.data.task_id) {
                                             console.log(
                                                 e.view.node.data.task_id
@@ -51281,6 +51289,7 @@
                                     "http://www.w3.org/2000/svg",
                                     "svg"
                                 );
+                                // console.log("drawConnection run");
 
                                 this.connection_ele = connection;
                                 var path = document.createElementNS(
@@ -51298,6 +51307,8 @@
                         {
                             key: "updateConnection",
                             value: function updateConnection(eX, eY) {
+                                // console.log("drawConnection run");
+
                                 var path = this.connection_ele.children[0];
                                 var line_x =
                                     this.ele_selected.offsetWidth / 2 +
@@ -51575,6 +51586,7 @@
                                 html
                             ) {
                                 var _this = this;
+                                // console.log("addNode run");
 
                                 var typenode =
                                     arguments.length > 9 &&

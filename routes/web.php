@@ -99,6 +99,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/custom-workflow-UpdateContent-store', [CustomWorkflowController::class, 'UpdateContentStore'])->name('updateContent.store');
     Route::get('/custom-workflow-userAction-store', [CustomWorkflowController::class, 'userActionStore'])->name('userAction.store');
     Route::post('/custom-workflow-transition', [CustomWorkflowController::class, 'transitionStore'])->name('transition.store');
+    Route::get('/transition-destroy/{id}', [CustomWorkflowController::class, 'transitionDestroy'])->name('transition.destroy');
+    Route::get('/workflow-logs/{id}', [CustomWorkflowController::class, 'workflowLogsShow'])->name('workflow.logs.show');
     Route::get('/get-task/{id}', [CustomWorkflowController::class, 'getTaskByElementId'])->name('get.task');
 
 
