@@ -13,22 +13,14 @@
                         <form action="{{ route('transition.store') }}" class="form-horizontal" enctype="multipart/form-data"
                             method="post">
                             @csrf
-                            <input type="text" value="{{ auth()->id() }}" name="user_id">
-                            <input type="text" name="application_id" value="{{ @$element->application_id }}">
-                            <input type="text" name="workflow_id" value="{{ @$element->id }}">
-                            <input type="text" name="parent_id" value="{{ @$node_id_out }}">
-                            <input type="text" name="child_id" value="{{ @$node_id_in }}">
+                            <input type="hidden" value="{{ auth()->id() }}" name="user_id">
+                            <input type="hidden" name="application_id" value="{{ @$element->application_id }}">
+                            <input type="hidden" name="workflow_id" value="{{ @$element->id }}">
+                            <input type="hidden" name="parent_id" value="{{ @$node_id_out }}">
+                            <input type="hidden" name="child_id" value="{{ @$node_id_in }}">
                             <div class="my-3">
                                 <input type="text" name="condition" class="form-control">
                             </div>
-                            {{-- <div class="mb-3">
-                                <select class="form-control" name="task_id">
-                                    @foreach ($tasks as $index => $task)
-                                        <option value="{{ $task->id }}">{{ $task->name }} ({{ $index + 1 }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div> --}}
 
                             <div class="settings-footer text-right">
                                 <button class="btn btn-default"

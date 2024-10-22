@@ -722,98 +722,27 @@
 
 
 
-            // text show 
-            // function displayTextOnSVG(nodeIn, nodeOut, message) {
-            //     // Construct the SVG class selector
-            //     const svgClassSelector = `svg.connection.node_in_${nodeIn}.node_out_${nodeOut}`;
-
-            //     // Find the SVG element
-            //     const svgElement = document.querySelector(svgClassSelector);
-
-            //     if (svgElement) {
-            //         // Get the bounding box of the SVG path
-            //         const path = svgElement.querySelector("path.main-path");
-            //         const pathBBox = path.getBBox(); // Get the bounding box of the path
-
-            //         // Calculate the mid-point of the path for text placement
-            //         const midX = pathBBox.x + pathBBox.width / 2;
-            //         const midY = pathBBox.y + pathBBox.height / 2;
-
-            //         // Create a text element
-            //         const textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            //         textElement.setAttribute("x", midX);
-            //         textElement.setAttribute("y", midY - 10); // Adjust the vertical position if needed
-            //         textElement.setAttribute("text-anchor", "middle");
-            //         textElement.setAttribute("fill", "black");
-            //         textElement.textContent = message;
-
-            //         // Append the text element to the SVG
-            //         svgElement.appendChild(textElement);
-            //     } else {
-            //         console.error(`SVG not found for nodes: ${nodeIn}, ${nodeOut}`);
-            //     }
-            // }
-            // var transitions = @json($transitions);
-
-            // console.log(transitions);
-
-            // function findNodeIds(transitions) {
-            //     transitions.forEach(transition => {
-            //         // Find parent node
-            //         var parentNode = document.querySelector(
-            //             `.drawflow-node[data-task_id="${transition.parent_id}"]`);
-            //         if (parentNode) {
-            //             console.log(`Parent Node ID (${transition.parent_id}):`, parentNode.id);
-            //         } else {
-            //             console.log(`Parent Node (${transition.parent_id}) not found.`);
-            //         }
-
-            //         // Find child node
-            //         var childNode = document.querySelector(
-            //             `.drawflow-node[data-task_id="${transition.child_id}"]`);
-            //         if (childNode) {
-            //             console.log(`Child Node ID (${transition.child_id}):`, childNode.id);
-            //         } else {
-            //             console.log(`Child Node (${transition.child_id}) not found.`);
-            //         }
-            //         if (parentNode && childNode) { // Ensure both nodes exist
-            //             displayTextOnSVG(childNode.id, parentNode.id, transition.condition);
-            //         }
-            //     });
-            // }
-
-            // findNodeIds(transitions);
-
 
             function displayTextOnSVG(nodeIn, nodeOut, message) {
-                // Construct the SVG class selector
                 const svgClassSelector = `svg.connection.node_in_${nodeIn}.node_out_${nodeOut}`;
 
-                // Find the SVG element
                 const svgElement = document.querySelector(svgClassSelector);
 
                 if (svgElement) {
-                    // Get the bounding box of the SVG path
                     const path = svgElement.querySelector("path.main-path");
-                    const pathBBox = path.getBBox(); // Get the bounding box of the path
-
-                    // Calculate the mid-point of the path for text placement
+                    const pathBBox = path.getBBox();
                     const midX = pathBBox.x + pathBBox.width / 2;
                     const midY = pathBBox.y + pathBBox.height / 2;
-
-                    // Create a text container <div>
                     const textDiv = document.createElement("div");
                     textDiv.textContent = message;
-                    textDiv.style.position = "absolute"; // Make it absolute
+                    textDiv.style.position = "absolute";
                     textDiv.style.left = `${midX}px`;
                     textDiv.style.top = `${midY}px`;
-                    textDiv.style.transform = "translate(-50%, -50%)"; // Center the text
-                    textDiv.style.pointerEvents = "none"; // Prevent interaction
-                    textDiv.style.color = "black"; // Text color
-                    textDiv.style.backgroundColor = "white"; // Optional: Background for better visibility
-                    textDiv.style.padding = "2px 5px"; // Optional: Padding for the text
-
-                    // Append the text div to the parent container of the SVG (assumed to be in a larger div)
+                    textDiv.style.transform = "translate(-50%, -50%)";
+                    textDiv.style.pointerEvents = "none";
+                    textDiv.style.color = "black";
+                    textDiv.style.backgroundColor = "white";
+                    textDiv.style.padding = "2px 5px";
                     svgElement.parentElement.appendChild(textDiv);
                 } else {
                     console.error(`SVG not found for nodes: ${nodeIn}, ${nodeOut}`);
@@ -821,13 +750,10 @@
             }
 
             var transitions = @json($transitions);
-
-            // Now you can work with the transitions data in JavaScript
             console.log(transitions);
 
             function findNodeIds(transitions) {
                 transitions.forEach(transition => {
-                    // Find parent node
                     var parentNode = document.querySelector(
                         `.drawflow-node[data-task_id="${transition.parent_id}"]`);
                     if (parentNode) {
@@ -836,7 +762,6 @@
                         console.log(`Parent Node (${transition.parent_id}) not found.`);
                     }
 
-                    // Find child node
                     var childNode = document.querySelector(`.drawflow-node[data-task_id="${transition.child_id}"]`);
                     if (childNode) {
                         console.log(`Child Node ID (${transition.child_id}):`, childNode.id);
@@ -844,14 +769,12 @@
                         console.log(`Child Node (${transition.child_id}) not found.`);
                     }
 
-                    // Call the function with your node IDs and the message you want to display
-                    if (parentNode && childNode) { // Ensure both nodes exist
+                    if (parentNode && childNode) {
                         displayTextOnSVG(childNode.id, parentNode.id, transition.condition);
                     }
                 });
             }
 
-            // Call the function with your transitions data
             findNodeIds(transitions);
         @endif
     </script>

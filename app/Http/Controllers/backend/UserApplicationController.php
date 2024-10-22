@@ -365,7 +365,7 @@ class UserApplicationController extends Controller
                     // dd($transition);
                     [$actionTypeChildren, $mergedData] = $this->triggerButtonChildren($requestData, $transition->child_id);
                     // dd($mergedData, 'if');
-                    dd($actionTypeChildren, 'if');
+                    // dd($actionTypeChildren, 'if');
                     if ($actionTypeChildren == 'UserAction') {
                         return redirect()->route('userapplication.user.action', ['id' => $id, 'triggerId' => $application->workFlow->id])->with(['success', 'Form Saved.', 'requestData' => $mergedData]);
                     }
@@ -390,7 +390,7 @@ class UserApplicationController extends Controller
                 unset($mergedData['userid']);      // Remove the userid
                 unset($mergedData['application_id']);
                 // dd($mergedData);
-                dd('stop');
+                // dd('stop');
 
                 $logData = Cache::get('data');
                 // $logData = Cache::get('mergedData');
