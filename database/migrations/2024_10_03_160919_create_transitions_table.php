@@ -18,6 +18,8 @@ return new class extends Migration {
             $table->string('application_id')->nullable();
             $table->string('workflow_id')->nullable();
             $table->string('task_id')->nullable();
+            $table->string('parent_id')->nullable();
+            $table->string('child_id')->nullable();
             $table->string('condition')->nullable();
             $table->timestamps();
         });

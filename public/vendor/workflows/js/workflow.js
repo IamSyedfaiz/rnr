@@ -50743,7 +50743,7 @@
                                             );
                                             this.connection_selected = null;
                                         }
-                                        console.log(this.connection_selected);
+                                        // console.log(this.connection_selected);
 
                                         this.connection_selected =
                                             this.ele_selected;
@@ -51048,7 +51048,73 @@
                             key: "contextmenu",
                             value: function contextmenu(e) {
                                 e.preventDefault();
-                                console.log(e);
+                                console.log(
+                                    this.connection_selected
+                                        .farthestViewportElement.classList
+                                );
+                                const classList =
+                                    this.connection_selected
+                                        .farthestViewportElement.classList;
+
+                                // Convert DOMTokenList to an array and filter classes that start with 'node_in_'
+                                // Convert classList to an array and filter classes that start with 'node_in_'
+                                // Filter classes that start with 'node_in_' and 'node_out_'
+                                const nodeInClassArray = Array.from(
+                                    classList
+                                ).filter((className) =>
+                                    className.startsWith("node_in_")
+                                );
+                                const nodeOutClassArray = Array.from(
+                                    classList
+                                ).filter((className) =>
+                                    className.startsWith("node_out_")
+                                );
+
+                                // Log the filtered results
+                                console.log(nodeInClassArray);
+                                console.log(nodeOutClassArray);
+
+                                // Function to get task ID based on node class
+                                function getTaskId(nodeClassArray) {
+                                    if (nodeClassArray.length > 0) {
+                                        const nodeClass = nodeClassArray[0]; // Get the first matching class
+                                        const nodeId =
+                                            nodeClass.match(/node-\d+/)[0]; // Extract 'node-xxxx'
+                                        const nodeElement =
+                                            document.getElementById(nodeId); // Get the node element by ID
+
+                                        // Check if the element exists
+                                        if (nodeElement) {
+                                            return nodeElement.getAttribute(
+                                                "data-task_id"
+                                            ); // Return task ID
+                                        } else {
+                                            console.error(
+                                                `No element found with ID: ${nodeId}`
+                                            );
+                                            return null;
+                                        }
+                                    } else {
+                                        console.error(
+                                            `No class found that starts with "${
+                                                nodeClassArray ===
+                                                nodeInClassArray
+                                                    ? "node_in_"
+                                                    : "node_out_"
+                                            }"`
+                                        );
+                                        return null;
+                                    }
+                                }
+
+                                // Get task IDs for both node_in and node_out
+                                const taskIdIn = getTaskId(nodeInClassArray);
+                                const taskIdOut = getTaskId(nodeOutClassArray);
+
+                                // Log the task IDs
+                                console.log("Task ID In:", taskIdIn); // Output: Task ID In: 48 (or whatever the ID is)
+                                console.log("Task ID Out:", taskIdOut); // Output: Task ID Out: [value or null]
+
                                 console.log("contextmenu run");
 
                                 if (this.editor_mode === "fixed") {
@@ -51124,6 +51190,14 @@
                                     transition.setAttribute(
                                         "data-element-id",
                                         workflowId
+                                    );
+                                    transition.setAttribute(
+                                        "data-node-id-in",
+                                        taskIdIn
+                                    );
+                                    transition.setAttribute(
+                                        "data-node-id-out",
+                                        taskIdOut
                                     );
                                     transition.onclick = function (e) {
                                         // console.log(e);

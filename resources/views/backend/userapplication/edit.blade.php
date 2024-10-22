@@ -51,7 +51,7 @@
                                         </label>
                                         <select name="transition_id" id="transition_id" class="form-control">
                                             @foreach (@$transitions as $index => $transition)
-                                                <option value="{{ $transition->id }}-{{ $index }}">
+                                                <option value="{{ $transition->id }}">
                                                     {{ $transition->condition }}
                                                 </option>
                                             @endforeach

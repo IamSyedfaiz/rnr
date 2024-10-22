@@ -1233,7 +1233,9 @@ class CustomWorkflowController extends Controller
                 'user_id' => $request->user_id,
                 'application_id' => $request->application_id,
                 'workflow_id' => $request->workflow_id,
-                'task_id' => $request->task_id,
+                'task_id' => $request->parent_id,
+                'parent_id' => $request->parent_id,
+                'child_id' => $request->child_id,
                 'condition' => $request->condition,
             ]);
 

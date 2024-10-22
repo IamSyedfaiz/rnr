@@ -16,18 +16,19 @@
                             <input type="text" value="{{ auth()->id() }}" name="user_id">
                             <input type="text" name="application_id" value="{{ @$element->application_id }}">
                             <input type="text" name="workflow_id" value="{{ @$element->id }}">
-                            {{-- <input type="text" name="task_id" value="{{ @$task->id }}"> --}}
+                            <input type="text" name="parent_id" value="{{ @$node_id_out }}">
+                            <input type="text" name="child_id" value="{{ @$node_id_in }}">
                             <div class="my-3">
                                 <input type="text" name="condition" class="form-control">
                             </div>
-                            <div class="mb-3">
+                            {{-- <div class="mb-3">
                                 <select class="form-control" name="task_id">
                                     @foreach ($tasks as $index => $task)
                                         <option value="{{ $task->id }}">{{ $task->name }} ({{ $index + 1 }})
                                         </option>
                                     @endforeach
                                 </select>
-                            </div>
+                            </div> --}}
 
                             <div class="settings-footer text-right">
                                 <button class="btn btn-default"
@@ -51,7 +52,8 @@
                                     @foreach ($transitions as $index => $transition)
                                         <tr class="data-row">
                                             <td>{{ $index + 1 }}</td>
-                                            <td>{{ $transition->task_id }}</td>
+                                            <td>{{ $transition->parentTask->name }} -> {{ $transition->childTask->name }}
+                                            </td>
                                             <td>{{ $transition->condition }}</td>
                                             <td>
                                                 <a href="{{ route('transition.destroy', $transition->id) }}"

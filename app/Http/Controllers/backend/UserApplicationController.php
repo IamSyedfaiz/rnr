@@ -359,38 +359,13 @@ class UserApplicationController extends Controller
                 $requestData = request()->all();
                 $requestData['application_id'] = $id;
 
-                // $transitionId = $requestData['transition_id'] ?? null;
-                $taskInfo = $request->input('transition_id') ?? null;
+                if ($request->input('transition_id')) {
+                    $transition = Transition::find($request->input('transition_id'));
 
-                // logger('transitionId: ' . $transitionId);
-                // if ($transitionId) {
-                if ($taskInfo) {
-                    list($taskId, $index) = explode('-', $taskInfo);
-
-                    // dd($taskId, $index);
-                    // $transition = Transition::where('workflow_id', $application->workFlow->id)->get();
-                    $transition = Transition::find($taskId);
-                    // dd($transition->toArray());
-                    $task = Task::where('workflow_id', $application->workFlow->id)
-                        ->where('id', $transition->task_id)
-                        ->first();
-                    // dd($task->toArray());
-                    $childrenTasksIds = [];
-                    $childrenTasksNames = [];
-                    foreach ($task->childrenName as $childTask) {
-                        if ($childTask->name === 'UserAction') {
-                            continue;
-                        }
-                        $childrenTasksIds[] = $childTask->id;
-                        $childrenTasksNames[] = $childTask->name;
-                    }
-                    logger('if me gaya code', $childrenTasksIds);
-                    // logger('if me gaya code', $transitionId);
-
-                    // dd($childrenTasksIds, $childrenTasksNames, $taskId, $index, 'yes');
-                    // $actionTypeChildren = '';
-                    [$actionTypeChildren, $mergedData] = $this->triggerButtonChildren($requestData, $childrenTasksIds[$index]);
+                    // dd($transition);
+                    [$actionTypeChildren, $mergedData] = $this->triggerButtonChildren($requestData, $transition->child_id);
                     // dd($mergedData, 'if');
+                    dd($actionTypeChildren, 'if');
                     if ($actionTypeChildren == 'UserAction') {
                         return redirect()->route('userapplication.user.action', ['id' => $id, 'triggerId' => $application->workFlow->id])->with(['success', 'Form Saved.', 'requestData' => $mergedData]);
                     }
@@ -415,7 +390,7 @@ class UserApplicationController extends Controller
                 unset($mergedData['userid']);      // Remove the userid
                 unset($mergedData['application_id']);
                 // dd($mergedData);
-                // dd('stop');
+                dd('stop');
 
                 $logData = Cache::get('data');
                 // $logData = Cache::get('mergedData');
@@ -2433,11 +2408,9 @@ class UserApplicationController extends Controller
             //   dd($filteredTasks->toArray());
 
             if ($filteredTasks) {
-                // Agar task mil jata hai, tabhi transitions ko fetch kare
                 $transitions = Transition::where('task_id', $filteredTasks->id)->get();
             } else {
-                // Agar task nahi milta, toh handle kare (optional)
-                $transitions = collect(); // Empty collection
+                $transitions = collect();
             }
             // dd($transitions->ToArray());
 
