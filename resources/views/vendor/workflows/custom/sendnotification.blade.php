@@ -19,6 +19,7 @@
                     </div>
                     <input type="hidden" name="application_id" value="{{ $element->application_id }}">
                     <input type="hidden" name="workflow_id" value="{{ $element->id }}">
+                    <input type="hidden" name="task_id" value="{{ $task_id }}">
                     <div class="col-md-12">
                         <div class="settings-footer text-right">
                             <button class="btn btn-default"

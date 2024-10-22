@@ -371,7 +371,7 @@ class UserApplicationController extends Controller
                     }
                 } else {
                     // dd($requestData, 'no');
-                    logger('else me gaya code');
+                    // logger('else me gaya code');
 
                     [$actionType, $mergedData] = $this->triggerButtonShow($requestData, $application->workFlow->id);
                     // dd($actionType);
@@ -394,7 +394,7 @@ class UserApplicationController extends Controller
 
                 $logData = Cache::get('data');
                 // $logData = Cache::get('mergedData');
-                logger($logData);
+                // logger($logData);
                 Cache::forget('data');
                 // dd($logData);
                 // Cache::forget('mergedData');
@@ -638,7 +638,6 @@ class UserApplicationController extends Controller
                 }
                 return redirect()->back();
             } else {
-                dd(12);
                 logger('No Workflow ID found for Application ID: ' . $id);
                 $fieldDatas = Field::where('application_id', $application->id)
                     ->where('status', 1)
@@ -1576,16 +1575,18 @@ class UserApplicationController extends Controller
             logger('TriggerSendMail');
             $tasksGet = Task::find($id);
 
+            // dd($id);
             if ($tasksGet->name == 'SendNotification') {
-                $triggerMail = TriggerMail::find($tasksGet->workflow_id);
+                $triggerMail = TriggerMail::where('task_id', $id)->first();
                 logger('triggerMail mil gayi');
-                logger($triggerMail);
+                // dd($triggerMail);
+                // logger($triggerMail);
                 $notification = Notification::where('active', 'Y')
                     ->where('recurring', 'instantly')
                     ->where('id', $triggerMail->notification_id)
                     ->first();
                 logger('notification mil gayi');
-                logger($notification);
+                // dd($notification);
                 $selectedGroups = [];
                 if ($notification->group_list != 'null') {
                     $groupIds = json_decode($notification->group_list);

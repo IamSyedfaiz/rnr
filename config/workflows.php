@@ -34,7 +34,7 @@ return [
         // 'Stop' => the42coders\Workflows\Tasks\ChangeModel::class,
         // 'SaveModel' => the42coders\Workflows\Tasks\SaveModel::class,
         // 'SendSlackMessage' => the42coders\Workflows\Tasks\SendSlackMessage::class,
-        'WaitForContentUpdate' => the42coders\Workflows\Tasks\TextInput::class,
+        // 'WaitForContentUpdate' => the42coders\Workflows\Tasks\TextInput::class,
     ],
 
     'task_settings' => [
@@ -84,11 +84,11 @@ return [
             // 'Stop' => the42coders\Workflows\Triggers\Stop::class,
             // 'ButtonTrigger' => the42coders\Workflows\Triggers\ButtonTrigger::class,
             // 'Start' => the42coders\Workflows\Tasks\LoadModel::class,
-            'ObserverTrigger' => the42coders\Workflows\Triggers\ObserverTrigger::class,
+            // 'ObserverTrigger' => the42coders\Workflows\Triggers\ObserverTrigger::class,
             'Start' => the42coders\Workflows\Triggers\ButtonTrigger::class,
             'Stop' => the42coders\Workflows\Tasks\LoadModel::class,
-            'TextNode' => the42coders\Workflows\Tasks\HtmlInput::class,
-            'Transition' => the42coders\Workflows\Tasks\Execute::class,
+            // 'TextNode' => the42coders\Workflows\Tasks\HtmlInput::class,
+            // 'Transition' => the42coders\Workflows\Tasks\Execute::class,
         ],
 
         'Observers' => [

@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class TriggerMail extends Model
 {
     use HasFactory;
-    protected $fillable = ['notification_id', 'Workflow_id', 'application_id'];
+    protected $fillable = ['notification_id', 'Workflow_id', 'application_id', 'task_id'];
 }
