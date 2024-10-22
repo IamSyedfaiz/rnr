@@ -67,9 +67,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('user-application/list/{id}', [UserApplicationController::class, 'userapplication_list'])->name('userapplication.list');
     Route::post('update/edit/{id}', [UserApplicationController::class, 'updateEdit'])->name('update.edit');
     Route::get('user-application/edit/{id}', [UserApplicationController::class, 'userapplication_edit'])->name('userapplication.edit');
+    Route::get('user-application/user/action/{id}/{triggerId}', [UserApplicationController::class, 'userapplication_userAction'])->name('userapplication.user.action');
     Route::post('change/forder', [AjaxController::class, 'change_forder'])->name('change.forder');
     Route::get('user-application/index/{id}', [UserApplicationController::class, 'userapplication_index'])->name('userapplication.index');
     Route::post('user-application/index/save', [UserApplicationController::class, 'userapplication_index_save'])->name('userapplication.index.save');
+
+
+
+
     Route::delete('attachment/delete/{id}', [ApplicationController::class, 'attachment_delete'])->name('attachment.delete');
 
     //import routes
@@ -93,6 +98,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/custom-workflow-evaluateRules-destroy/{id}', [CustomWorkflowController::class, 'evaluateRulesDestroy'])->name('evaluateRules.destroy');
     Route::get('/custom-workflow-UpdateContent-store', [CustomWorkflowController::class, 'UpdateContentStore'])->name('updateContent.store');
     Route::get('/custom-workflow-userAction-store', [CustomWorkflowController::class, 'userActionStore'])->name('userAction.store');
+    Route::post('/custom-workflow-transition', [CustomWorkflowController::class, 'transitionStore'])->name('transition.store');
+    Route::get('/transition-destroy/{id}', [CustomWorkflowController::class, 'transitionDestroy'])->name('transition.destroy');
+    Route::get('/workflow-logs/{id}', [CustomWorkflowController::class, 'workflowLogsShow'])->name('workflow.logs.show');
+    Route::get('/get-task/{id}', [CustomWorkflowController::class, 'getTaskByElementId'])->name('get.task');
+
+
     // IntegrationController
     Route::get('/data-feed', [IntegrationController::class, 'dataFeed'])->name('data.feed');
     Route::get('/data-imports', [IntegrationController::class, 'dataImports'])->name('data.imports');
@@ -118,7 +129,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/route-to-handle-filtered-data', [ReportController::class, 'handleFilteredDataRequest'])->name('route.to.handle');
     Route::get('/remove-from-session/{name}', [ReportController::class, 'removeFromSession'])->name('remove.from.session');
     Route::get('/remove-from-session-normal/{name}', [ReportController::class, 'removeFromSessionNormal'])->name('remove.from.session.normal');
-
 });
 Route::get('/get-file', [IntegrationController::class, 'getFile'])->name('get.file');
 Route::get('/get-csv-data', [IntegrationController::class, 'getCsvData'])->name('get.csv.data');

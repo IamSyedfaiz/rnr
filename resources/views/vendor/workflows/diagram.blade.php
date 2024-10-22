@@ -19,6 +19,10 @@
             }
         }
     </style>
+    <script>
+        var workflowId = @json($id);
+    </script>
+
 
     <script src="{{ asset('public/vendor/workflows/js/workflow.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/trix/1.2.3/trix-core.js"></script>
@@ -100,7 +104,7 @@
         editor.start();
         @if (@$workflow)
             @foreach ($workflow->tasks as $task)
-                console.log('{{ $task->name }}');
+                // console.log('{{ $task->name }}');
                 if ('{{ $task->name }}' == 'Start') {
                     var new_node = `@include('workflows::layouts.task_node_html', [
                         'elementName' => $task->name,
@@ -184,7 +188,7 @@
 
             function saveConditions(id, type) {
                 var data = $('#builder').queryBuilder('getRules');
-                // console.log(data);
+                console.log(data, 'haha');
                 $.ajax({
                     type: "POST",
                     url: "{{ route('workflow.changeConditions', ['workflow' => $workflow]) }}",
@@ -241,6 +245,7 @@
                     var parentNode = editor.getNodeByData('{{ $task->parentable->family }}_id',
                         {{ $task->parentable->id }});
 
+                    // console.log(parentNode, 'yahi hai');
                     if (parentNode) { // Check if parentNode exists
                         var node = editor.getNodeByData('task_id', {{ $task->id }});
 
@@ -346,6 +351,7 @@
             editor.on('connectionCreated', function(connection) {
                 $inputNode = editor.getNode(connection.input_id);
                 $outputNode = editor.getNode(connection.ouput_id);
+                console.log('connection');
                 console.log(connection);
                 $.ajax({
                     type: "POST",
@@ -645,19 +651,34 @@
             // }
 
             var ajaxRequest = null;
-            $(document).on('click', '.settings-button', function() {
+            $(document).on('click', '.settings-button', function(e) {
+                console.log('ab isse hi kuch ho skta hai');
+                console.log(e);
+
                 var type = $(this).data('type');
+                var nodeIdIn = $(this).data('node-id-in');
+                var nodeIdOut = $(this).data('node-id-out');
                 var elementid = $(this).data('element-id');
-                // alert(type);
+                // alert(nodeIdOut);
+                // alert(nodeIdIn);
+                var data = {
+                    type: type,
+                    element_id: elementid,
+                    _token: '{{ csrf_token() }}'
+                };
+
+                // Only include nodeIdIn if it exists
+                if (nodeIdIn) {
+                    data.node_id_in = nodeIdIn;
+                }
+                if (nodeIdOut) {
+                    data.node_id_out = nodeIdOut;
+                }
                 // alert(elementid);
                 ajaxRequest = $.ajax({
                     type: "POST",
                     url: "{{ route('workflow.getElementSettings', ['workflow' => $workflow]) }}",
-                    data: {
-                        type: type,
-                        element_id: elementid,
-                        _token: '{{ csrf_token() }}'
-                    },
+                    data: data,
                     dataType: "text",
 
                     beforeSend: function() {
@@ -666,7 +687,7 @@
                         }
                     },
                     success: function(data) {
-                        console.log("Before Send:", ajaxRequest);
+                        // console.log("Before Send:", ajaxRequest);
                         $('#settings-container').html(data);
                         $('#settings-container').fadeIn();
                     }
@@ -698,6 +719,63 @@
                     }
                 });
             }
+
+
+
+
+            function displayTextOnSVG(nodeIn, nodeOut, message) {
+                const svgClassSelector = `svg.connection.node_in_${nodeIn}.node_out_${nodeOut}`;
+
+                const svgElement = document.querySelector(svgClassSelector);
+
+                if (svgElement) {
+                    const path = svgElement.querySelector("path.main-path");
+                    const pathBBox = path.getBBox();
+                    const midX = pathBBox.x + pathBBox.width / 2;
+                    const midY = pathBBox.y + pathBBox.height / 2;
+                    const textDiv = document.createElement("div");
+                    textDiv.textContent = message;
+                    textDiv.style.position = "absolute";
+                    textDiv.style.left = `${midX}px`;
+                    textDiv.style.top = `${midY}px`;
+                    textDiv.style.transform = "translate(-50%, -50%)";
+                    textDiv.style.pointerEvents = "none";
+                    textDiv.style.color = "black";
+                    textDiv.style.backgroundColor = "white";
+                    textDiv.style.padding = "2px 5px";
+                    svgElement.parentElement.appendChild(textDiv);
+                } else {
+                    console.error(`SVG not found for nodes: ${nodeIn}, ${nodeOut}`);
+                }
+            }
+
+            var transitions = @json($transitions);
+            console.log(transitions);
+
+            function findNodeIds(transitions) {
+                transitions.forEach(transition => {
+                    var parentNode = document.querySelector(
+                        `.drawflow-node[data-task_id="${transition.parent_id}"]`);
+                    if (parentNode) {
+                        console.log(`Parent Node ID (${transition.parent_id}):`, parentNode.id);
+                    } else {
+                        console.log(`Parent Node (${transition.parent_id}) not found.`);
+                    }
+
+                    var childNode = document.querySelector(`.drawflow-node[data-task_id="${transition.child_id}"]`);
+                    if (childNode) {
+                        console.log(`Child Node ID (${transition.child_id}):`, childNode.id);
+                    } else {
+                        console.log(`Child Node (${transition.child_id}) not found.`);
+                    }
+
+                    if (parentNode && childNode) {
+                        displayTextOnSVG(childNode.id, parentNode.id, transition.condition);
+                    }
+                });
+            }
+
+            findNodeIds(transitions);
         @endif
     </script>
 </body>

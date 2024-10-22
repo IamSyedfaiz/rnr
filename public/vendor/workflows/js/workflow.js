@@ -1043,7 +1043,6 @@
                          * Class Definition
                          * ------------------------------------------------------------------------
                          */
-
                         var Carousel = /*#__PURE__*/ (function () {
                             function Carousel(element, config) {
                                 this._items = null;
@@ -50737,16 +50736,18 @@
                                             );
                                             this.node_selected = null;
                                         }
-
+                                        // console.log(this.node_selected);
                                         if (this.connection_selected != null) {
                                             this.connection_selected.classList.remove(
                                                 "selected"
                                             );
                                             this.connection_selected = null;
                                         }
+                                        // console.log(this.connection_selected);
 
                                         this.connection_selected =
                                             this.ele_selected;
+
                                         this.connection_selected.classList.add(
                                             "selected"
                                         );
@@ -50882,6 +50883,8 @@
                                 input_class,
                                 output_class
                             ) {
+                                // console.log("addConnection run");
+
                                 var connection = document.createElementNS(
                                     "http://www.w3.org/2000/svg",
                                     "svg"
@@ -50947,13 +50950,13 @@
                                         this.canvas_y + -(this.pos_y - e_pos_y);
                                     this.editor_selected = false;
                                 }
-
                                 if (this.connection === true) {
                                     if (ele_last.classList[0] === "input") {
                                         // Fix connection;
                                         var output_id =
                                             this.ele_selected.parentElement
                                                 .parentElement.id;
+
                                         var output_class =
                                             this.ele_selected.classList[1];
                                         var input_id =
@@ -51045,6 +51048,74 @@
                             key: "contextmenu",
                             value: function contextmenu(e) {
                                 e.preventDefault();
+                                console.log(
+                                    this.connection_selected
+                                        .farthestViewportElement.classList
+                                );
+                                const classList =
+                                    this.connection_selected
+                                        .farthestViewportElement.classList;
+
+                                // Convert DOMTokenList to an array and filter classes that start with 'node_in_'
+                                // Convert classList to an array and filter classes that start with 'node_in_'
+                                // Filter classes that start with 'node_in_' and 'node_out_'
+                                const nodeInClassArray = Array.from(
+                                    classList
+                                ).filter((className) =>
+                                    className.startsWith("node_in_")
+                                );
+                                const nodeOutClassArray = Array.from(
+                                    classList
+                                ).filter((className) =>
+                                    className.startsWith("node_out_")
+                                );
+
+                                // Log the filtered results
+                                console.log(nodeInClassArray);
+                                console.log(nodeOutClassArray);
+
+                                // Function to get task ID based on node class
+                                function getTaskId(nodeClassArray) {
+                                    if (nodeClassArray.length > 0) {
+                                        const nodeClass = nodeClassArray[0]; // Get the first matching class
+                                        const nodeId =
+                                            nodeClass.match(/node-\d+/)[0]; // Extract 'node-xxxx'
+                                        const nodeElement =
+                                            document.getElementById(nodeId); // Get the node element by ID
+
+                                        // Check if the element exists
+                                        if (nodeElement) {
+                                            return nodeElement.getAttribute(
+                                                "data-task_id"
+                                            ); // Return task ID
+                                        } else {
+                                            console.error(
+                                                `No element found with ID: ${nodeId}`
+                                            );
+                                            return null;
+                                        }
+                                    } else {
+                                        console.error(
+                                            `No class found that starts with "${
+                                                nodeClassArray ===
+                                                nodeInClassArray
+                                                    ? "node_in_"
+                                                    : "node_out_"
+                                            }"`
+                                        );
+                                        return null;
+                                    }
+                                }
+
+                                // Get task IDs for both node_in and node_out
+                                const taskIdIn = getTaskId(nodeInClassArray);
+                                const taskIdOut = getTaskId(nodeOutClassArray);
+
+                                // Log the task IDs
+                                console.log("Task ID In:", taskIdIn); // Output: Task ID In: 48 (or whatever the ID is)
+                                console.log("Task ID Out:", taskIdOut); // Output: Task ID Out: [value or null]
+
+                                console.log("contextmenu run");
 
                                 if (this.editor_mode === "fixed") {
                                     return false;
@@ -51070,13 +51141,13 @@
                                         document.createElement("div");
                                     deletebox.classList.add("drawflow-delete");
                                     deletebox.innerHTML = "x";
+                                    // console.log("contextmenu run");
 
                                     if (this.node_selected) {
                                         this.node_selected.appendChild(
                                             deletebox
                                         );
                                     }
-
                                     if (this.connection_selected) {
                                         deletebox.style.top =
                                             e.clientY *
@@ -51112,12 +51183,34 @@
                                     transition.className =
                                         "fas fa-cog settings-button";
                                     transition.classList.add("transitionx");
+                                    transition.setAttribute(
+                                        "data-type",
+                                        "exampleType"
+                                    );
+                                    transition.setAttribute(
+                                        "data-element-id",
+                                        workflowId
+                                    );
+                                    transition.setAttribute(
+                                        "data-node-id-in",
+                                        taskIdIn
+                                    );
+                                    transition.setAttribute(
+                                        "data-node-id-out",
+                                        taskIdOut
+                                    );
                                     transition.onclick = function (e) {
+                                        // console.log(e);
+                                        // console.log(node);
                                         if (e.view.node.data.task_id) {
                                             console.log(
                                                 e.view.node.data.task_id
                                             );
-                                            window.location.href = `workflow/transition/edit/${e.view.node.data.task_id}`;
+
+                                            // transition.style.display = "none";
+                                            // alert(e.view.node.data);
+                                            // window.location.href = `{{ route('workflow.getElementSettings', ['workflow' => e.view.node.data]) }}`;
+                                            // window.location.href = `workflow/transition/edit/${e.view.node.data.task_id}`;
                                         } else {
                                             alert("task id not found.");
                                         }
@@ -51270,6 +51363,8 @@
                                     "http://www.w3.org/2000/svg",
                                     "svg"
                                 );
+                                // console.log("drawConnection run");
+
                                 this.connection_ele = connection;
                                 var path = document.createElementNS(
                                     "http://www.w3.org/2000/svg",
@@ -51286,6 +51381,8 @@
                         {
                             key: "updateConnection",
                             value: function updateConnection(eX, eY) {
+                                // console.log("drawConnection run");
+
                                 var path = this.connection_ele.children[0];
                                 var line_x =
                                     this.ele_selected.offsetWidth / 2 +
@@ -51349,6 +51446,7 @@
                             key: "updateConnectionNodes",
                             value: function updateConnectionNodes(id) {
                                 // Aquí nos quedamos;
+
                                 var idSearch = "node_in_" + id;
                                 var idSearchOut = "node_out_" + id;
                                 var line_path = this.line_path / 2;
@@ -51562,6 +51660,7 @@
                                 html
                             ) {
                                 var _this = this;
+                                // console.log("addNode run");
 
                                 var typenode =
                                     arguments.length > 9 &&
