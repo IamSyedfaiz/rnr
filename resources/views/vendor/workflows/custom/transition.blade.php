@@ -41,10 +41,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($transitions as $index => $transition)
+                                    @foreach (@$transitions as $index => $transition)
                                         <tr class="data-row">
                                             <td>{{ $index + 1 }}</td>
-                                            <td>{{ $transition->parentTask->name }} -> {{ $transition->childTask->name }}
+                                            <td>{{ $transition->parentTask->name ?? '-' }} ->
+                                                {{ $transition->childTask->name ?? '-' }}
                                             </td>
                                             <td>{{ $transition->condition }}</td>
                                             <td>

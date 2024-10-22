@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->string('notification_id')->nullable();
             $table->string('Workflow_id')->nullable();
             $table->string('application_id')->nullable();
+            $table->string('task_id')->nullable();
             $table->timestamps();
         });
     }

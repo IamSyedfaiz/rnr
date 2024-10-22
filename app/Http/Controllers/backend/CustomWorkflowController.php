@@ -585,15 +585,18 @@ class CustomWorkflowController extends Controller
     }
     public function saveMail(Request $request)
     {
+        // dd($request->all());
         $workflowId = $request->input('workflow_id');
         $applicationId = $request->input('application_id');
         $notificationId = $request->input('notification');
+        $task_id = $request->input('task_id');
 
         // Save the data to the database
         $triggerMail = new TriggerMail();
         $triggerMail->workflow_id = $workflowId;
         $triggerMail->notification_id = $notificationId;
         $triggerMail->application_id = $applicationId;
+        $triggerMail->task_id = $task_id;
         $triggerMail->save();
 
         return redirect()->back()->with('success', 'Data saved successfully');
