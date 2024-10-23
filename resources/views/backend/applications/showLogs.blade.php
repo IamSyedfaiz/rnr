@@ -116,24 +116,29 @@
 
                     <div class="workflow-container">
                         @foreach ($myLogs as $index => $log)
-                            @if ($log->name === 'stop')
-                                <div style="margin-top: 20px;"></div>
-                                <div class="workflow-step"><br> </div>
-                            @endif
                             <div class="workflow-step">
                                 <div class="step-content my-3">
                                     <span class="step-circle">{{ $index + 1 }}</span>
                                     <span class="step-text">{{ $log->name }}</span>
                                 </div>
-                                @if (!$loop->last)
-                                    <div class="arrow">
-                                        <i class="fas fa-arrow-right"></i>
-                                    </div>
+
+                                @if (strtolower($log->name) == 'stop')
+                                    {{-- <div class="stop-text" style="font-weight: bold; color: red;">STOP</div> --}}
+                                    <div style="height: 20px;"></div>
+
+                                    <br>
+                                @else
+                                    @if (!$loop->last)
+                                        <div class="arrow">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </div>
+                                    @endif
                                 @endif
                             </div>
                         @endforeach
-                    </div>
 
+
+                    </div>
                 </div>
             </div>
         </div>

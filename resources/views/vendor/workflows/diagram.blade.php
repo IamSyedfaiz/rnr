@@ -749,7 +749,7 @@
                 }
             }
 
-            var transitions = @json($transitions);
+            var transitions = @json(@$transitions);
             console.log(transitions);
 
             function findNodeIds(transitions) {
