@@ -1265,7 +1265,9 @@ class CustomWorkflowController extends Controller
     public function workflowLogsShow($id)
     {
         try {
-            $myLogs = MyLog::where('workflow_id', $id)->get();
+            // $myLogs = MyLog::where('workflow_id', $id)->get();
+            $myLogs = MyLog::where('workflow_id', $id)->get()->groupBy('number');
+
             if (!$myLogs) {
                 return redirect()->back()->with('error', 'myLogs not found.');
             }

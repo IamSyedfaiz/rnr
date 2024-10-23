@@ -28,6 +28,7 @@ use App\Models\backend\UpdateContent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Maatwebsite\Excel\Concerns\ToArray;
+use Illuminate\Support\Str;
 
 class UserApplicationController extends Controller
 {
@@ -384,6 +385,13 @@ class UserApplicationController extends Controller
 
                 // dd($actionTypeChildren);
                 $this->logWorkflow('stop',  $application->workFlow->id);
+                $sessionNumber = session('unique_session_number');
+                if ($sessionNumber) {
+                    logger('Removing Unique Number: ' . $sessionNumber);
+                    session()->forget('unique_session_number'); // Remove the number from session
+                } else {
+                    logger('No unique number found in session.');
+                }
                 unset($mergedData['_token']);      // Remove the _token
                 unset($mergedData['transition_id']);      // Remove the _token
                 unset($mergedData['_method']);      // Remove the _token
@@ -1338,6 +1346,9 @@ class UserApplicationController extends Controller
     {
         $task = Task::where('workflow_id', $triggerId)
             ->orderBy('parentable_id', 'asc')->first();
+
+        $uniqueNumber = uniqid(); // This will create a unique ID
+        session(['unique_session_number' => $uniqueNumber]);
         $this->logWorkflow('Start', $triggerId);
 
         // $transition = Transition::find($requestData['transition_id']);
@@ -2451,10 +2462,12 @@ class UserApplicationController extends Controller
 
     private function logWorkflow($functionName, $workflowId)
     {
-        // Save the function call to the workflow log
+        $uniqueNumber = session('unique_session_number');
         MyLog::create([
             'workflow_id' => $workflowId,
             'name' => $functionName,
+            'user_id' => auth()->id(),
+            'number' => $uniqueNumber,
         ]);
         Log::info('Workflow ' . $workflowId . ': ' . $functionName . ' called');
     }
