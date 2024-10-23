@@ -15,7 +15,9 @@ return new class extends Migration {
         Schema::create('my_logs', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('workflow_id')->nullable();
+            $table->string('user_id')->nullable();
             $table->string('name')->nullable();
+            $table->string('number')->nullable();
             $table->timestamps();
             $table->foreign('workflow_id')->references('id')->on('workflows')->onDelete('cascade');
         });
