@@ -2393,17 +2393,10 @@ class UserApplicationController extends Controller
             $requestData = session('requestData');
             $application = Application::find($id);
             $workflow = Workflow::where('application_id', $id)->get();
-            // $tasks = Task::where('workflow_id', $triggerId)->get();
-            // if (@$requestData['transition_id']) {
-            $taskInfo = $requestData['transition_id'] ?? null;  // e.g., "3-1"
 
-            // logger('transitionId: ' . $transitionId);
-            // if ($transitionId) {
-            if ($taskInfo) {
-                list($taskId, $index) = explode('-', $taskInfo);
-                // dd($taskId);
-                // $transitionGet = Transition::find($requestData['transition_id']);
-                $transitionGet = Transition::find($taskId);
+            $transitionId = $requestData['transition_id'] ?? null;
+            if ($transitionId) {
+                $transitionGet = Transition::find($transitionId);
                 $filteredTasks = Task::where('workflow_id', $triggerId)
                     ->where('id', '!=', $transitionGet->task_id)
                     ->where('name', 'userAction')
@@ -2414,17 +2407,12 @@ class UserApplicationController extends Controller
                     ->where('name', 'userAction')
                     ->first();
             }
-            // $filteredTasks = Task::where('workflow_id', $triggerId)
-            //     ->where('name', 'userAction')
-            //     ->first();
-            //   dd($filteredTasks->toArray());
 
             if ($filteredTasks) {
                 $transitions = Transition::where('task_id', $filteredTasks->id)->get();
             } else {
                 $transitions = collect();
             }
-            // dd($transitions->ToArray());
 
             $users = User::latest()->get();
             $groups = Group::latest()->get();
