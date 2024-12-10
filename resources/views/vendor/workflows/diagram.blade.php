@@ -188,7 +188,7 @@
 
             function saveConditions(id, type) {
                 var data = $('#builder').queryBuilder('getRules');
-                console.log(data, 'haha');
+                // console.log(data, 'haha');
                 $.ajax({
                     type: "POST",
                     url: "{{ route('workflow.changeConditions', ['workflow' => $workflow]) }}",
@@ -351,8 +351,8 @@
             editor.on('connectionCreated', function(connection) {
                 $inputNode = editor.getNode(connection.input_id);
                 $outputNode = editor.getNode(connection.ouput_id);
-                console.log('connection');
-                console.log(connection);
+                // console.log('connection');
+                // console.log(connection);
                 $.ajax({
                     type: "POST",
                     url: "{{ route('workflow.addConnection', ['workflow' => $workflow]) }}",
@@ -362,7 +362,7 @@
                     },
                     dataType: "json",
                     success: function(data) {
-                        console.log(data);
+                        // console.log(data);
                     }
                 });
 
@@ -588,7 +588,7 @@
                     data: {},
                     dataType: "text",
                     success: function(data) {
-                        console.log(data);
+                        // console.log(data);
                         $('#settings-container').html(data);
                         $('#settings-container').fadeIn();
                     }
@@ -652,8 +652,8 @@
 
             var ajaxRequest = null;
             $(document).on('click', '.settings-button', function(e) {
-                console.log('ab isse hi kuch ho skta hai');
-                console.log(e);
+                // console.log('ab isse hi kuch ho skta hai');
+                // console.log(e);
 
                 var type = $(this).data('type');
                 var nodeIdIn = $(this).data('node-id-in');
@@ -750,23 +750,23 @@
             }
 
             var transitions = @json(@$transitions);
-            console.log(transitions);
+            // console.log(transitions);
 
             function findNodeIds(transitions) {
                 transitions.forEach(transition => {
                     var parentNode = document.querySelector(
                         `.drawflow-node[data-task_id="${transition.parent_id}"]`);
                     if (parentNode) {
-                        console.log(`Parent Node ID (${transition.parent_id}):`, parentNode.id);
+                        // console.log(`Parent Node ID (${transition.parent_id}):`, parentNode.id);
                     } else {
-                        console.log(`Parent Node (${transition.parent_id}) not found.`);
+                        // console.log(`Parent Node (${transition.parent_id}) not found.`);
                     }
 
                     var childNode = document.querySelector(`.drawflow-node[data-task_id="${transition.child_id}"]`);
                     if (childNode) {
-                        console.log(`Child Node ID (${transition.child_id}):`, childNode.id);
+                        // console.log(`Child Node ID (${transition.child_id}):`, childNode.id);
                     } else {
-                        console.log(`Child Node (${transition.child_id}) not found.`);
+                        // console.log(`Child Node (${transition.child_id}) not found.`);
                     }
 
                     if (parentNode && childNode) {

@@ -101,120 +101,95 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
+
+
     <main id="main" class="main">
-
-        <div class="container-fluid pt-4 px-4">
-            <div class="bg-light text-start rounded p-4">
-                <div class="d-flex align-items-center justify-content-between mb-4">
-                    {{-- <h6 class="mb-0">Application Create</h6> --}}
-
+        <div class="pagetitle">
+            <div class="row">
+                <div class="col-md-6">
+                    <h1>Workflow Path</h1>
                 </div>
-                <div class="bg-light rounded h-100 p-4">
-                    {{-- <h6 class="mb-4">work flow path</h6>
-                    @foreach ($myLogs as $log)
-                        {{ $log->name }}---------->>
-                    @endforeach --}}
-
-                    <h6 class="mb-4">Workflow Path</h6>
-
-                    <div class="workflow-container">
-                        {{-- @foreach ($myLogs as $index => $log)
-                            <div class="workflow-step">
-                                <div class="step-content my-3">
-                                    <span class="step-circle">{{ $index + 1 }}</span>
-                                    <span class="step-text">{{ $log->name }}</span>
-                                </div>
-
-
-                                @if (!$loop->last)
-                                    <div class="arrow">
-                                        <i class="fas fa-arrow-right"></i>
-                                    </div>
-                                @endif
-                            </div>
-                        @endforeach --}}
-                        {{-- @foreach ($myLogs as $uniqueNumber => $logs)
-                            <div class="workflow-step">
-                                @foreach ($logs as $index => $log)
-                                    <div class="step-content my-3">
-                                        <span class="step-circle">{{ $index + 1 }}</span>
-                                        <span class="step-text">{{ $log->name }}</span>
-                                    </div>
-
-
-                                    @if (!$loop->last)
-                                        <div class="arrow">
-                                            <i class="fas fa-arrow-right"></i>
-                                        </div>
-                                    @endif
-                                @endforeach
-                            </div>
-                        @endforeach --}}
-
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>User Name</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($myLogs as $uniqueNumber => $logs)
+            </div>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
+                    <li class="breadcrumb-item ">Applications</li>
+                    <li class="breadcrumb-item active">Workflow Path</li>
+                </ol>
+            </nav>
+        </div><!-- End Page Title -->
+        <section class="section dashboard">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body mt-3">
+                            <!-- Table with stripped rows -->
+                            <table class="table datatable">
+                                <thead>
                                     <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $logs->first()->user->name ?? 'Unknown User' }}</td> <!-- Show user name -->
-                                        <td>
-                                            <!-- Button to trigger modal -->
-                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-                                                data-target="#logModal{{ $uniqueNumber }}">
-                                                Show
-                                            </button>
-                                        </td>
+                                        <th>#</th>
+                                        <th>User Name</th>
+                                        <th>Action</th>
                                     </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($myLogs as $uniqueNumber => $logs)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $logs->first()->user->name ?? 'Unknown User' }}</td>
+                                            <!-- Show user name -->
+                                            <td>
+                                                <!-- Button to trigger modal -->
+                                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                                                    data-target="#logModal{{ $uniqueNumber }}">
+                                                    Show
+                                                </button>
+                                            </td>
+                                        </tr>
 
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="logModal{{ $uniqueNumber }}" tabindex="-1" role="dialog"
-                                        aria-labelledby="logModalLabel{{ $uniqueNumber }}" aria-hidden="true">
-                                        <div class="modal-dialog" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="logModalLabel{{ $uniqueNumber }}">
-                                                        {{ $logs->first()->user->name ?? 'Unknown User' }}</h5>
-                                                    <button type="button" class="close" data-dismiss="modal"
-                                                        aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <!-- Display log details inside the modal -->
-                                                    @foreach ($logs as $index => $log)
-                                                        <div class="step-content my-3">
-                                                            <span class="step-circle">{{ $index + 1 }}</span>
-                                                            <span class="step-text">{{ $log->name }}</span>
-                                                            @if (!$loop->last)
-                                                                <i class="fas fa-arrow-right" style="margin-left: 5px;"></i>
-                                                                <!-- Add arrow after each name -->
-                                                            @endif
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary"
-                                                        data-dismiss="modal">Close</button>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="logModal{{ $uniqueNumber }}" tabindex="-1"
+                                            role="dialog" aria-labelledby="logModalLabel{{ $uniqueNumber }}"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="logModalLabel{{ $uniqueNumber }}">
+                                                            {{ $logs->first()->user->name ?? 'Unknown User' }}</h5>
+                                                        {{-- <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button> --}}
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <!-- Display log details inside the modal -->
+                                                        @foreach ($logs as $index => $log)
+                                                            <div class="step-content my-3">
+                                                                <span class="step-circle">{{ $index + 1 }}</span>
+                                                                <span class="step-text">{{ $log->name }}</span>
+                                                                @if (!$loop->last)
+                                                                    <i class="fas fa-arrow-right"
+                                                                        style="margin-left: 5px;"></i>
+                                                                    <!-- Add arrow after each name -->
+                                                                @endif
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-dismiss="modal">Close</button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                @endforeach
-                            </tbody>
-                        </table>
-
-
-
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            <!-- End Table with stripped rows -->
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </main>
 @endsection

@@ -30,7 +30,7 @@
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                    <li class="breadcrumb-item active">Application </li>
+                    <li class="breadcrumb-item active">Application</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -47,7 +47,7 @@
 
                                 @if (!empty($transitions) && $transitions->isNotEmpty())
                                     <div class="mb-3 text-start col-3">
-                                        <label for="transition_id" class="col-form-label fw-bold text-left ">transition Node
+                                        <label for="transition_id" class="col-form-label fw-bold text-left ">Action
                                         </label>
                                         <select name="transition_id" id="transition_id" class="form-control">
                                             @foreach (@$transitions as $index => $transition)
@@ -57,28 +57,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    {{-- <div class="mb-3 text-start col-3">
-                                        @foreach (@$transitions as $transition)
-                                            <button type="submit"
-                                                class="btn btn-primary">{{ $transition->condition }}</button>
-                                        @endforeach
-                                    </div> --}}
                                 @endif
-
-                                {{-- @if (@$filteredTasks)
-                                    <input type="text" name="task_id" id="" value="{{ $filteredTasks->id }}">
-                                @endif --}}
-                                {{-- <div class="mb-3 text-start col-3">
-                                    <label for="message-text" class="col-form-label fw-bold text-left ">transition Node
-                                    </label>
-                                    <select name="transition" id="" class="form-control">
-                                        @foreach (@$transitions as $transition)
-                                            <option value="{{ $transition->id }}">
-                                                {{ $transition->condition }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div> --}}
 
                                 @foreach ($fields as $item)
                                     @if ($item->type == 'date')
@@ -161,7 +140,8 @@
                                                     id="" @if ($item->requiredfield == 1) required @endif>
                                                     <option value="">Select Option</option>
                                                     @foreach ($valuelist as $item1)
-                                                        <option value="{{ $item1 }}">
+                                                        <option value="{{ $item1 }}"
+                                                            {{ old($item->name, $requestData[$item->name] ?? '') == $item1 ? 'selected' : '' }}>
                                                             {{ $item1 }}</option>
                                                     @endforeach
                                                 </select>

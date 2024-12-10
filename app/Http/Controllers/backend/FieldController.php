@@ -59,23 +59,27 @@ class FieldController extends Controller
         //     'name.required' => 'The name field is required.',
         //     'name.unique' => 'The name field must be unique.',
         // ];
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:fields',
-            'type' => 'required',
-            'status' => 'required',
-            'requiredfield' => 'nullable',
-            'requireuniquevalue' => 'nullable',
-            'keyfield' => 'nullable',
-            'access' => 'required',
-            'application_id' => 'required',
-        ], [
-            'name.required' => 'The name field is required.',
-            'name.unique' => 'This name has already been taken.',
-            'type.required' => 'The type field is required.',
-            'status.required' => 'The status field is required.',
-            'access.required' => 'The access field is required.',
-            'application_id.required' => 'The application ID is required.',
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'name' => 'required|unique:fields',
+                'type' => 'required',
+                'status' => 'required',
+                'requiredfield' => 'nullable',
+                'requireuniquevalue' => 'nullable',
+                'keyfield' => 'nullable',
+                'access' => 'required',
+                'application_id' => 'required',
+            ],
+            [
+                'name.required' => 'The name field is required.',
+                'name.unique' => 'This name has already been taken.',
+                'type.required' => 'The type field is required.',
+                'status.required' => 'The status field is required.',
+                'access.required' => 'The access field is required.',
+                'application_id.required' => 'The application ID is required.',
+            ],
+        );
 
         try {
             $data = $validator->validate();
@@ -306,6 +310,7 @@ class FieldController extends Controller
         unset($data['_token']);
         unset($data['_method']);
         unset($data['groups']);
+        // dd($data, 'this');
 
         if ($request->valuelistvalue) {
             # code...
@@ -317,6 +322,21 @@ class FieldController extends Controller
             # code...
             unset($data['user_list']);
             $data['user_list'] = json_encode($request->user_list);
+        }
+        if ($request->requiredfield) {
+            $data['requiredfield'] = 1;
+        } else {
+            $data['requiredfield'] = 0;
+        }
+        if ($request->requireuniquevalue) {
+            $data['requireuniquevalue'] = 1;
+        } else {
+            $data['requireuniquevalue'] = 0;
+        }
+        if ($request->keyfield) {
+            $data['keyfield'] = 1;
+        } else {
+            $data['keyfield'] = 0;
         }
 
         if ($request->group_list) {
