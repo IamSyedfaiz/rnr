@@ -85,7 +85,7 @@
                                 <td>1</td>
                                 <td>
                                     <select class="form-control" name="field_id[]">
-                                        <option value="">Select field</option>
+                                        <option value="">Select field </option>
                                         @foreach ($fields as $item)
                                             <option value="{{ $item->id }}">
                                                 {{ $item->name }}
