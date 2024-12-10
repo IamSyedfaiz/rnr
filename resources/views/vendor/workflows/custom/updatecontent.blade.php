@@ -46,7 +46,7 @@
                                         @foreach ($fields as $item)
                                             <option value="{{ $item->name }}" data-type="{{ $item->type }}"
                                                 data-valuelist="{{ $item->valuelistvalue }}">
-                                                {{ $item->name }} ({{ $item->type }})
+                                                {{ $item->name }}
                                             </option>
                                         @endforeach
                                     </select>
